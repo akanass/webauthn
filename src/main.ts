@@ -27,39 +27,41 @@ async function bootstrap(config: ServerConfig, views: ViewsConfig, assets: Asset
     await app.register(helmet);
   }
 
-  // use global pipe validation
-  app.useGlobalPipes(
-    new ValidationPipe(Object.assign({}, pipes.validation)),
-  );
-
-  // set static assets
+  // declare all constants for plugins registration
   const assetsRootPath = join(__dirname, assets.rootPath);
-  app.useStaticAssets(Object.assign({}, assets.options, {
-    root: assetsRootPath,
-  }));
-
-  // use node-sass-middleware when /public/css is requested
   const scssCompilerDest = join(assetsRootPath, assets.styleCompiler.outFolder);
-  app.use(assets.styleCompiler.requestPathToExecute, SassMiddleware(Object.assign({}, assets.styleCompiler.options, {
-    src: join(__dirname, assets.styleCompiler.scssPath),
-    dest: scssCompilerDest,
-    outFile: join(scssCompilerDest, assets.styleCompiler.outFile),
-    error: (err) => Logger.error(err.message, 'node-sass-middleware'),
-  })));
+  const scssRootPath = join(__dirname, assets.styleCompiler.scssPath);
 
-  // set view engine
-  app.setViewEngine({
-    engine: {
-      handlebars: Handlebars,
-    },
-    templates: join(__dirname, views.templatesPath),
-    layout: views.layout,
-    includeViewExtension: views.includeViewExtension,
-    options: Object.assign({}, views.engineOptions, { useHtmlMinifier: HtmlMinifier }),
-    defaultContext: Object.assign({}, views.defaultContext, {
-      assetsPrefix: assets.options.prefix,
-    }),
-  });
+  // register all plugins
+  app
+    // use global pipe validation
+    .useGlobalPipes(
+      new ValidationPipe(Object.assign({}, pipes.validation)),
+    )
+    // set static assets
+    .useStaticAssets(Object.assign({}, assets.options, {
+      root: assetsRootPath,
+    }))
+    // use node-sass-middleware when /public/css is requested
+    .use(assets.styleCompiler.requestPathToExecute, SassMiddleware(Object.assign({}, assets.styleCompiler.options, {
+      src: scssRootPath,
+      dest: scssCompilerDest,
+      outFile: join(scssCompilerDest, assets.styleCompiler.outFile),
+      error: (err) => Logger.error(err.message, 'node-sass-middleware'),
+    })))
+    // set view engine
+    .setViewEngine({
+      engine: {
+        handlebars: Handlebars,
+      },
+      templates: join(__dirname, views.templatesPath),
+      layout: views.layout,
+      includeViewExtension: views.includeViewExtension,
+      options: Object.assign({}, views.engineOptions, { useHtmlMinifier: HtmlMinifier }),
+      defaultContext: Object.assign({}, views.defaultContext, {
+        assetsPrefix: assets.options.prefix,
+      }),
+    });
 
   // launch server
   await app.listen(config.port, config.host);

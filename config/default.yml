@@ -40,8 +40,8 @@ assets:
       outputStyle: compressed
       response: false
       sourceMap: true
-      sourceMapEmbed: true
-      debug: false
+      sourceMapContents: true
+      debug: true
 pipes:
   validation:
     whitelist: true

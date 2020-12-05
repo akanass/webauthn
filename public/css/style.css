@@ -1,10 +1,3 @@
-html, body {
-    padding: 0;
-    margin: 0;
-}
+html,body{padding:0;margin:0}body{font-family:'Open Sans', sans-serif;background-color:#FAFAFA;-webkit-font-smoothing:antialiased}
 
-body {
-    font-family: 'Open Sans', sans-serif;
-    background-color: #FAFAFA;
-    -webkit-font-smoothing: antialiased;
-}
+/*# sourceMappingURL=data:application/json;base64,ewoJInZlcnNpb24iOiAzLAoJImZpbGUiOiAic3R5bGUuY3NzIiwKCSJzb3VyY2VzIjogWwoJCSIuLi8uLi9zdGF0aWMvc2Nzcy9zdHlsZS5zY3NzIiwKCQkiLi4vLi4vc3RhdGljL3Njc3MvX2xheW91dC5zY3NzIgoJXSwKCSJuYW1lcyI6IFtdLAoJIm1hcHBpbmdzIjogIkFDQUEsQUFBQSxJQUFJLENBQUUsSUFBSSxBQUFDLENBQ1QsT0FBTyxDQUFFLENBQUMsQ0FDVixNQUFNLENBQUUsQ0FBQyxDQUNWLEFBRUQsQUFBQSxJQUFJLEFBQUMsQ0FDSCxXQUFXLENBQUUsdUJBQXVCLENBQ3BDLGdCQUFnQixDQUFFLE9BQU8sQ0FDekIsc0JBQXNCLENBQUUsV0FBVyxDQUNwQyIKfQ== */

@@ -3,53 +3,62 @@ import { AppModule } from './app.module';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ServerConfig } from './interfaces/server-config.interface';
-import * as Config from 'config';
+import { ViewsConfig } from './interfaces/views-config.interface';
+import { AssetsConfig } from './interfaces/assets-config.interface';
+import { PipesConfig } from './interfaces/pipes-config.interface';
 import { join } from 'path';
+import * as helmet from 'fastify-helmet';
+import * as Config from 'config';
+import * as SassMiddleware from 'node-sass-middleware';
+import * as Handlebars from 'handlebars';
+import * as HtmlMinifier from 'html-minifier';
 
-async function bootstrap(config: ServerConfig) {
+async function bootstrap(config: ServerConfig, views: ViewsConfig, assets: AssetsConfig, pipes: PipesConfig) {
+  // create NestJS application
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter({ logger: true }),
+    new FastifyAdapter(Object.assign({}, config.options)),
   );
+
+  // register helmet security plugin when SSL is enabled
+  if (!!config.isSSL) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    await app.register(helmet);
+  }
 
   // use global pipe validation
   app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-    }),
+    new ValidationPipe(Object.assign({}, pipes.validation)),
   );
 
   // set static assets
-  app.useStaticAssets({
-    root: join(__dirname, config.assets.rootPath),
-    prefix: config.assets.prefix,
-  });
+  const assetsRootPath = join(__dirname, assets.rootPath);
+  app.useStaticAssets(Object.assign({}, assets.options, {
+    root: assetsRootPath,
+  }));
+
+  // use node-sass-middleware when /public/css is requested
+  const scssCompilerDest = join(assetsRootPath, assets.styleCompiler.outFolder);
+  app.use(assets.styleCompiler.requestPathToExecute, SassMiddleware(Object.assign({}, assets.styleCompiler.options, {
+    src: join(__dirname, assets.styleCompiler.scssPath),
+    dest: scssCompilerDest,
+    outFile: join(scssCompilerDest, assets.styleCompiler.outFile),
+    error: (err) => Logger.error(err.message, 'node-sass-middleware'),
+  })));
 
   // set view engine
   app.setViewEngine({
     engine: {
-      handlebars: require('handlebars'),
+      handlebars: Handlebars,
     },
-    templates: join(__dirname, config.views.templatesPath),
-    layout: config.views.layout,
-    includeViewExtension: true,
-    options: {
-      async: true,
-      useHtmlMinifier: require('html-minifier'),
-      htmlMinifierOptions: {
-        removeComments: true,
-        removeCommentsFromCDATA: true,
-        collapseWhitespace: true,
-        collapseBooleanAttributes: true,
-        removeEmptyAttributes: true,
-        minifyCSS: true,
-        minifyJS: true,
-      },
-    },
-    defaultContext: {
-      title: config.views.title,
-    }
+    templates: join(__dirname, views.templatesPath),
+    layout: views.layout,
+    includeViewExtension: views.includeViewExtension,
+    options: Object.assign({}, views.engineOptions, { useHtmlMinifier: HtmlMinifier }),
+    defaultContext: Object.assign({}, views.defaultContext, {
+      assetsPrefix: assets.options.prefix,
+    }),
   });
 
   // launch server
@@ -57,4 +66,9 @@ async function bootstrap(config: ServerConfig) {
   Logger.log(`Application served at ${config.protocol}://${config.host}:${config.port}`, 'bootstrap');
 }
 
-bootstrap(Config.get<ServerConfig>('server'));
+bootstrap(
+  Config.get<ServerConfig>('server'),
+  Config.get<ViewsConfig>('views'),
+  Config.get<AssetsConfig>('assets'),
+  Config.get<PipesConfig>('pipes'),
+);

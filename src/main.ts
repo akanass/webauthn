@@ -11,7 +11,7 @@ import * as helmet from 'fastify-helmet';
 import * as Config from 'config';
 import * as SassMiddleware from 'node-sass-middleware';
 import * as Handlebars from 'handlebars';
-import * as HtmlMinifier from 'html-minifier';
+import * as HtmlMinifier from 'html-minifier-terser';
 
 async function bootstrap(config: ServerConfig, views: ViewsConfig, assets: AssetsConfig, pipes: PipesConfig) {
   // create NestJS application
@@ -61,6 +61,8 @@ async function bootstrap(config: ServerConfig, views: ViewsConfig, assets: Asset
       defaultContext: Object.assign({}, views.defaultContext, {
         assetsPrefix: assets.options.prefix,
       }),
+      maxCache: assets.options.maxAge,
+      production: process.env.NODE_ENV === 'production'
     });
 
   // launch server

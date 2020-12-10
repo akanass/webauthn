@@ -4,5 +4,5 @@
     "declaration": false,
     "sourceMap": false
   },
-  "exclude": ["node_modules", "test", "dist", "**/*spec.ts", "rollup.config.ts", "static/ts"]
+  "exclude": ["node_modules", "test", "dist", "**/*spec.ts", "rollup.*.ts", "static/ts"]
 }

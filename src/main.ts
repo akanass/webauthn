@@ -9,7 +9,6 @@ import { PipesConfig } from './interfaces/pipes-config.interface';
 import { join } from 'path';
 import * as helmet from 'fastify-helmet';
 import * as Config from 'config';
-import * as SassMiddleware from 'node-sass-middleware';
 import * as Handlebars from 'handlebars';
 import * as HtmlMinifier from 'html-minifier-terser';
 
@@ -27,11 +26,6 @@ async function bootstrap(config: ServerConfig, views: ViewsConfig, assets: Asset
     await app.register(helmet);
   }
 
-  // declare all constants for plugins registration
-  const assetsRootPath = join(__dirname, assets.rootPath);
-  const scssCompilerDest = join(assetsRootPath, assets.styleCompiler.outFolder);
-  const scssRootPath = join(__dirname, assets.styleCompiler.scssPath);
-
   // register all plugins
   app
     // use global pipe validation
@@ -40,15 +34,8 @@ async function bootstrap(config: ServerConfig, views: ViewsConfig, assets: Asset
     )
     // set static assets
     .useStaticAssets(Object.assign({}, assets.options, {
-      root: assetsRootPath,
+      root: join(__dirname, assets.rootPath),
     }))
-    // use node-sass-middleware when /public/css is requested
-    .use(assets.styleCompiler.requestPathToExecute, SassMiddleware(Object.assign({}, assets.styleCompiler.options, {
-      src: scssRootPath,
-      dest: scssCompilerDest,
-      outFile: join(scssCompilerDest, assets.styleCompiler.outFile),
-      error: (err) => Logger.error(err.message, 'node-sass-middleware'),
-    })))
     // set view engine
     .setViewEngine({
       engine: {
@@ -58,11 +45,8 @@ async function bootstrap(config: ServerConfig, views: ViewsConfig, assets: Asset
       layout: views.layout,
       includeViewExtension: views.includeViewExtension,
       options: Object.assign({}, views.engineOptions, { useHtmlMinifier: HtmlMinifier }),
-      defaultContext: Object.assign({}, views.defaultContext, {
-        assetsPrefix: assets.options.prefix,
-      }),
-      maxCache: assets.options.maxAge,
-      production: process.env.NODE_ENV === 'production'
+      defaultContext: Object.assign({}, views.defaultContext),
+      production: process.env.NODE_ENV === 'production',
     });
 
   // launch server

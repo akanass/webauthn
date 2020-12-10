@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{title}}</title>
+  <base href="/">
+  <meta name="viewport" content="minimum-scale=1,initial-scale=1,width=device-width,shrink-to-fit=no">
+
+  <link rel="shortcut icon" href="/public/img/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/public/img/favicon.png" type="image/png">
+  <link rel="icon" sizes="32x32" href="/public/img/favicon-32.png" type="image/png">
+  <link rel="icon" sizes="64x64" href="/public/img/favicon-64.png" type="image/png">
+  <link rel="icon" sizes="96x96" href="/public/img/favicon-96.png" type="image/png">
+  <link rel="icon" sizes="196x196" href="/public/img/favicon-196.png" type="image/png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/public/img/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/public/img/apple-touch-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/public/img/apple-touch-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/public/img/apple-touch-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/public/img/apple-touch-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/public/img/apple-touch-icon-144x144.png">
+  <meta name="msapplication-TileImage" content="/public/img/favicon-144.png">
+  <meta name="msapplication-TileColor" content="#FFFFFF">
+
+  <link rel="stylesheet" href="/public/css/style-69b6e694.css" media="screen"> <!--TODO make it dynamic with metadata retrieved during build process-->
+</head>
+<body>
+  <!--  app start -->
+  {{{body}}}
+  <!--  app end -->
+
+  <!-- Load scripts for current page -->
+  {{#if script.es}}
+    <script type="module" src="/public/js/es/{{script.es}}"></script>
+  {{/if}}
+  {{#if script.system}}
+    <!-- Load vendor SystemJS scripts -->
+    <script src="/public/js/vendor-1cb60f74.min.js"></script> <!--TODO make it dynamic with metadata retrieved during build process-->
+    <script nomodule>
+      System.import('/public/js/system/{{script.system}}');
+    </script>
+  {{/if}}
+</body>
+</html>

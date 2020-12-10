@@ -52,6 +52,7 @@ rollup:
     input: static/js/vendor.js
     output:
       dir: public/js
+      format: iife
       entryFileNames: '[name]-[hash].min.js'
   scss:
     input: static/scss/style.scss

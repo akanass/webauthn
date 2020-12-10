@@ -6,7 +6,7 @@ server:
   options:
     logger: true
 views:
-  templatesPath: ../static/views
+  templatesPath: ../views
   layout: _layout
   includeViewExtension: true
   engineOptions:
@@ -29,20 +29,56 @@ assets:
     etag: true
     acceptRanges: true
     lastModified: true
-    immutable: true
     maxAge: 86400000
-  styleCompiler:
-    requestPathToExecute: /public/css
-    scssPath: ../static/scss
-    outFile: style.css
-    outFolder: css
-    options:
-      outputStyle: compressed
-      response: false
-      sourceMap: true
-      sourceMapContents: true
-      debug: true
 pipes:
   validation:
     whitelist: true
     forbidNonWhitelisted: true
+
+rollup:
+  app:
+    input:
+      - static/ts/login.ts
+    output:
+      - dir: public/js
+        format: es
+        entryFileNames: '[format]/[name]-[hash].min.mjs'
+        chunkFileNames: '[format]/[name]-[hash].min.mjs'
+      - dir: public/js
+        format: system
+        entryFileNames: '[format]/[name]-[hash].min.js'
+        chunkFileNames: '[format]/[name]-[hash].min.js'
+  vendor:
+    input: static/js/vendor.js
+    output:
+      dir: public/js
+      entryFileNames: '[name]-[hash].min.js'
+  scss:
+    input: static/scss/style.scss
+    output:
+      dir: public/css
+      assetFileNames: '[name]-[hash][extname]'
+  options:
+    scss:
+      mode: extract
+      sass:
+        impl: sass
+        fibers: false
+        sync: true
+      minimize: true
+    clear:
+      js:
+        targets: public/js/**/*.{js,mjs}
+      css:
+        before:
+          targets: public/css/*
+        after:
+          targets: public/css/*.js
+          hook: writeBundle
+    typescript:
+      tsconfig: tsconfig.browser.json
+    nodeResolve:
+      mainFields:
+        - jsnext:main
+        - module
+        - main

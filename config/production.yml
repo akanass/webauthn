@@ -1,7 +1,0 @@
-assets:
-  styleCompiler:
-    options:
-      response: true
-      sourceMap: false
-      sourceMapContents: false
-      debug: false

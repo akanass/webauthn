@@ -6,10 +6,10 @@ import * as deepmerge from 'deepmerge';
 import { join } from 'path';
 
 const metadata: Plugin = () => {
-  const destination: string = join(__dirname, 'src/metadata.json');
   return {
     name: 'metadata',
     writeBundle: async (options: NormalizedOutputOptions, bundle: OutputBundle) => {
+      const destination: string = join(__dirname, 'src/metadata.json');
       await from(Object.values(bundle))
         .pipe(
           filter((_: OutputAsset | OutputChunk) => 'isEntry' in _ ? !!_.isEntry && !_.exports.length : true),

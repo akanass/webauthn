@@ -2,6 +2,9 @@
 /dist
 /node_modules
 
+# ssl
+/ssl/*.p12
+
 # Logs
 logs
 *.log

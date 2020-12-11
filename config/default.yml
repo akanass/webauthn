@@ -1,10 +1,17 @@
 server:
-  protocol: http
+  protocol:
+    normal: http
+    secure: https
   host: 0.0.0.0
   port: 3000
-  isSSL: false
+  isSSL: true
   options:
-    logger: true
+    - name: logger
+      value: true
+    - name: https
+      value:
+        pfx:
+          path: ../ssl/ssl.p12
 views:
   templatesPath: ../views
   layout: _layout

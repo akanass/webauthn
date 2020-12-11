@@ -12,12 +12,40 @@ import * as Config from 'config';
 import * as Handlebars from 'handlebars';
 import * as HtmlMinifier from 'html-minifier-terser';
 import * as metadata from './metadata.json';
+import * as fs from 'fs-extra';
 
 async function bootstrap(config: ServerConfig, views: ViewsConfig, assets: AssetsConfig, pipes: PipesConfig) {
   // create NestJS application
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(Object.assign({}, config.options)),
+    new FastifyAdapter(
+      Object.assign(
+        {},
+        config.options
+          .filter(_ => !(!config.isSSL && _.name === 'https'))
+          .reduce((options, curr) =>
+            Object.assign(
+              options,
+              {
+                [ curr.name ]: (
+                  curr.name === 'https' ?
+                    Object.keys(curr.value)
+                      .reduce((opt, optKey) =>
+                        Object.assign(
+                          opt,
+                          {
+                            [ optKey ]:
+                              !!curr.value[ optKey ].path ?
+                                fs.readFileSync(join(__dirname, curr.value[ optKey ].path)) :
+                                curr.value[ optKey ],
+                          },
+                        ), {}) :
+                    curr.value
+                ),
+              },
+            ), {}),
+      ),
+    ),
   );
 
   // register helmet security plugin when SSL is enabled
@@ -52,7 +80,7 @@ async function bootstrap(config: ServerConfig, views: ViewsConfig, assets: Asset
 
   // launch server
   await app.listen(config.port, config.host);
-  Logger.log(`Application served at ${config.protocol}://${config.host}:${config.port}`, 'bootstrap');
+  Logger.log(`Application served at ${!!config.isSSL ? config.protocol.secure : config.protocol.normal}://${config.host}:${config.port}`, 'bootstrap');
 }
 
 bootstrap(

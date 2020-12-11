@@ -25,6 +25,7 @@
           - main
     - name: json
     - name: terser
+    - name: metadata
 - input: static/js/vendor.js
   output:
     dir: public/js
@@ -40,6 +41,7 @@
           - main
     - name: json
     - name: terser
+    - name: metadata
 - input: static/scss/style.scss
   output:
     dir: public/css
@@ -60,3 +62,4 @@
       api:
         targets: public/css/*.js
         hook: writeBundle
+    - name: metadata

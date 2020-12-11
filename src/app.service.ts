@@ -19,13 +19,34 @@ export class AppService {
    * Returns page's metadata - translations and scripts names
    *
    * @param {string} page - current rendered page
+   *
+   * @return {any} page's metadata - translations and scripts names
    */
   getMetadata(page: string): any {
-    return Object.assign({}, this._i18n[page], {
+    return Object.assign({}, this._i18n[ page ], {
       script: {
-        es: metadata.es[page],
-        system: metadata.system[page]
-      }
+        es: metadata.es[ page ],
+        system: metadata.system[ page ],
+      },
     });
+  }
+
+  /**
+   * Returns the query string prefixed by ? or an empty string
+   *
+   * @param {any} queryObject - object with key/value pair to build the final query string
+   *
+   * @return {string} the query string prefixed by ? or an empty string
+   */
+  buildQueryString(queryObject: any): string {
+    return !!Object.keys(queryObject).length ?
+      [
+        '?',
+        Object
+          .keys(queryObject)
+          .reduce((acc, curr) => acc.concat(`${curr}=${queryObject[ curr ]}`), [])
+          .join('&'),
+      ].join('') :
+      '';
   }
 }

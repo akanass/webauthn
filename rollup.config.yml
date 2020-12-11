@@ -12,7 +12,7 @@
   plugins:
     - name: del
       api:
-        targets: public/js/**/*.{js,mjs}
+        targets: public/js/{es,system}/*.{js,mjs}
     - name: typescript
       api:
         tsconfig: tsconfig.browser.json
@@ -32,6 +32,9 @@
     format: iife
     entryFileNames: '[name]-[hash].min.js'
   plugins:
+    - name: del
+      api:
+        targets: public/js/vendor*
     - name: commonjs
     - name: nodeResolve
       api:

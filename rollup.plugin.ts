@@ -5,8 +5,8 @@ import * as fs from 'fs-extra';
 import * as deepmerge from 'deepmerge';
 import { join } from 'path';
 
-const metadata: Plugin = (opts: Options) => {
-  const destination: string = join(__dirname, !!opts.destination ? opts.destination : 'src/metadata.json');
+const metadata: Plugin = () => {
+  const destination: string = join(__dirname, 'src/metadata.json');
   return {
     name: 'metadata',
     writeBundle: async (options: NormalizedOutputOptions, bundle: OutputBundle) => {
@@ -49,7 +49,3 @@ const metadata: Plugin = (opts: Options) => {
 };
 
 export { metadata };
-
-export interface Options {
-  destination: string;
-}

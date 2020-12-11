@@ -7,7 +7,7 @@ export class AppController {
   }
 
   @Get()
-  getHello(@Res() res) {
-    return res.view('home', this.appService.getHello());
+  getLogin(@Res() res) {
+    return res.view('login', this.appService.getMetadata('login'));
   }
 }

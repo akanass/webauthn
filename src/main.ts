@@ -11,6 +11,7 @@ import * as helmet from 'fastify-helmet';
 import * as Config from 'config';
 import * as Handlebars from 'handlebars';
 import * as HtmlMinifier from 'html-minifier-terser';
+import * as metadata from './metadata.json';
 
 async function bootstrap(config: ServerConfig, views: ViewsConfig, assets: AssetsConfig, pipes: PipesConfig) {
   // create NestJS application
@@ -45,7 +46,7 @@ async function bootstrap(config: ServerConfig, views: ViewsConfig, assets: Asset
       layout: views.layout,
       includeViewExtension: views.includeViewExtension,
       options: Object.assign({}, views.engineOptions, { useHtmlMinifier: HtmlMinifier }),
-      defaultContext: Object.assign({}, views.defaultContext),
+      defaultContext: Object.assign({}, views.defaultContext, { vendor: metadata.vendor, style: metadata.style }),
       production: process.env.NODE_ENV === 'production',
     });
 

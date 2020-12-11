@@ -21,7 +21,7 @@
   <meta name="msapplication-TileImage" content="/public/img/favicon-144.png">
   <meta name="msapplication-TileColor" content="#FFFFFF">
 
-  <link rel="stylesheet" href="/public/css/style-69b6e694.css" media="screen"> <!--TODO make it dynamic with metadata retrieved during build process-->
+  <link rel="stylesheet" href="/public/css/{{style}}" media="screen">
 </head>
 <body>
   <!--  app start -->
@@ -34,7 +34,7 @@
   {{/if}}
   {{#if script.system}}
     <!-- Load vendor SystemJS scripts -->
-    <script src="/public/js/vendor-e9bf8950.min.js"></script> <!--TODO make it dynamic with metadata retrieved during build process-->
+    <script src="/public/js/{{vendor}}"></script>
     <script nomodule>
       System.import('/public/js/system/{{script.system}}');
     </script>

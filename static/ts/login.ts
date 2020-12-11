@@ -13,6 +13,4 @@ checkSupported.addEventListener('click', () => import('./_webauthn').then(({webA
   } else {
     unsupported.style.display = 'block';
   }
-
-  console.log('SUPPORTED =>', webAuthn.supported);
 }));

@@ -74,7 +74,7 @@ async function bootstrap(config: ServerConfig, views: ViewsConfig, assets: Asset
       layout: views.layout,
       includeViewExtension: views.includeViewExtension,
       options: Object.assign({}, views.engineOptions, { useHtmlMinifier: HtmlMinifier }),
-      defaultContext: Object.assign({}, views.defaultContext, { vendor: metadata.vendor, style: metadata.style }),
+      defaultContext: Object.assign({}, views.defaultContext, { import: metadata.system.import, style: metadata.style }),
       production: process.env.NODE_ENV === 'production',
     });
 

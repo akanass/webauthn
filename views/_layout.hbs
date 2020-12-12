@@ -24,20 +24,18 @@
   <link rel="stylesheet" href="/public/css/{{style}}" media="screen">
 </head>
 <body>
-  <!--  app start -->
-  {{{body}}}
-  <!--  app end -->
+<!--  app start -->
+{{{body}}}
+<!--  app end -->
 
-  <!-- Load scripts for current page -->
-  {{#if script.es}}
-    <script type="module" src="/public/js/es/{{script.es}}"></script>
-  {{/if}}
-  {{#if script.system}}
-    <!-- Load vendor SystemJS scripts -->
-    <script src="/public/js/{{vendor}}"></script>
-    <script nomodule>
-      System.import('/public/js/system/{{script.system}}');
-    </script>
-  {{/if}}
+<!-- Load scripts for current page -->
+{{#if scripts.esm}}
+  <!-- Load ES Module script -->
+  <script async defer type="module" src="/public/js/esm/{{scripts.esm}}"></script>
+{{/if}}
+{{#if scripts.system}}
+  <!-- Load SystemJS script -->
+  <script async defer nomodule src="/public/js/system/{{import}}?s={{scripts.system}}"></script>
+{{/if}}
 </body>
 </html>

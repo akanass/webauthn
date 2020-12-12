@@ -24,8 +24,8 @@ export class AppService {
    */
   getMetadata(page: string): any {
     return Object.assign({}, this._i18n[ page ], {
-      script: {
-        es: metadata.es[ page ],
+      scripts: {
+        esm: metadata.esm[ page ],
         system: metadata.system[ page ],
       },
     });

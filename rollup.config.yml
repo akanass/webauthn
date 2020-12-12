@@ -2,17 +2,17 @@
     - static/ts/login.ts
   output:
     - dir: public/js
-      format: es
-      entryFileNames: '[format]/[name]-[hash].min.mjs'
-      chunkFileNames: '[format]/[name]-[hash].min.mjs'
+      format: esm
+      entryFileNames: 'esm/[name]-[hash].min.mjs'
+      chunkFileNames: 'esm/[name]-[hash].min.mjs'
     - dir: public/js
       format: system
-      entryFileNames: '[format]/[name]-[hash].min.js'
-      chunkFileNames: '[format]/[name]-[hash].min.js'
+      entryFileNames: 'system/[name]-[hash].min.js'
+      chunkFileNames: 'system/[name]-[hash].min.js'
   plugins:
     - name: del
       api:
-        targets: public/js/{es,system}/*.{js,mjs}
+        targets: public/js/{esm,system}/*.{js,mjs}
     - name: typescript
       api:
         tsconfig: tsconfig.browser.json
@@ -26,15 +26,12 @@
     - name: json
     - name: terser
     - name: metadata
-- input: static/js/vendor.js
+- input: static/js/import.js
   output:
     dir: public/js
     format: iife
-    entryFileNames: '[name]-[hash].min.js'
+    entryFileNames: 'system/[name]-[hash].min.js'
   plugins:
-    - name: del
-      api:
-        targets: public/js/vendor*
     - name: commonjs
     - name: nodeResolve
       api:

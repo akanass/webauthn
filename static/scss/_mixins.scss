@@ -1,0 +1,9 @@
+// Styles for each MDC Web component
+@use "@material/typography" with (
+  $font-family: unquote("Montserrat, sans-serif")
+);
+@use "@material/button";
+
+
+@include typography.core-styles; // apply typography style
+@include button.core-styles; // apply buttons style

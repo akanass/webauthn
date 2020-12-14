@@ -1,4 +1,9 @@
 <p>{{message}}</p>
 <div id="supported">{{supported}}</div>
 <div id="unsupported">{{unsupported}}</div>
-<button id="checkSupported">{{checkSupported}}</button>
+
+<button id="checkSupported" class="mdc-button mdc-button--raised">
+  <div class="mdc-button__ripple"></div>
+  <i class="material-icons mdc-button__icon" aria-hidden="true">lock_open</i>
+  <span class="mdc-button__label">{{checkSupported}}</span>
+</button>

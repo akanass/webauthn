@@ -57,6 +57,8 @@
           impl: sass
           fibers: false
           sync: true
+          includePaths:
+            - node_modules
         minimize: true
     - name: del
       api:

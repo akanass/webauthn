@@ -1,12 +1,7 @@
-import { MDCRipple } from '@material/ripple';
-
 // get page elements
 const checkSupported: HTMLButtonElement = document.querySelector('#checkSupported');
 const supported: HTMLDivElement = document.querySelector('#supported');
 const unsupported: HTMLDivElement = document.querySelector('#unsupported');
-
-// add ripple effect
-new MDCRipple(checkSupported);
 
 // set button listener
 checkSupported.addEventListener('click', () => import('./_webauthn').then(({ webAuthn }) => {

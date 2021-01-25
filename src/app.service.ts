@@ -28,6 +28,10 @@ export class AppService {
         esm: metadata.esm[ page ],
         system: metadata.system[ page ],
       },
+      global: {
+        esm: metadata.esm.global,
+        system: metadata.system.global,
+      },
     });
   }
 

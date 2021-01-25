@@ -31,13 +31,27 @@
 <!--  app end -->
 
 <!-- Load scripts for current page -->
+{{#if global.esm}}
+  <!-- Load ES Module script -->
+  <script async defer type="module" src="/public/js/esm/{{global.esm}}"></script>
+{{/if}}
 {{#if scripts.esm}}
   <!-- Load ES Module script -->
   <script async defer type="module" src="/public/js/esm/{{scripts.esm}}"></script>
 {{/if}}
-{{#if scripts.system}}
+{{#if global.system}}
   <!-- Load SystemJS script -->
-  <script async defer nomodule src="/public/js/system/{{import}}?s={{scripts.system}}"></script>
+  {{#if scripts.system}}
+    <!-- Load SystemJS script -->
+    <script async defer nomodule src="/public/js/system/{{import}}?s={{global.system}},{{scripts.system}}"></script>
+  {{else}}
+    <script async defer nomodule src="/public/js/system/{{import}}?s={{global.system}}"></script>
+  {{/if}}
+{{else}}
+  {{#if scripts.system}}
+    <!-- Load SystemJS script -->
+    <script async defer nomodule src="/public/js/system/{{import}}?s={{scripts.system}}"></script>
+  {{/if}}
 {{/if}}
 </body>
 </html>

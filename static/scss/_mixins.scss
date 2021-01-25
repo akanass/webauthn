@@ -3,7 +3,9 @@
   $font-family: unquote("Montserrat, sans-serif")
 );
 @use "@material/button";
+@use "@material/card";
 
 
 @include typography.core-styles; // apply typography style
 @include button.core-styles; // apply buttons style
+@include card.core-styles; // apply card style

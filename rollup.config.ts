@@ -20,7 +20,7 @@ import * as fs from 'fs-extra';
 const plugins = { typescript, commonjs, nodeResolve, terser, json, styles, del, metadata };
 
 // rollup config from YAML file
-const rc: RollupOptions[] = yaml.safeLoad(fs.readFileSync('./rollup.config.yml', 'utf8'));
+const rc: RollupOptions[] = yaml.load(fs.readFileSync('./rollup.config.yml', 'utf8'));
 
 // rebuild config array to switch plugins values from config by plugins functions
 const config: RollupOptions[] = rc.map((_: RollupOptions) =>

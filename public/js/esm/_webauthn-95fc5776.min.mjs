@@ -1,1 +1,0 @@
-class t{constructor(){this._supported=!!(navigator.credentials&&navigator.credentials.create&&navigator.credentials.get&&window.PublicKeyCredential)}static instance(){return t._instance instanceof t||(t._instance=new t),t._instance}get supported(){return this._supported}}const e=t.instance();export{t as WebAuthn,e as webAuthn};

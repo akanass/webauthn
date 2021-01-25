@@ -1,4 +1,4 @@
-import { supported } from '@github/webauthn-json';
+import { supportsWebauthn } from '@simplewebauthn/browser';
 
 export class WebAuthn {
   // private static property to store singleton instance
@@ -11,7 +11,7 @@ export class WebAuthn {
    * @private
    */
   private constructor() {
-    this._supported = supported();
+    this._supported = supportsWebauthn();
   }
 
   /**

@@ -1,6 +1,6 @@
 import { NormalizedOutputOptions, OutputAsset, OutputBundle, OutputChunk, Plugin } from 'rollup';
-import { from, merge, Observable } from 'rxjs';
-import { filter, map, mergeMap } from 'rxjs/operators';
+import { from } from 'rxjs';
+import { filter, map, tap } from 'rxjs/operators';
 import * as fs from 'fs-extra';
 import * as deepmerge from 'deepmerge';
 import { join } from 'path';
@@ -24,25 +24,15 @@ const metadata: Plugin = () => {
           map((meta: any) =>
             ({
               meta,
-              jsonExists: from(fs.pathExists(destination)),
+              jsonExists: fs.pathExistsSync(destination),
             }),
           ),
-          mergeMap((_: { meta: any, jsonExists: Observable<boolean> }) =>
-            merge(
-              _.jsonExists
-                .pipe(
-                  filter((jsonExists: boolean) => !!jsonExists),
-                  mergeMap(() => from(fs.readJson(destination))),
-                  map(json => deepmerge(json, _.meta)),
-                  mergeMap(json => from(fs.outputJson(destination, json))),
-                ),
-              _.jsonExists
-                .pipe(
-                  filter((jsonExists: boolean) => !jsonExists),
-                  mergeMap(() => from(fs.outputJson(destination, _.meta))),
-                ),
-            ),
+          map((_: { meta: any, jsonExists: boolean }) =>
+            _.jsonExists ?
+              deepmerge(fs.readJsonSync(destination), _.meta) :
+              _.meta
           ),
+          tap(_ => fs.outputJsonSync(destination, _)),
         ).toPromise();
     },
   };

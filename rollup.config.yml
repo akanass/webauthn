@@ -1,4 +1,5 @@
 - input:
+    - static/ts/global.ts
     - static/ts/login.ts
   output:
     - dir: public/js

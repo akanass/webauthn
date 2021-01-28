@@ -27,4 +27,6 @@ html, body {
   color: #FFC03B;
   background: #025D5F url("/public/img/fido-logo.svg") no-repeat 15px;
   text-align: center;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
 }

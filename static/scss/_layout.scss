@@ -1,4 +1,30 @@
 html, body {
   padding: 0;
   margin: 0;
+  background-color: #F0F0F1;
+}
+
+.main{
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mdc-card {
+  height: 650px;
+  width: 450px;
+}
+
+.mdc-card__media {
+  background-color: #025D5F;
+  background-image: url("/public/img/locks.gif");
+  height: 250px;
+}
+
+.mdc-card__header {
+  padding: 5px;
+  color: #FFC03B;
+  background: #025D5F url("/public/img/fido-logo.svg") no-repeat 15px;
+  text-align: center;
 }

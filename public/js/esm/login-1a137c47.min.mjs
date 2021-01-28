@@ -1,1 +1,0 @@
-const e=document.querySelector("#checkSupported"),t=document.querySelector("#supported"),o=document.querySelector("#unsupported");e.addEventListener("click",(()=>import("./_webauthn-01128c7d.min.mjs").then((({webAuthn:e})=>{t.style.display="none",o.style.display="none",e.supported?t.style.display="block":o.style.display="block"}))));

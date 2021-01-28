@@ -1,5 +1,5 @@
 // get page elements
-const checkSupported: HTMLButtonElement = document.querySelector('#checkSupported');
+/*const checkSupported: HTMLButtonElement = document.querySelector('#checkSupported');
 const supported: HTMLDivElement = document.querySelector('#supported');
 const unsupported: HTMLDivElement = document.querySelector('#unsupported');
 
@@ -14,4 +14,4 @@ checkSupported.addEventListener('click', () => import('./_webauthn').then(({ web
   } else {
     unsupported.style.display = 'block';
   }
-}));
+}));*/

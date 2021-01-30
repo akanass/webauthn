@@ -12,21 +12,27 @@ html, body {
 }
 
 .mdc-card {
-  height: 650px;
-  width: 450px;
+  height: 90vh;
+  width: 30vw;
 }
 
 .mdc-card__media {
   background-color: #025D5F;
   background-image: url("/public/img/locks.gif");
-  height: 250px;
+  height: 30%;
 }
 
 .mdc-card__header {
-  padding: 5px;
+  height: 120px;
+  line-height: 70px;
   color: #FFC03B;
   background: #025D5F url("/public/img/fido-logo.svg") no-repeat 15px;
   text-align: center;
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
+}
+
+.mdc-card__content-title {
+  padding: 15px;
+  color: #025D5F;
 }

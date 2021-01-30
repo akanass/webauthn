@@ -35,6 +35,7 @@ views:
       unsupported: Your browser doesn't support WebAuthn protocol :( - You have to update it or having an SSL connection if you want to enjoy those new features !!!
       checkSupported: WebAuthn ?
       headerTitle: Login Has Never Been Easier-Or Safer!
+      pageTitle: Login
 assets:
   rootPath: ../public
   options:

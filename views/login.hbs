@@ -2,10 +2,27 @@
 <div id="supported">{{supported}}</div>
 <div id="unsupported">{{unsupported}}</div>
 
-<button id="checkSupported" class="mdc-button mdc-button--raised">
-  <div class="mdc-button__ripple"></div>
-  <i class="material-icons mdc-button__icon" aria-hidden="true">lock_open</i>
-  <span class="mdc-button__label">{{checkSupported}}</span>
-</button>-->
+-->
 
-
+<form id="login">
+  <label class="mdc-text-field mdc-text-field--filled">
+    <span class="mdc-text-field__ripple"></span>
+    <span class="mdc-floating-label" id="username-label">{{username}}</span>
+    <input name="username" required minlength="5" class="mdc-text-field__input" type="text" aria-labelledby="username-label" autocomplete="off" spellcheck="false" />
+    <span class="mdc-line-ripple"></span>
+  </label>
+  <label class="mdc-text-field mdc-text-field--filled">
+    <span class="mdc-text-field__ripple"></span>
+    <span class="mdc-floating-label" id="password-label">{{password}}</span>
+    <input name="password" required minlength="8" class="mdc-text-field__input" type="password" aria-labelledby="password-label" autocomplete="off" spellcheck="false" />
+    <span class="mdc-line-ripple"></span>
+  </label>
+  <button id="loginButton" type="submit" class="mdc-button mdc-button--raised">
+    <div class="mdc-button__ripple"></div>
+    <i class="material-icons mdc-button__icon" aria-hidden="true">lock_open</i>
+    <span class="mdc-button__label">{{loginButton}}</span>
+  </button>
+</form>
+<div class="mdc-typography--caption">
+{{text1}} <a href="#" class="link" id="webauthn-redirect">{{here}}</a> {{text2}}
+</div>

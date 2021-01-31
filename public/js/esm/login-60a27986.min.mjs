@@ -1,0 +1,1 @@
+const e=document.querySelector("#login");window.addEventListener("load",(()=>{e.addEventListener("submit",(n=>{n.preventDefault();const t=e.elements.username.value,o=e.elements.password.value;console.log(t,o)}))}));

@@ -1,7 +1,11 @@
+@use "@material/theme";
+@use "@material/textfield";
+@use "@material/button";
+
 html, body {
   padding: 0;
   margin: 0;
-  background-color: #F0F0F1;
+  background-color: theme.$background;
 }
 
 .main{
@@ -12,21 +16,20 @@ html, body {
 }
 
 .mdc-card {
-  height: 90vh;
+  min-height: 90vh;
   width: 30vw;
 }
 
 .mdc-card__media {
-  background-color: #025D5F;
+  background-color: theme.$primary;
   background-image: url("/public/img/locks.gif");
-  height: 30%;
+  height: 37%;
 }
 
 .mdc-card__header {
-  height: 120px;
   line-height: 70px;
-  color: #FFC03B;
-  background: #025D5F url("/public/img/fido-logo.svg") no-repeat 15px;
+  color: theme.$secondary;
+  background: theme.$primary url("/public/img/fido-logo.svg") no-repeat 15px;
   text-align: center;
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
@@ -34,5 +37,43 @@ html, body {
 
 .mdc-card__content-title {
   padding: 15px;
-  color: #025D5F;
+  color: theme.$primary;
+}
+
+.mdc-text-field {
+  width: 100%;
+  margin-bottom: 30px;
+  @include textfield.fill-color(theme.$surface);
+  @include textfield.label-color(theme.$primary);
+}
+
+.mdc-text-field:not(.mdc-text-field--disabled) .mdc-text-field__input {
+  color: theme.$grey-700;
+}
+
+.mdc-text-field--invalid {
+  @include textfield.label-color(theme.$error);
+}
+
+.mdc-button {
+  width: 100%;
+  @include button.icon-color(theme.$secondary);
+}
+
+.mdc-button__label {
+  color: theme.$secondary;
+}
+
+.mdc-typography--caption {
+  color: theme.$grey-600;
+  padding: 5px 15px;
+  text-align: justify;
+}
+
+.link {
+  color: theme.$primary;
+}
+
+.link:hover {
+  color: theme.$secondary;
 }

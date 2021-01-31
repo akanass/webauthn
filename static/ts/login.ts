@@ -15,3 +15,18 @@ checkSupported.addEventListener('click', () => import('./_webauthn').then(({ web
     unsupported.style.display = 'block';
   }
 }));*/
+const form: HTMLFormElement = document.querySelector('#login');
+
+// add event listener on window.load
+window.addEventListener("load", () => {
+  // intercept submit form
+  form.addEventListener('submit', e => {
+    // stop normal process
+    e.preventDefault();
+
+    // get form values
+    const username = form.elements['username'].value;
+    const password = form.elements['password'].value;
+    console.log(username, password);
+  });
+});

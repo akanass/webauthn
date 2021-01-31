@@ -21,9 +21,11 @@ html, body {
 }
 
 .mdc-card__media {
-  background-color: theme.$primary;
-  background-image: url("/public/img/locks.gif");
-  height: 37%;
+  background: theme.$primary url("/public/img/locks.gif") no-repeat center/80%;
+}
+
+.mdc-card__media--16-9:before {
+  margin-top: 45%;
 }
 
 .mdc-card__header {

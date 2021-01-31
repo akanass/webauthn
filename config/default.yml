@@ -30,7 +30,6 @@ views:
     title: Fido2 WebAuthn + OpenID Connect
   i18n:
     login:
-      unsupported: Your browser doesn't support WebAuthn protocol :( - You have to update it or having an SSL connection if you want to enjoy those new features !!!
       headerTitle: Login Has Never Been Easier-Or Safer!
       pageTitle: Login
       loginButton: Login
@@ -39,6 +38,8 @@ views:
       here: here
       username: Username
       password: Password
+      errorLogin: Username and Password don't match
+      errorWebAuthn: Your browser doesn't support WebAuthn protocol
 assets:
   rootPath: ../public
   options:

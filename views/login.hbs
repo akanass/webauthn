@@ -3,7 +3,11 @@
 <div id="unsupported">{{unsupported}}</div>
 
 -->
-
+<div id="error-login" class="error-message mdc-typography--subtitle2">
+  <i class="material-icons" aria-hidden="true">error_outline</i>
+  <span id="error-login-message" class="message">{{errorLogin}}</span>
+  <span id="error-webauthn-message" class="message">{{errorWebAuthn}}</span>
+</div>
 <form id="login">
   <label class="mdc-text-field mdc-text-field--filled">
     <span class="mdc-text-field__ripple"></span>
@@ -24,5 +28,5 @@
   </button>
 </form>
 <div id="webauthn-caption" class="mdc-typography--caption">
-{{text1}} <a href="#" class="link" id="webauthn-redirect">{{here}}</a> {{text2}}
+{{text1}} <a href="/webauthn" class="link" id="webauthn-redirect">{{here}}</a> {{text2}}
 </div>

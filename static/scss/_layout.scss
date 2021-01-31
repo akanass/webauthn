@@ -74,8 +74,22 @@ html, body {
 
 .link {
   color: theme.$primary;
+  text-decoration: underline;
 }
 
 .link:hover {
   color: theme.$secondary;
+  cursor: pointer;
+}
+
+.error-message {
+  padding: 0 15px;
+  display: flex;
+  color: theme.$error;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-message .message {
+  padding-left: 10px;
 }

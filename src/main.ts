@@ -22,7 +22,7 @@ async function bootstrap(config: ServerConfig, views: ViewsConfig, assets: Asset
       Object.assign(
         {},
         config.options
-          .filter(_ => !(!config.isSSL && _.name === 'https'))
+          .filter(_ => !(!config.runInHTTPS && _.name === 'https'))
           .reduce((options, curr) =>
             Object.assign(
               options,

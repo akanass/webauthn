@@ -3,6 +3,7 @@ export interface ServerConfig {
   host: string;
   port: number;
   isSSL: boolean;
+  runInHTTPS: boolean;
   options: any;
 }
 

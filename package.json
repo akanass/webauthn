@@ -24,6 +24,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@akanass/nestjsx-crypto": "^1.1.0",
     "@material/button": "^9.0.0",
     "@material/card": "^9.0.0",
     "@material/textfield": "^9.0.0",

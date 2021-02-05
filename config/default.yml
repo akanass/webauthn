@@ -60,3 +60,9 @@ swagger:
   version: 0.1.0
   tag: api
   path: documentation
+mongodb:
+  uri: mongodb://0.0.0.0:27017/authenticationservice
+  options:
+    useNewUrlParser: true
+    useUnifiedTopology: true
+    useFindAndModify: false

@@ -37,7 +37,7 @@ export class UserEntity {
 
   @ApiProperty({
     name: 'last_access_time',
-    description: 'Last access time, in timestamp format, when user was connected by username/password',
+    description: 'Last access time, in timestamp format, when user was connected',
     example: 101343600000,
     required: false
   })

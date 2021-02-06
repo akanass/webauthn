@@ -40,7 +40,6 @@ views:
       here: here
       username: Username
       password: Password
-      errorLogin: Username and Password don't match
       errorWebAuthn: Your browser doesn't support WebAuthn protocol
 
 assets:

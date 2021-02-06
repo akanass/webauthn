@@ -1,19 +1,62 @@
+import { Observable, throwError } from 'rxjs';
+import { ajax, AjaxError, AjaxResponse } from 'rxjs/ajax';
+import { User } from './_user';
+import { catchError, map } from 'rxjs/operators';
+
 export class Auth {
-  // private property to store username
-  private _username: string;
-  // private property to store password
-  private _password: string;
+  // private static property to store singleton instance
+  private static _instance: Auth;
+  // private property to store login url
+  private _loginUrl: string;
+  // private property to store logout url
+  private _logoutUrl: string;
 
   /**
-   * Create new instance and set username/password values
-   *
-   * @param username of the user who wants to be authenticated
-   * @param password of the user who wants to be authenticated
+   * Create new instance
+   * @private
    */
-  constructor(username: string, password: string) {
-    this._username = username;
-    this._password = password;
+  private constructor() {
+    this._loginUrl = '/api/login';
+    this._logoutUrl = '/api/logout';
   }
 
-  //login() {}
+  /**
+   * Method returns new singleton instance
+   */
+  static instance(): Auth {
+    if (!(Auth._instance instanceof Auth)) {
+      Auth._instance = new Auth();
+    }
+
+    return Auth._instance;
+  }
+
+  /**
+   * Function to log in an user by username/password
+   *
+   * @param {string} username of the user who wants to log in
+   * @param {string} password of the user who wants to log in
+   */
+  login(username: string, password: string): Observable<User> {
+    return ajax({
+      url: this._loginUrl,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        username,
+        password,
+      },
+    }).pipe(
+      map((resp: AjaxResponse) => new User(resp.response)),
+      catchError((err: AjaxError) => throwError(err.response)),
+    );
+  }
 }
+
+// create singleton instance
+const auth: Auth = Auth.instance();
+
+// export it
+export { auth };

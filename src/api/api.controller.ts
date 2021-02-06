@@ -44,7 +44,7 @@ export class ApiController {
   @HttpCode(200)
   @Post('login')
   login(@Body() loginUser: LoginUserDto): Observable<UserEntity> {
-    return this._apiService.login(loginUser);
+    return this._apiService.login(loginUser); // TODO set secure session
   }
 
   /**

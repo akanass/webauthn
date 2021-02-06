@@ -28,6 +28,7 @@ const resetErrorMessage = () => {
   // hide error messages
   errorLogin.style.display = 'none';
   errorLoginMessage.style.display = 'none';
+  errorLoginMessage.innerText = '';
   errorWebAuthnMessage.style.display = 'none';
 }
 
@@ -46,6 +47,7 @@ const displayLoginErrorMessage = () => {
 const displayWebAuthnErrorMessage = () => {
   errorLogin.style.display = 'flex';
   errorLoginMessage.style.display = 'none';
+  errorLoginMessage.innerText = '';
   errorWebAuthnMessage.style.display = 'inline';
 }
 
@@ -62,11 +64,27 @@ const authenticationProcess = () => {
     resetErrorMessage();
 
     // get form values
-    const username = form.elements['username'].value;
+    const username = form.elements['username'].value.toLowerCase();
     const password = form.elements['password'].value;
-    console.log(username, password);
 
-    displayLoginErrorMessage();
+    // import auth script
+    import('./_auth').then(({auth}) => {
+      // login user
+      auth.login(username, password)
+        .subscribe(
+          user => {
+            console.log(user.userName);// TODO redirect to good page
+          },
+          error => {
+            // error message is an array so we take only the first one
+            // and we set the message in the page
+            errorLoginMessage.innerText = [].concat(error.message).shift();
+
+            // display message
+            displayLoginErrorMessage();
+          }
+        );
+    });
   });
 }
 

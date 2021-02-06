@@ -60,7 +60,7 @@ pipes:
 
 swagger:
   title: Fido2 WebAuthn + OpenID Connect
-  description: WebAuthn + OpenID Connect server API description
+  description: API description
   version: 0.1.0
   tag: api
   path: documentation

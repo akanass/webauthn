@@ -66,8 +66,9 @@ async function bootstrap(config: ServerConfig,
       contentSecurityPolicy: {
         directives: {
           defaultSrc: [`'self'`],
-          styleSrc: [`'self'`, `'unsafe-inline'`],
-          imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
+          styleSrc: [`'self'`, `https: 'unsafe-inline'`, 'data: fonts.googleapis.com'],
+          fontSrc: [`'self'`, 'https: fonts.googleapis.com'],
+          imgSrc: [`'self'`, 'data: validator.swagger.io'],
           scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
         },
       },

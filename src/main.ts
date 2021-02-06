@@ -9,6 +9,7 @@ import { PipesConfig } from './interfaces/pipes-config.interface';
 import { SwaggerConfig } from './interfaces/swagger-config.interface';
 import { join } from 'path';
 import * as helmet from 'fastify-helmet';
+import SecureSessionPlugin from 'fastify-secure-session';
 import * as Config from 'config';
 import * as Handlebars from 'handlebars';
 import * as HtmlMinifier from 'html-minifier-terser';
@@ -16,8 +17,14 @@ import * as metadata from './metadata.json';
 import * as fs from 'fs-extra';
 import { ApiModule } from './api/api.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SessionConfig } from './interfaces/security-config.interface';
 
-async function bootstrap(config: ServerConfig, views: ViewsConfig, assets: AssetsConfig, pipes: PipesConfig, swagger: SwaggerConfig) {
+async function bootstrap(config: ServerConfig,
+                         views: ViewsConfig,
+                         assets: AssetsConfig,
+                         pipes: PipesConfig,
+                         swagger: SwaggerConfig,
+                         session: SessionConfig) {
   // create NestJS application
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
@@ -55,8 +62,20 @@ async function bootstrap(config: ServerConfig, views: ViewsConfig, assets: Asset
   if (!!config.isSSL) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    await app.register(helmet);
+    await app.register(helmet, {
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: [`'self'`],
+          styleSrc: [`'self'`, `'unsafe-inline'`],
+          imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
+          scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
+        },
+      },
+    });
   }
+
+  // register secure session plugins
+  await app.register(SecureSessionPlugin, session);
 
   // register all plugins
   app
@@ -111,4 +130,5 @@ bootstrap(
   Config.get<AssetsConfig>('assets'),
   Config.get<PipesConfig>('pipes'),
   Config.get<SwaggerConfig>('swagger'),
+  Config.get<SessionConfig>('security.session'),
 );

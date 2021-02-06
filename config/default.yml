@@ -13,6 +13,7 @@ server:
       value:
         pfx:
           path: ../ssl/ssl.p12
+
 views:
   templatesPath: ../views
   layout: _layout
@@ -41,6 +42,7 @@ views:
       password: Password
       errorLogin: Username and Password don't match
       errorWebAuthn: Your browser doesn't support WebAuthn protocol
+
 assets:
   rootPath: ../public
   options:
@@ -50,19 +52,38 @@ assets:
     acceptRanges: true
     lastModified: true
     maxAge: 86400000
+
 pipes:
   validation:
     whitelist: true
     forbidNonWhitelisted: true
+
 swagger:
   title: Fido2 WebAuthn + OpenID Connect
   description: WebAuthn + OpenID Connect server API description
   version: 0.1.0
   tag: api
   path: documentation
+
 mongodb:
   uri: mongodb://0.0.0.0:27017/authenticationservice
   options:
     useNewUrlParser: true
     useUnifiedTopology: true
     useFindAndModify: false
+
+security:
+  password:
+    salt: Ahshah2aeh0fevie
+    iterations: 4096
+    keylen: 24
+    digest: sha512
+  session:
+    cookieName: webauthn_openidconnect_server_session
+    secret: KubSwPuVTZf1qGIrNymxTbOwye8QxFwMGv14rZmvNYK1kdkzkkGvFWdKDoeGsS9iP
+    salt: uJapbvAN6lkYxFwM
+    cookie:
+      path: /api
+      httpOnly: true
+      secure: true
+      signed: true

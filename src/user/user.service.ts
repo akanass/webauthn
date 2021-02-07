@@ -98,6 +98,7 @@ export class UserService {
             ) :
             throwError(new UnprocessableEntityException(e.message)),
         ),
+        tap((user: User) => delete user.password_hash),
         map((user: User) => new UserEntity(user)),
       );
   }

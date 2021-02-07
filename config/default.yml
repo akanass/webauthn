@@ -49,6 +49,7 @@ views:
       enrollment: To do this, simply click on the button and you will be redirected to your authenticator management page in order to enroll a security key or Biometrics.
       startEnrollment: Start Enrollment
       skipEnrollment: Select this checkbox if you want to skip the enrollment and no longer display this page next time. We do not recommend it to you.
+      errorWebAuthn: Your browser doesn't support WebAuthn protocol
     end:
       headerTitle: Login Has Never Been Easier-Or Safer!
       pageTitle: Welcome

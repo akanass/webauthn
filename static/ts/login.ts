@@ -6,6 +6,7 @@ const errorLogin: HTMLDivElement = document.querySelector('#error-login');
 const errorLoginMessage: HTMLSpanElement = document.querySelector('#error-login-message');
 const errorWebAuthnMessage: HTMLSpanElement = document.querySelector('#error-webauthn-message');
 const webauthnRedirectLink: HTMLLinkElement = document.querySelector('#webauthn-redirect');
+const loginButton: HTMLButtonElement = document.querySelector('#loginButton');
 
 /**
  * Add event listener on window.load to put all process in place
@@ -66,6 +67,9 @@ const authenticationProcess = () => {
     // reset error messages
     resetErrorMessage();
 
+    // disable button
+    loginButton.disabled = true;
+
     // get form values
     const username = form.elements[ 'username' ].value.toLowerCase();
     const password = form.elements[ 'password' ].value;
@@ -90,6 +94,9 @@ const authenticationProcess = () => {
 
             // display message
             displayLoginErrorMessage(errorMessage);
+
+            // enable button with timeout to avoid flickering
+            setTimeout(() => loginButton.disabled = false, 500);
           },
         );
     });

@@ -70,6 +70,10 @@ html, body {
   color: theme.$secondary;
 }
 
+.mdc-button:disabled .mdc-button__label {
+  color: theme.$grey-600;
+}
+
 .mdc-typography--caption {
   color: theme.$grey-600;
   padding: 5px 0;
@@ -98,6 +102,7 @@ html, body {
   align-items: center;
   justify-content: center;
   text-align: justify;
+  padding-bottom: 10px;
 }
 
 .error-message .message {

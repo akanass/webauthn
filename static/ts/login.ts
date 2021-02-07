@@ -37,9 +37,10 @@ const resetErrorMessage = () => {
 /**
  * Function to display login error message
  */
-const displayLoginErrorMessage = () => {
+const displayLoginErrorMessage = (message: string) => {
   errorLogin.style.display = 'flex';
   errorLoginMessage.style.display = 'inline';
+  errorLoginMessage.innerText = message;
   errorWebAuthnMessage.style.display = 'none';
 };
 
@@ -85,10 +86,10 @@ const authenticationProcess = () => {
           error => {
             // error message is an array so we take only the first one
             // and we set the message in the page
-            errorLoginMessage.innerText = [].concat(error.message).shift();
+            const errorMessage = [].concat(error.message).shift();
 
             // display message
-            displayLoginErrorMessage();
+            displayLoginErrorMessage(errorMessage);
           },
         );
     });

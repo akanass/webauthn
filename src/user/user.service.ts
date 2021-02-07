@@ -9,7 +9,7 @@ import { UserDao } from './dao/user.dao';
 import { LoginUserDto } from './dto/login-user.dto';
 import { merge, Observable, of, throwError } from 'rxjs';
 import { UserEntity } from './entities/user.entity';
-import { catchError, filter, map, mergeMap } from 'rxjs/operators';
+import { catchError, filter, map, mergeMap, tap } from 'rxjs/operators';
 import { User } from './schemas/user.schema';
 import { SecurityService } from '../security/security.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -70,6 +70,7 @@ export class UserService {
               ),
             )
         ),
+        tap((user: User) => delete user.password_hash),
         map((user: User) => new UserEntity(user)),
       );
   }

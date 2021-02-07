@@ -1,3 +1,5 @@
+import { Subscription } from 'rxjs';
+
 /**
  * Get page's elements
  */
@@ -7,6 +9,11 @@ const errorLoginMessage: HTMLSpanElement = document.querySelector('#error-login-
 const errorWebAuthnMessage: HTMLSpanElement = document.querySelector('#error-webauthn-message');
 const webauthnRedirectLink: HTMLLinkElement = document.querySelector('#webauthn-redirect');
 const loginButton: HTMLButtonElement = document.querySelector('#loginButton');
+
+/**
+ * Variable to store auth subscription
+ */
+let loginSubscription : Subscription;
 
 /**
  * Add event listener on window.load to put all process in place
@@ -74,12 +81,20 @@ const authenticationProcess = () => {
     const username = form.elements[ 'username' ].value.toLowerCase();
     const password = form.elements[ 'password' ].value;
 
+    // delete previous subscription to memory free
+    if (!!loginSubscription) {
+      loginSubscription.unsubscribe();
+    }
+
     // import auth script
     import('./_auth').then(({ auth }) => {
       // login user
-      auth.login(username, password)
+      loginSubscription = auth.login(username, password)
         .subscribe(
           user => {
+            // delete previous subscription to memory free
+            loginSubscription.unsubscribe();
+
             // check if user has to be redirected to login/authenticator
             if (!user.skipAuthenticatorRegistration) {
               window.location.href = '/login/authenticator';

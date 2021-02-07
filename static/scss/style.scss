@@ -9,4 +9,6 @@
 
 @use "login"; // Login Screen Template
 @use "login_authenticator"; // Login Authenticator Screen Template
+@use "webauthn_authenticator"; // WebAuthn Authenticator Screen Template
 @use "end"; // End Screen Template
+@use "error"; // Error Screen Template

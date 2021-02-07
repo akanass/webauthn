@@ -29,10 +29,22 @@ export class AppController {
       .view('login_authenticator', Object.assign({}, this._appService.getMetadata('login_authenticator'), { dynamicTitleValue: user?.display_name }));
   }
 
+  @Get('webauthn/authenticator')
+  async webauthnAuthenticatorPage(@Res() res) {
+    await res
+      .view('webauthn_authenticator', this._appService.getMetadata('webauthn_authenticator'));
+  }
+
   @Get('end')
   async endPage(@Res() res, @Session() session: secureSession.Session) {
     const user = session.get('user');
     await res
       .view('end', Object.assign({}, this._appService.getMetadata('end'), { dynamicTitleValue: user?.display_name }));
+  }
+
+  @Get('*')
+  async ErrorPage(@Res() res) {
+    await res
+      .view('error', this._appService.getMetadata('error'));
   }
 }

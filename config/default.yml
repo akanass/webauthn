@@ -50,9 +50,19 @@ views:
       startEnrollment: Start Enrollment
       skipEnrollment: Select this checkbox if you want to skip the enrollment and no longer display this page next time. We do not recommend it to you.
       errorWebAuthn: Your browser doesn't support WebAuthn protocol
+    webauthn_authenticator:
+      headerTitle: Fido 2 WebAuthn - Security Settings
+      pageTitle: Authentication
+      text1: Configure your first-factor authentication here. You can select any combination of authenticators, including multiple security keys and any combination of security keys and internal authenticators.
+      text2: Once an authenticator has been selected you can sign out and then sign in to experience the WebAuthn authentication.
     end:
       headerTitle: Login Has Never Been Easier-Or Safer!
       pageTitle: Welcome
+    error:
+      headerTitle: Login Has Never Been Easier-Or Safer!
+      pageTitle: An error occurred
+      text: The requested page does not exist or you are not authorized to access it, please click on the button to restart the authentication process.
+      restartAuthentication: Restart Authentication
 
 assets:
   rootPath: ../public

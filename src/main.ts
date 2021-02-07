@@ -112,6 +112,7 @@ async function bootstrap(config: ServerConfig,
     .setDescription(swagger.description)
     .setVersion(swagger.version)
     .addTag(swagger.tag)
+    .addCookieAuth(session.cookieName)
     .build();
 
   // create swagger document

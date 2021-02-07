@@ -1,10 +1,21 @@
-import { Body, ClassSerializerInterceptor, Controller, HttpCode, Post, Session, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Session,
+  UseInterceptors,
+} from '@nestjs/common';
 import { NoContentInterceptor } from './interceptors/no-content.interceptor';
 import {
   ApiBadRequestResponse,
   ApiBody,
   ApiConflictResponse,
+  ApiCookieAuth,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiOkResponse,
   ApiPreconditionFailedResponse,
   ApiTags,
@@ -18,6 +29,7 @@ import { Observable } from 'rxjs';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import * as secureSession from 'fastify-secure-session';
 import { tap } from 'rxjs/operators';
+import { SecurityService } from '../security/security.service';
 
 @ApiTags('api')
 @Controller('api')
@@ -28,8 +40,9 @@ export class ApiController {
    * Class constructor
    *
    * @param {ApiService} _apiService dependency injection of ApiService instance
+   * @param {SecurityService} _securityService dependency injection of SecurityService instance
    */
-  constructor(private readonly _apiService: ApiService) {
+  constructor(private readonly _apiService: ApiService, private readonly _securityService: SecurityService) {
   }
 
   /**
@@ -51,8 +64,8 @@ export class ApiController {
   login(@Body() loginUser: LoginUserDto, @Session() session: secureSession.Session): Observable<UserEntity> {
     return this._apiService.login(loginUser)
       .pipe(
-        tap((user: UserEntity) => session.set('user', user)),
-        tap(() => session.set('from_login', true)),
+        tap((user: UserEntity) => this._securityService.setSessionData(session, 'user', user)),
+        tap(() => this._securityService.setSessionData(session, 'from_login', true)),
       );
   }
 
@@ -71,5 +84,13 @@ export class ApiController {
   @Post('users')
   createUser(@Body() user: CreateUserDto): Observable<UserEntity> {
     return this._apiService.createUser(user);
+  }
+
+  @ApiOkResponse({ description: 'Returns the user store in the secure session', type: UserEntity })
+  @ApiForbiddenResponse({ description: 'User is not logged in' })
+  @ApiCookieAuth()
+  @Get('logged-in')
+  loggedIn(@Session() session: secureSession.Session): Observable<UserEntity> {
+    return this._securityService.checkIfUserIsLoggedIn(session);
   }
 }

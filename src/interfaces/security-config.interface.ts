@@ -16,4 +16,7 @@ export interface CookieOptions {
   path: string;
   httpOnly: boolean;
   secure: boolean;
+  signed: boolean;
+  sameSite: boolean;
+  maxAge: number;
 }

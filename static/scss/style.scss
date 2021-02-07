@@ -8,3 +8,5 @@
 @use "layout"; // general site layout
 
 @use "login"; // Login Screen Template
+@use "login_authenticator"; // Login Authenticator Screen Template
+@use "end"; // End Screen Template

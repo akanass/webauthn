@@ -8,9 +8,13 @@
 @use "@material/line-ripple/mdc-line-ripple";
 @use "@material/notched-outline/mdc-notched-outline";
 @use "@material/textfield";
+@use "@material/checkbox";
+@use "@material/form-field";
 
 
 @include typography.core-styles; // apply typography style
 @include button.core-styles; // apply buttons style
 @include card.core-styles; // apply card style
 @include textfield.core-styles; // apply textfield style
+@include checkbox.core-styles; // apply checkbox style
+@include form-field.core-styles; // apply form-field style

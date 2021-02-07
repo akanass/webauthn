@@ -1,8 +1,10 @@
-import { Body, ClassSerializerInterceptor, Controller, HttpCode, Post, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, HttpCode, Post, Session, UseInterceptors } from '@nestjs/common';
 import { NoContentInterceptor } from './interceptors/no-content.interceptor';
 import {
   ApiBadRequestResponse,
-  ApiBody, ApiConflictResponse, ApiCreatedResponse,
+  ApiBody,
+  ApiConflictResponse,
+  ApiCreatedResponse,
   ApiOkResponse,
   ApiPreconditionFailedResponse,
   ApiTags,
@@ -14,6 +16,8 @@ import { LoginUserDto } from '../user/dto/login-user.dto';
 import { UserEntity } from '../user/entities/user.entity';
 import { Observable } from 'rxjs';
 import { CreateUserDto } from '../user/dto/create-user.dto';
+import * as secureSession from 'fastify-secure-session';
+import { tap } from 'rxjs/operators';
 
 @ApiTags('api')
 @Controller('api')
@@ -32,6 +36,7 @@ export class ApiController {
    * Handler to answer to POST /api/login route
    *
    * @param {LoginUserDto} loginUser payload to log in the user
+   * @param {secureSession.Session} session secure data for the current session
    *
    * @return Observable<UserEntity>
    */
@@ -43,8 +48,12 @@ export class ApiController {
   @ApiBody({ description: 'Payload to log in an user', type: LoginUserDto })
   @HttpCode(200)
   @Post('login')
-  login(@Body() loginUser: LoginUserDto): Observable<UserEntity> {
-    return this._apiService.login(loginUser); // TODO set secure session
+  login(@Body() loginUser: LoginUserDto, @Session() session: secureSession.Session): Observable<UserEntity> {
+    return this._apiService.login(loginUser)
+      .pipe(
+        tap((user: UserEntity) => session.set('user', user)),
+        tap(() => session.set('from_login', true)),
+      );
   }
 
   /**

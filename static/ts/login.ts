@@ -10,7 +10,7 @@ const webauthnRedirectLink: HTMLLinkElement = document.querySelector('#webauthn-
 /**
  * Add event listener on window.load to put all process in place
  */
-window.addEventListener("load", () => {
+window.addEventListener('load', () => {
   // reset all error messages
   resetErrorMessage();
 
@@ -24,13 +24,15 @@ window.addEventListener("load", () => {
 /**
  * Function to reset error message block
  */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 const resetErrorMessage = () => {
   // hide error messages
   errorLogin.style.display = 'none';
   errorLoginMessage.style.display = 'none';
   errorLoginMessage.innerText = '';
   errorWebAuthnMessage.style.display = 'none';
-}
+};
 
 /**
  * Function to display login error message
@@ -39,7 +41,7 @@ const displayLoginErrorMessage = () => {
   errorLogin.style.display = 'flex';
   errorLoginMessage.style.display = 'inline';
   errorWebAuthnMessage.style.display = 'none';
-}
+};
 
 /**
  * Function to display WebAuthn error message
@@ -49,7 +51,7 @@ const displayWebAuthnErrorMessage = () => {
   errorLoginMessage.style.display = 'none';
   errorLoginMessage.innerText = '';
   errorWebAuthnMessage.style.display = 'inline';
-}
+};
 
 /**
  * Function to authenticate user by username/password
@@ -64,16 +66,21 @@ const authenticationProcess = () => {
     resetErrorMessage();
 
     // get form values
-    const username = form.elements['username'].value.toLowerCase();
-    const password = form.elements['password'].value;
+    const username = form.elements[ 'username' ].value.toLowerCase();
+    const password = form.elements[ 'password' ].value;
 
     // import auth script
-    import('./_auth').then(({auth}) => {
+    import('./_auth').then(({ auth }) => {
       // login user
       auth.login(username, password)
         .subscribe(
           user => {
-            console.log(user.userName);// TODO redirect to good page
+            // check if user has to be redirected to login/authenticator
+            if (!user.skipAuthenticatorRegistration) {
+              window.location.href = '/login/authenticator';
+            } else {
+              window.location.href = '/end'; // TODO THIS IS THE END OF THE PROCESS FOR NOW - SHOULD BE AN OIDC STEP
+            }
           },
           error => {
             // error message is an array so we take only the first one
@@ -82,11 +89,11 @@ const authenticationProcess = () => {
 
             // display message
             displayLoginErrorMessage();
-          }
+          },
         );
     });
   });
-}
+};
 
 /**
  * Function to check if WebAuthn is supported then display error message or redirect user
@@ -109,6 +116,6 @@ const webauthnRedirection = () => {
         // redirect user to webauthn page
         window.location.href = webauthnRedirectLink.href;
       }
-    })
+    });
   });
-}
+};

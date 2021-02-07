@@ -1,6 +1,8 @@
 - input:
     - static/ts/global.ts
     - static/ts/login.ts
+    - static/ts/login_authenticator.ts
+    - static/ts/end.ts
   output:
     - dir: public/js
       format: esm

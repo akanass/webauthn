@@ -41,6 +41,17 @@ views:
       username: Username
       password: Password
       errorWebAuthn: Your browser doesn't support WebAuthn protocol
+    login_authenticator:
+      headerTitle: Fido 2 WebAuthn - Security Settings
+      pageTitle: Welcome
+      congratulations: Congratulations ! You have successfully signed in.
+      advices: To safeguard your account further, we recommend you to enroll First-Factor authenticator and stop using your username and password.
+      enrollment: To do this, simply click on the button and you will be redirected to your authenticator management page in order to enroll a security key or Biometrics.
+      startEnrollment: Start Enrollment
+      skipEnrollment: Select this checkbox if you want to skip the enrollment and no longer display this page next time. We do not recommend it to you.
+    end:
+      headerTitle: Login Has Never Been Easier-Or Safer!
+      pageTitle: Welcome
 
 assets:
   rootPath: ../public
@@ -82,7 +93,8 @@ security:
     secret: KubSwPuVTZf1qGIrNymxTbOwye8QxFwMGv14rZmvNYK1kdkzkkGvFWdKDoeGsS9iP
     salt: uJapbvAN6lkYxFwM
     cookie:
-      path: /api
+      path: /
       httpOnly: true
       secure: true
-      signed: true
+      sameSite: true
+      maxAge: 1800

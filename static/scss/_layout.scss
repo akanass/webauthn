@@ -37,8 +37,12 @@ html, body {
   border-top-right-radius: inherit;
 }
 
-.mdc-card__content-title {
+.mdc-card__content {
   padding: 15px;
+}
+
+.mdc-card__content-title {
+  padding: 15px 0;
   color: theme.$primary;
 }
 
@@ -68,7 +72,13 @@ html, body {
 
 .mdc-typography--caption {
   color: theme.$grey-600;
-  padding: 5px 15px;
+  padding: 5px 0;
+  text-align: justify;
+}
+
+.mdc-typography--body2 {
+  color: theme.$grey-700;
+  padding: 7px 0;
   text-align: justify;
 }
 
@@ -83,7 +93,6 @@ html, body {
 }
 
 .error-message {
-  padding: 0 15px;
   display: flex;
   color: theme.$error;
   align-items: center;
@@ -97,4 +106,16 @@ html, body {
 
 .to-lowercase {
   text-transform: lowercase;
+}
+
+#dynamic-title-value {
+  display: none;
+}
+
+.mgt30 {
+  margin-top: 30px;
+}
+
+.mgt20 {
+  margin-top: 20px;
 }

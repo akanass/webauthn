@@ -9,7 +9,7 @@ import { PipesConfig } from './interfaces/pipes-config.interface';
 import { SwaggerConfig } from './interfaces/swagger-config.interface';
 import { join } from 'path';
 import * as helmet from 'fastify-helmet';
-import SecureSessionPlugin from 'fastify-secure-session';
+import * as secureSession from 'fastify-secure-session';
 import * as Config from 'config';
 import * as Handlebars from 'handlebars';
 import * as HtmlMinifier from 'html-minifier-terser';
@@ -75,8 +75,10 @@ async function bootstrap(config: ServerConfig,
     });
   }
 
-  // register secure session plugins
-  await app.register(SecureSessionPlugin, session);
+  // register secure session plugin
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  await app.register(secureSession, session);
 
   // register all plugins
   app

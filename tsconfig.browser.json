@@ -18,6 +18,9 @@
     ]
   },
   "files": [
-    "static/ts/login.ts"
+    "static/ts/login.ts",
+    "static/ts/login_authenticator.ts",
+    "static/ts/global.ts",
+    "static/ts/end.ts"
   ]
 }

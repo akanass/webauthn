@@ -39,7 +39,7 @@ export class UserService {
         mergeMap((user: User) =>
           !!user ?
             of(user) :
-            throwError(new UnauthorizedException('Username and Password don\'t match - 1')),
+            throwError(new UnauthorizedException('Username and Password don\'t match')),
         ),
         map((user: User) => ({
           user,

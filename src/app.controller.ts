@@ -1,12 +1,12 @@
 import {
   Controller,
-  ForbiddenException,
   Get,
   NotFoundException,
   Req,
   Res,
   Session,
   SetMetadata,
+  UnauthorizedException,
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
@@ -97,15 +97,27 @@ export class AppController {
   @UseGuards(AuthGuard)
   @Get('end')
   async endPage(@Res() res, @Session() session: secureSession.Session) {
+    // clear obsolete session value
+    this._securityService.clearSessionData(session, 'previous_step');
+
+    // display page
     await res
       .view('end', Object.assign({}, this._appService.getMetadata('end'), { dynamicTitleValue: this._securityService.getSessionData(session, 'user').display_name }));
+  }
+
+  /**
+   * Handle error page
+   */
+  @Get('error')
+  errorPage() {
+    throw new UnauthorizedException('User is not logged in');
   }
 
   /**
    * Handle not found pages
    */
   @Get('*')
-  NotFoundPage() {
+  notFoundPage() {
     throw new NotFoundException('The requested page does not exist');
   }
 }

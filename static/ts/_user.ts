@@ -1,7 +1,3 @@
-import { Observable, throwError } from 'rxjs';
-import { ajax, AjaxError, AjaxResponse } from 'rxjs/ajax';
-import { catchError, map } from 'rxjs/operators';
-
 export class User {
   // private property to store user's id
   private id: string;
@@ -56,26 +52,5 @@ export class User {
    */
   get lastAccessTime(): number {
     return this.last_access_time;
-  }
-
-  /**
-   * Function to patch user value
-   *
-   * @param {Partial<User>} partial user object to patch it
-   *
-   * @return {Observable<User>} the new instance of the user with the patched value
-   */
-  patch(partial: Partial<User>): Observable<User> {
-    return ajax({
-      url: `/api/users/${this.id}`,
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: partial,
-    }).pipe(
-      map((resp: AjaxResponse) => new User(resp.response)),
-      catchError((err: AjaxError) => throwError(err.response)),
-    );
   }
 }

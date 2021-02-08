@@ -17,7 +17,8 @@ import {
   ApiBody,
   ApiConflictResponse,
   ApiCookieAuth,
-  ApiCreatedResponse, ApiForbiddenResponse,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiParam,
@@ -75,7 +76,7 @@ export class ApiController {
     return this._apiService.login(loginUser)
       .pipe(
         tap((user: UserEntity) => this._securityService.setSessionData(session, 'user', user)),
-        tap(() => this._securityService.setSessionData(session, 'previous_step', 'login')),
+        tap((user: UserEntity) => !user.skip_authenticator_registration ? this._securityService.setSessionData(session, 'previous_step', 'login') : null),
       );
   }
 

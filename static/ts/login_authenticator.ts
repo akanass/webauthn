@@ -1,4 +1,7 @@
 import { Subscription } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
+import { User } from './_user';
+import { AjaxError } from 'rxjs/ajax';
 
 /**
  * Get page's elements
@@ -12,9 +15,10 @@ const buttonEnrollment: HTMLButtonElement = document.querySelector('#start-enrol
 const checkboxStopEnrollment: HTMLInputElement = document.querySelector('#stop-enrollment');
 
 /**
- * Variable to store user subscription
+ * Variables to store subscription
  */
-let userSubscription : Subscription;
+let userSubscription: Subscription;
+let sessionSubscription: Subscription;
 
 /**
  * Add event listener on window.load to put all process in place
@@ -107,19 +111,37 @@ const startOrSkipEnrollmentProcess = () => {
     // reset error messages
     resetErrorMessage();
 
+    // disable button & checkbox
+    buttonEnrollment.disabled = true;
+    checkboxStopEnrollment.disabled = true;
+
+    // delete previous subscriptions to memory free
     if (!!userSubscription) {
       userSubscription.unsubscribe();
     }
 
+    if (!!sessionSubscription) {
+      sessionSubscription.unsubscribe();
+    }
+
     // patch user info if he wants to skip enrollment
     if (!!checkboxStopEnrollment.checked) {
-      import('./_auth').then(({ auth }) => {
+      import('./_api').then(({ api }) => {
         // get logged in user
-        userSubscription = auth.loggedIn()
+        userSubscription = api.loggedIn()
           .pipe(
-
+            mergeMap((user: User) => api.patchUser(user.userId, { skip_authenticator_registration: true })),
+            mergeMap(() => api.clearSession({ key: 'previous_step' })),
           )
-          .subscribe();
+          .subscribe(
+            () => {
+              // delete previous subscription to memory free
+              userSubscription.unsubscribe();
+
+              window.location.href = '/end'; // TODO THIS IS THE END OF THE PROCESS FOR NOW - SHOULD BE AN OIDC STEP
+            },
+            (err: AjaxError) => manageApiError(err),
+          );
       });
     } else {
       // import webauthn script
@@ -129,10 +151,46 @@ const startOrSkipEnrollmentProcess = () => {
           // display error message and stop redirection
           displayLoginAuthenticatorWebAuthnErrorMessage();
         } else {
-          // redirect user to webauthn/authenticator page
-          window.location.href = '/webauthn/authenticator';
+          import('./_api').then(({ api }) => {
+            sessionSubscription = api.patchSession({ key: 'previous_step', value: 'login_authenticator' })
+              .subscribe(
+                () => {
+                  // delete previous subscription to memory free
+                  sessionSubscription.unsubscribe();
+
+                  // redirect user to webauthn/authenticator page
+                  window.location.href = '/webauthn/authenticator';
+                },
+                (err: AjaxError) => manageApiError(err),
+              );
+          });
         }
       });
     }
   });
+};
+
+/**
+ * Function to manage API error
+ *
+ * @param {AjaxError} err instance of AjaxError
+ */
+const manageApiError = (err: AjaxError) => {
+  // check if user is authenticated
+  if (err.status === 401) {
+    window.location.href = '/error';
+  } else {
+    // error message is an array so we take only the first one
+    // and we set the message in the page
+    const errorMessage = [].concat(err.message).shift();
+
+    // display message
+    displayLoginAuthenticatorErrorMessage(errorMessage);
+
+    // enable button with timeout to avoid flickering
+    setTimeout(() => {
+      buttonEnrollment.disabled = false;
+      checkboxStopEnrollment.disabled = false;
+    }, 500);
+  }
 };

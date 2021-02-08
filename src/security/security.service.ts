@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { merge, Observable, of, throwError } from 'rxjs';
 import * as Config from 'config';
 import { PasswordConfig } from '../interfaces/security-config.interface';
@@ -153,6 +153,20 @@ export class SecurityService {
    * @return {Observable<boolean>} the flag to know if the data in the secure session is good
    */
   checkSessionData(session: secureSession.Session, data: SessionData): Observable<boolean> {
-    return of(this.getSessionData(session, data.key) === data.value);
+    return of(of(data))
+      .pipe(
+        mergeMap((obs: Observable<SessionData>) =>
+          merge(
+            obs.pipe(
+              filter(_ => !!_),
+              map((_: SessionData) => this.getSessionData(session, _.key) === _.value),
+            ),
+            obs.pipe(
+              filter(_ => !_),
+              mergeMap(() => throwError(new InternalServerErrorException('Missing metadata on the route handler'))),
+            ),
+          ),
+        ),
+      );
   }
 }

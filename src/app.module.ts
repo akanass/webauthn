@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ApiModule } from './api/api.module';
@@ -16,7 +16,7 @@ import * as Config from 'config';
     SecurityModule,
     MongooseModule.forRoot(Config.get<string>('mongodb.uri'), Config.get<MongooseModuleOptions>('mongodb.options')) ],
   controllers: [ AppController ],
-  providers: [ AppService ],
+  providers: [ AppService, Logger ],
 })
 export class AppModule {
 }

@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { merge, Observable, of, throwError } from 'rxjs';
 import * as Config from 'config';
 import { PasswordConfig } from '../interfaces/security-config.interface';
@@ -62,6 +62,32 @@ export class SecurityService {
             obs.pipe(
               filter((user: UserEntity) => !user),
               mergeMap(() => throwError(new UnauthorizedException('User is not logged in'))),
+            ),
+          ),
+        ),
+      );
+  }
+
+  /**
+   * Function to check if user is store in secure session and return it else throw an error
+   *
+   * @param {secureSession.Session} session the current secure session instance
+   * @param {string} userId unique identifier of the user resource
+   *
+   * @return {Observable<boolean>} the flag to know if the user who is logged in is the same than the resource updated
+   */
+  checkIfUserIsOwner(session: secureSession.Session, userId: string): Observable<boolean> {
+    return of(this.getLoggedInUser(session))
+      .pipe(
+        mergeMap((obs: Observable<UserEntity>) =>
+          merge(
+            obs.pipe(
+              filter((user: UserEntity) => !!user && user.id === userId),
+              map(() => true),
+            ),
+            obs.pipe(
+              filter((user: UserEntity) => !user || user.id !== userId),
+              mergeMap(() => throwError(new ForbiddenException('User is not the owner of the resource'))),
             ),
           ),
         ),

@@ -6,6 +6,7 @@ import { HashService } from '@akanass/nestjsx-crypto';
 import { defaultIfEmpty, filter, map, mergeMap } from 'rxjs/operators';
 import * as secureSession from 'fastify-secure-session';
 import { UserEntity } from '../user/entities/user.entity';
+import { SessionData } from './interfaces/session-data.interface';
 
 @Injectable()
 export class SecurityService {
@@ -75,12 +76,27 @@ export class SecurityService {
    * @return {Observable<UserEntity>} the entity representing the user in the secure session
    */
   getLoggedInUser(session: secureSession.Session): Observable<UserEntity> {
-    return of(this.getSessionData(session, 'user'))
+    return of(this.getLoggedInUserSync(session))
       .pipe(
         filter((user: UserEntity) => typeof user !== 'undefined'),
         map((user: UserEntity) => new UserEntity(user)),
         defaultIfEmpty(),
       );
+  }
+
+  /**
+   * Function to return the user stored in secure session without any check
+   * You have to check if user is really inside the session and the returned value is not undefined
+   *
+   * This function should not be used and the previous one is better
+   * Only created to be used in display page checks because the previous one is called in Guard
+   *
+   * @param {secureSession.Session} session the current secure session instance
+   *
+   * @return {UserEntity} the entity representing the user in the secure session
+   */
+  getLoggedInUserSync(session: secureSession.Session): UserEntity {
+    return this.getSessionData(session, 'user');
   }
 
   /**
@@ -126,5 +142,17 @@ export class SecurityService {
    */
   cleanSession(session: secureSession.Session): void {
     session.delete();
+  }
+
+  /**
+   * Function to check if the value in session in the one expected
+   *
+   * @param {secureSession.Session} session the current secure session instance
+   * @param {SessionData} data the key/value to check in the session
+   *
+   * @return {Observable<boolean>} the flag to know if the data in the secure session is good
+   */
+  checkSessionData(session: secureSession.Session, data: SessionData): Observable<boolean> {
+    return of(this.getSessionData(session, data.key) === data.value);
   }
 }

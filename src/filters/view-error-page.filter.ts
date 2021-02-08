@@ -1,8 +1,15 @@
-import { ArgumentsHost, Catch, ExceptionFilter, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  ForbiddenException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { FastifyReply } from 'fastify';
 import { AppService } from '../app.service';
 
-@Catch(UnauthorizedException, NotFoundException)
+@Catch(UnauthorizedException, NotFoundException, ForbiddenException)
 export class ViewErrorPageFilter implements ExceptionFilter {
   /**
    * Class constructor

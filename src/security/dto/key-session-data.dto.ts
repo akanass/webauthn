@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
-export class ClearSessionDataDto {
+export class KeySessionDataDto {
   @ApiProperty({
     name: 'key',
-    description: 'The key of the value to clean in the secure session',
-    example: 'from_login',
+    description: 'The key in the secure session',
+    example: 'previous_step',
     minLength: 2,
   })
   @IsString()

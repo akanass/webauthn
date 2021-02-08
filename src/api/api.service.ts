@@ -4,6 +4,7 @@ import { LoginUserDto } from '../user/dto/login-user.dto';
 import { Observable } from 'rxjs';
 import { UserEntity } from '../user/entities/user.entity';
 import { CreateUserDto } from '../user/dto/create-user.dto';
+import { PatchUserDto } from '../user/dto/patch-user.dto';
 
 @Injectable()
 export class ApiService {
@@ -35,5 +36,17 @@ export class ApiService {
    */
   createUser(user: CreateUserDto): Observable<UserEntity> {
     return this._userService.create(user);
+  }
+
+  /**
+   * Function to patch an user in the database
+   *
+   * @param {string} id user unique identifier
+   * @param {PatchUserDto} user payload to patch the user
+   *
+   * @return {Observable<UserEntity>} the entity representing the patched user
+   */
+  patchUser(id: string, user: PatchUserDto): Observable<UserEntity> {
+    return this._userService.patch(id, user);
   }
 }

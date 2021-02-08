@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   PreconditionFailedException,
@@ -13,6 +14,7 @@ import { catchError, filter, map, mergeMap, tap } from 'rxjs/operators';
 import { User } from './schemas/user.schema';
 import { SecurityService } from '../security/security.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { PatchUserDto } from './dto/patch-user.dto';
 
 @Injectable()
 export class UserService {
@@ -68,7 +70,7 @@ export class UserService {
                   of(user) :
                   throwError(new PreconditionFailedException('An error occurred during login process')),
               ),
-            )
+            ),
         ),
         tap((user: User) => delete user.password_hash),
         map((user: User) => new UserEntity(user)),
@@ -100,6 +102,46 @@ export class UserService {
         ),
         tap((user: User) => delete user.password_hash),
         map((user: User) => new UserEntity(user)),
+      );
+  }
+
+  /**
+   * Function to patch an user in the database
+   *
+   * @param {string} id user unique identifier in the database
+   * @param {PatchUserDto} user payload
+   *
+   * @return {Observable<UserEntity>} the entity representing the patched user
+   */
+  patch(id: string, user: PatchUserDto): Observable<UserEntity> {
+    return of(of(user))
+      .pipe(
+        mergeMap((obs: Observable<PatchUserDto>) =>
+          merge(
+            obs.pipe(
+              filter((_: PatchUserDto) => typeof _ !== 'undefined' && Object.keys(_).length > 0),
+              mergeMap((_: PatchUserDto) => this._userDao.patch(id, _)),
+              catchError(e =>
+                e.code === 11000 && !!user.username ?
+                  throwError(
+                    new ConflictException(`Username '${user.username}' already exists`),
+                  ) :
+                  throwError(new UnprocessableEntityException(e.message)),
+              ),
+              mergeMap((user: User) =>
+                !!user ?
+                  of(user) :
+                  throwError(new PreconditionFailedException(`User with id "${id}" doesn't exist in the database`)),
+              ),
+              tap((user: User) => delete user.password_hash),
+              map((user: User) => new UserEntity(user)),
+            ),
+            obs.pipe(
+              filter((_: PatchUserDto) => typeof _ === 'undefined' || Object.keys(_).length === 0),
+              mergeMap(() => throwError(new BadRequestException('Payload should at least contains one of "username", "display_name" or "skip_authenticator_registration"'))),
+            ),
+          ),
+        ),
       );
   }
 }

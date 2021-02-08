@@ -4,21 +4,23 @@ import {
   Controller,
   Get,
   HttpCode,
+  Param,
   Patch,
   Post,
   Session,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { NoContentInterceptor } from './interceptors/no-content.interceptor';
+import { HttpInterceptor } from './interceptors/http.interceptor';
 import {
   ApiBadRequestResponse,
   ApiBody,
   ApiConflictResponse,
   ApiCookieAuth,
-  ApiCreatedResponse,
+  ApiCreatedResponse, ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiOkResponse,
+  ApiParam,
   ApiPreconditionFailedResponse,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -35,11 +37,14 @@ import { SecurityService } from '../security/security.service';
 import { KeySessionDataDto } from '../security/dto/key-session-data.dto';
 import { AuthGuard } from '../security/guards/auth.guard';
 import { SessionDataDto } from '../security/dto/session-data.dto';
+import { UserIdParams } from './validators/user-id.params';
+import { PatchUserDto } from '../user/dto/patch-user.dto';
+import { OwnerGuard } from '../security/guards/owner.guard';
 
 @ApiTags('api')
 @Controller('api')
 @UseInterceptors(ClassSerializerInterceptor)
-@UseInterceptors(NoContentInterceptor)
+@UseInterceptors(HttpInterceptor)
 export class ApiController {
   /**
    * Class constructor
@@ -105,6 +110,38 @@ export class ApiController {
   @Get('logged-in')
   loggedIn(@Session() session: secureSession.Session): Observable<UserEntity> {
     return this._securityService.getLoggedInUser(session);
+  }
+
+  /**
+   * Handler to answer to POST /api/users/:id route
+   *
+   * @param {UserIdParams} params list of route params to take user id
+   * @param {PatchUserDto} user payload to patch the user
+   * @param {secureSession.Session} session secure data for the current session
+   *
+   * @return Observable<UserEntity>
+   */
+  @ApiOkResponse({ description: 'The user has been successfully patched', type: UserEntity })
+  @ApiConflictResponse({ description: 'The username already exists in the database' })
+  @ApiBadRequestResponse({ description: 'The payload provided to patch the user isn\'t good' })
+  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
+  @ApiPreconditionFailedResponse({ description: 'An error occurred during patch process' })
+  @ApiForbiddenResponse({ description: 'User is not the owner of the resource' })
+  @ApiParam({
+    name: 'id',
+    description: 'Unique identifier of the user in the database',
+    type: String,
+    allowEmptyValue: false,
+  })
+  @ApiBody({ description: 'Payload to patch an user', type: PatchUserDto })
+  @ApiCookieAuth()
+  @UseGuards(AuthGuard, OwnerGuard)
+  @Patch('users/:id')
+  patchUser(@Param() params: UserIdParams, @Body() user: PatchUserDto, @Session() session: secureSession.Session): Observable<UserEntity> {
+    return this._apiService.patchUser(params.id, user)
+      .pipe(
+        tap((user: UserEntity) => this._securityService.setSessionData(session, 'user', user)),
+      );
   }
 
   /**

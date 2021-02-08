@@ -6,18 +6,12 @@ import { catchError, map } from 'rxjs/operators';
 export class Auth {
   // private static property to store singleton instance
   private static _instance: Auth;
-  // private property to store login url
-  private _loginUrl: string;
-  // private property to store logout url
-  private _logoutUrl: string;
 
   /**
    * Create new instance
    * @private
    */
   private constructor() {
-    this._loginUrl = '/api/login';
-    this._logoutUrl = '/api/logout';
   }
 
   /**
@@ -39,7 +33,7 @@ export class Auth {
    */
   login(username: string, password: string): Observable<User> {
     return ajax({
-      url: this._loginUrl,
+      url: '/api/login',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -48,6 +42,19 @@ export class Auth {
         username,
         password,
       },
+    }).pipe(
+      map((resp: AjaxResponse) => new User(resp.response)),
+      catchError((err: AjaxError) => throwError(err.response)),
+    );
+  }
+
+  /**
+   * Function to return logged-in user
+   */
+  loggedIn(): Observable<User> {
+    return ajax({
+      url: '/api/logged-in',
+      method: 'GET',
     }).pipe(
       map((resp: AjaxResponse) => new User(resp.response)),
       catchError((err: AjaxError) => throwError(err.response)),

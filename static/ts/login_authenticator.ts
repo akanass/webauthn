@@ -1,3 +1,5 @@
+import { Subscription } from 'rxjs';
+
 /**
  * Get page's elements
  */
@@ -8,6 +10,11 @@ const buttonEnrollmentIcon: HTMLElement = document.querySelector('#button-icon')
 const buttonEnrollmentLabel: HTMLLabelElement = document.querySelector('#button-label');
 const buttonEnrollment: HTMLButtonElement = document.querySelector('#start-enrollment');
 const checkboxStopEnrollment: HTMLInputElement = document.querySelector('#stop-enrollment');
+
+/**
+ * Variable to store user subscription
+ */
+let userSubscription : Subscription;
 
 /**
  * Add event listener on window.load to put all process in place
@@ -100,9 +107,20 @@ const startOrSkipEnrollmentProcess = () => {
     // reset error messages
     resetErrorMessage();
 
+    if (!!userSubscription) {
+      userSubscription.unsubscribe();
+    }
+
     // patch user info if he wants to skip enrollment
     if (!!checkboxStopEnrollment.checked) {
+      import('./_auth').then(({ auth }) => {
+        // get logged in user
+        userSubscription = auth.loggedIn()
+          .pipe(
 
+          )
+          .subscribe();
+      });
     } else {
       // import webauthn script
       import('./_webauthn').then(({ webAuthn }) => {

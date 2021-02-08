@@ -10,22 +10,30 @@ html, body {
 
 .main{
   height: 100vh;
+}
+
+.content-center {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+.direction-column {
+  flex-direction: column;
+}
+
 .mdc-card {
-  min-height: 90vh;
-  width: 30vw;
+  height: 90vh;
+  width: 50vw;
+  overflow: scroll;
 }
 
 .mdc-card__media {
-  background: theme.$primary url("/public/img/locks.gif") no-repeat 36%/80%;
+  background: theme.$primary url("/public/img/locks.gif") no-repeat 43%/55%;
 }
 
 .mdc-card__media--16-9:before {
-  margin-top: 45%;
+  margin-top: 30%;
 }
 
 .mdc-card__header {
@@ -42,12 +50,13 @@ html, body {
 }
 
 .mdc-card__content-title {
-  padding: 15px 0;
+  padding: 15px 0 30px 0;
   color: theme.$primary;
+  text-align: center;
 }
 
 .mdc-text-field {
-  width: 100%;
+  width: 75%;
   margin-bottom: 30px;
   @include textfield.fill-color(theme.$surface);
   @include textfield.label-color(theme.$primary);
@@ -62,7 +71,7 @@ html, body {
 }
 
 .mdc-button {
-  width: 100%;
+  width: 75%;
   @include button.icon-color(theme.$secondary);
 }
 
@@ -123,4 +132,9 @@ html, body {
 
 .mgt20 {
   margin-top: 20px;
+}
+
+
+.mgt50 {
+  margin-top: 50px;
 }

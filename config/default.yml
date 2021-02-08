@@ -33,7 +33,7 @@ views:
   i18n:
     login:
       headerTitle: Login Has Never Been Easier-Or Safer!
-      pageTitle: Login
+      pageTitle: Login with password
       loginButton: Login
       text1: Looking for a better way to login ? Click
       text2: if you already have registered a Fido authenticator and you want to connect via on-device biometrics instead of passwords.

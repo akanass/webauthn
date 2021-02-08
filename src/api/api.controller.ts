@@ -2,10 +2,12 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Post,
   Session,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { NoContentInterceptor } from './interceptors/no-content.interceptor';
@@ -15,7 +17,7 @@ import {
   ApiConflictResponse,
   ApiCookieAuth,
   ApiCreatedResponse,
-  ApiForbiddenResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiPreconditionFailedResponse,
   ApiTags,
@@ -25,11 +27,13 @@ import {
 import { ApiService } from './api.service';
 import { LoginUserDto } from '../user/dto/login-user.dto';
 import { UserEntity } from '../user/entities/user.entity';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import * as secureSession from 'fastify-secure-session';
 import { tap } from 'rxjs/operators';
 import { SecurityService } from '../security/security.service';
+import { ClearSessionDataDto } from '../security/dto/clear-session-data.dto';
+import { AuthGuard } from '../security/guards/auth.guard';
 
 @ApiTags('api')
 @Controller('api')
@@ -86,11 +90,37 @@ export class ApiController {
     return this._apiService.createUser(user);
   }
 
+  /**
+   * Handler to answer to GET /api/logged-in route
+   *
+   * @param {secureSession.Session} session secure data for the current session
+   *
+   * @return Observable<UserEntity>
+   */
   @ApiOkResponse({ description: 'Returns the user store in the secure session', type: UserEntity })
-  @ApiForbiddenResponse({ description: 'User is not logged in' })
+  @ApiUnauthorizedResponse({ description: 'User is not logged in' })
   @ApiCookieAuth()
+  @UseGuards(AuthGuard)
   @Get('logged-in')
   loggedIn(@Session() session: secureSession.Session): Observable<UserEntity> {
-    return this._securityService.checkIfUserIsLoggedIn(session);
+    return this._securityService.getLoggedInUser(session);
+  }
+
+  /**
+   * Handler to answer to GET /api/logged-in route
+   *
+   * @param {ClearSessionDataDto} clearSessionData payload to clear a session value
+   * @param {secureSession.Session} session secure data for the current session
+   *
+   * @return Observable<void>
+   */
+  @ApiNoContentResponse({ description: 'The value in session has been successfully deleted' })
+  @ApiBadRequestResponse({ description: 'Parameter provided is not good' })
+  @ApiUnauthorizedResponse({ description: 'User is not logged in' })
+  @ApiCookieAuth()
+  @UseGuards(AuthGuard)
+  @Delete('clear-session-data')
+  clearSessionData(@Body() clearSessionData: ClearSessionDataDto, @Session() session: secureSession.Session): Observable<void> {
+    return of(this._securityService.clearSessionData(session, clearSessionData.key));
   }
 }

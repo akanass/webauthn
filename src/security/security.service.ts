@@ -1,9 +1,9 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { merge, Observable, of, throwError } from 'rxjs';
 import * as Config from 'config';
 import { PasswordConfig } from '../interfaces/security-config.interface';
 import { HashService } from '@akanass/nestjsx-crypto';
-import { filter, map, mergeMap } from 'rxjs/operators';
+import { defaultIfEmpty, filter, map, mergeMap } from 'rxjs/operators';
 import * as secureSession from 'fastify-secure-session';
 import { UserEntity } from '../user/entities/user.entity';
 
@@ -47,23 +47,39 @@ export class SecurityService {
    *
    * @param {secureSession.Session} session the current secure session instance
    *
-   * @return {Observable<UserEntity>} the entity representing the user in the secure session
+   * @return {Observable<boolean>} the flag to know if the user is logged in and store in the secure session
    */
-  checkIfUserIsLoggedIn(session: secureSession.Session): Observable<UserEntity> {
-    return of(of(session.get('user')))
+  checkIfUserIsLoggedIn(session: secureSession.Session): Observable<boolean> {
+    return of(this.getLoggedInUser(session))
       .pipe(
         mergeMap((obs: Observable<UserEntity>) =>
           merge(
             obs.pipe(
               filter((user: UserEntity) => !!user),
-              map((user: UserEntity) => new UserEntity(user)),
+              map(() => true),
             ),
             obs.pipe(
               filter((user: UserEntity) => !user),
-              mergeMap(() => throwError(new ForbiddenException('User is not logged in'))),
+              mergeMap(() => throwError(new UnauthorizedException('User is not logged in'))),
             ),
           ),
         ),
+      );
+  }
+
+  /**
+   * Function to return the user stored in secure session
+   *
+   * @param {secureSession.Session} session the current secure session instance
+   *
+   * @return {Observable<UserEntity>} the entity representing the user in the secure session
+   */
+  getLoggedInUser(session: secureSession.Session): Observable<UserEntity> {
+    return of(this.getSessionData(session, 'user'))
+      .pipe(
+        filter((user: UserEntity) => typeof user !== 'undefined'),
+        map((user: UserEntity) => new UserEntity(user)),
+        defaultIfEmpty(),
       );
   }
 
@@ -97,7 +113,8 @@ export class SecurityService {
    * @param {string} key of the value stored in the secure session
    */
   clearSessionData(session: secureSession.Session, key: string): void {
-    if (!!this.getSessionData(session, key)) {
+    const data = this.getSessionData(session, key);
+    if (typeof data !== 'undefined') {
       this.setSessionData(session, key, undefined);
     }
   }

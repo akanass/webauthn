@@ -4,7 +4,7 @@ import { filter, map, mergeMap, tap } from 'rxjs/operators';
 import { FastifyReply } from 'fastify';
 
 @Injectable()
-export class NoContentInterceptor implements NestInterceptor {
+export class HttpInterceptor implements NestInterceptor {
   /**
    * Class constructor
    * @param _logger

@@ -1,0 +1,26 @@
+<div id="error-end" class="error-message mdc-typography--subtitle2">
+  <i class="material-icons" aria-hidden="true">error_outline</i>
+  <span id="error-end-message" class="message"></span>
+  <span id="error-webauthn-message" class="message">{{errorWebAuthn}}</span>
+</div>
+<div class="mdc-typography--body2">{{congratulations}}</div>
+<div class="mdc-typography--body2">{{text}}</div>
+{{#if webauthn_login}}
+  <div class="mdc-typography--body2">{{webauthn1}}</div>
+  <div class="mdc-typography--body2">{{webauthn2}}</div>
+{{else}}
+  <div class="mdc-typography--body2">{{advices}}</div>
+  <div class="mdc-typography--body2">{{enrollment}}</div>
+{{/if}}
+<div class="content-center justify-content-space">
+  <button id="logout" class="mgt30 mdc-button mdc-button--raised">
+    <div class="mdc-button__ripple"></div>
+    <i id="button-icon" class="material-icons mdc-button__icon" aria-hidden="true">exit_to_app</i>
+    <span id="button-label" class="mdc-button__label">{{logout}}</span>
+  </button>
+  <button id="authenticator-management" class="mgt30 mdc-button mdc-button--raised">
+    <div class="mdc-button__ripple"></div>
+    <i id="button-icon" class="material-icons mdc-button__icon" aria-hidden="true">fingerprint</i>
+    <span id="button-label" class="mdc-button__label">{{authenticators}}</span>
+  </button>
+</div>

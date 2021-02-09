@@ -1,7 +1,7 @@
 import {
   Body,
   ClassSerializerInterceptor,
-  Controller,
+  Controller, Delete,
   Get,
   HttpCode,
   Param,
@@ -76,7 +76,7 @@ export class ApiController {
     return this._apiService.login(loginUser)
       .pipe(
         tap((user: UserEntity) => this._securityService.setSessionData(session, 'user', user)),
-        tap((user: UserEntity) => !user.skip_authenticator_registration ? this._securityService.setSessionData(session, 'previous_step', 'login') : null),
+        tap(() => this._securityService.setSessionData(session, 'previous_step', 'login')),
       );
   }
 
@@ -146,7 +146,7 @@ export class ApiController {
   }
 
   /**
-   * Handler to answer to GET /api/clear-session-data route
+   * Handler to answer to GET /api/clean-session-data route
    *
    * @param {KeySessionDataDto} keySessionData payload to clear a session value
    * @param {secureSession.Session} session secure data for the current session
@@ -159,9 +159,9 @@ export class ApiController {
   @ApiBody({ description: 'Payload to clear a session value', type: KeySessionDataDto })
   @ApiCookieAuth()
   @UseGuards(AuthGuard)
-  @Patch('clear-session-data')
-  clearSessionData(@Body() keySessionData: KeySessionDataDto, @Session() session: secureSession.Session): Observable<void> {
-    return of(this._securityService.clearSessionData(session, keySessionData.key));
+  @Patch('clean-session-data')
+  cleanSessionData(@Body() keySessionData: KeySessionDataDto, @Session() session: secureSession.Session): Observable<void> {
+    return of(this._securityService.cleanSessionData(session, keySessionData.key));
   }
 
   /**
@@ -181,5 +181,21 @@ export class ApiController {
   @Patch('set-session-data')
   setSessionData(@Body() sessionData: SessionDataDto, @Session() session: secureSession.Session): Observable<void> {
     return of(this._securityService.setSessionData(session, sessionData.key, sessionData.value));
+  }
+
+  /**
+   * Handler to answer to GET /api/delete-session route
+   *
+   * @param {secureSession.Session} session secure data for the current session
+   *
+   * @return Observable<void>
+   */
+  @ApiNoContentResponse({ description: 'The logout process has been successfully finished' })
+  @ApiUnauthorizedResponse({ description: 'User is not logged in' })
+  @ApiCookieAuth()
+  @UseGuards(AuthGuard)
+  @Delete('delete-session')
+  deleteSession(@Session() session: secureSession.Session): Observable<void> {
+    return of(this._securityService.deleteSession(session));
   }
 }

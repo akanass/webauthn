@@ -40,7 +40,7 @@ export class ViewErrorPageFilter implements ExceptionFilter {
     this._logger.error(exception.getResponse().message, JSON.stringify(exception.getResponse()),'ViewErrorPageFilter');
 
     // delete session
-    this._securityService.cleanSession(request.session);
+    this._securityService.deleteSession(request.session);
 
     // display error page
     response.status(status).view('error', this._appService.getMetadata('error'));

@@ -1,3 +1,15 @@
 #dynamic-title-value {
   display: inline;
 }
+
+.justify-content-space {
+  justify-content: space-around;
+}
+
+.justify-content-space .mdc-button {
+  width: 40%;
+}
+
+#error-end {
+  display: none;
+}

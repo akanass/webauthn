@@ -3,7 +3,7 @@ import { merge, Observable, of, throwError } from 'rxjs';
 import * as Config from 'config';
 import { PasswordConfig } from '../interfaces/security-config.interface';
 import { HashService } from '@akanass/nestjsx-crypto';
-import { defaultIfEmpty, filter, map, mergeMap } from 'rxjs/operators';
+import { defaultIfEmpty, filter, map, mergeMap, tap } from 'rxjs/operators';
 import * as secureSession from 'fastify-secure-session';
 import { UserEntity } from '../user/entities/user.entity';
 import { SessionData } from './interfaces/session-data.interface';
@@ -154,7 +154,7 @@ export class SecurityService {
    * @param {secureSession.Session} session the current secure session instance
    * @param {string} key of the value stored in the secure session
    */
-  clearSessionData(session: secureSession.Session, key: string): void {
+  cleanSessionData(session: secureSession.Session, key: string): void {
     const data = this.getSessionData(session, key);
     if (typeof data !== 'undefined') {
       this.setSessionData(session, key, undefined);
@@ -166,7 +166,7 @@ export class SecurityService {
    *
    * @param {secureSession.Session} session the current secure session instance
    */
-  cleanSession(session: secureSession.Session): void {
+  deleteSession(session: secureSession.Session): void {
     session.delete();
   }
 
@@ -185,7 +185,7 @@ export class SecurityService {
           merge(
             obs.pipe(
               filter(_ => !!_),
-              map((_: SessionData) => this.getSessionData(session, _.key) === _.value),
+              map((_: SessionData) => [].concat(_.value).indexOf(this.getSessionData(session, _.key)) > -1),
             ),
             obs.pipe(
               filter(_ => !_),

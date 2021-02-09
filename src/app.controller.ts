@@ -74,7 +74,7 @@ export class AppController {
    * Handler to answer to GET /webauthn/authenticator route and display the associated page
    *  if user is logged in else the error page
    */
-  @SetMetadata('session_data', { key: 'previous_step', value: 'login_authenticator' })
+  @SetMetadata('session_data', { key: 'previous_step', value: [ 'login_authenticator', 'end' ] })
   @UseGuards(AuthGuard, SessionValueGuard)
   @Get('webauthn/authenticator')
   async webauthnAuthenticatorPage(@Res() res, @Session() session: secureSession.Session) {
@@ -94,15 +94,22 @@ export class AppController {
    * Handler to answer to GET /end route and display the associated page
    *  if user is logged in else the error page
    */
-  @UseGuards(AuthGuard)
+  @SetMetadata('session_data', { key: 'previous_step', value: [ 'login', 'webauthn' ] })
+  @UseGuards(AuthGuard, SessionValueGuard)
   @Get('end')
   async endPage(@Res() res, @Session() session: secureSession.Session) {
-    // clear obsolete session value
-    this._securityService.clearSessionData(session, 'previous_step');
+    // get previous step
+    const previous_step = this._securityService.getSessionData(session, 'previous_step');
+
+    // get user
+    const user = this._securityService.getSessionData(session, 'user');
 
     // display page
     await res
-      .view('end', Object.assign({}, this._appService.getMetadata('end'), { dynamicTitleValue: this._securityService.getSessionData(session, 'user').display_name }));
+      .view('end', Object.assign({}, this._appService.getMetadata('end'), {
+        dynamicTitleValue: user.display_name,
+        webauthn_login: previous_step === 'webauthn',
+      }));
   }
 
   /**

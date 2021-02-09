@@ -34,8 +34,6 @@ window.addEventListener('load', () => {
 /**
  * Function to reset error message block
  */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 const resetErrorMessage = () => {
   // hide error messages
   errorLogin.style.display = 'none';

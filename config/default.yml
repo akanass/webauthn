@@ -52,12 +52,21 @@ views:
       errorWebAuthn: Your browser doesn't support WebAuthn protocol
     webauthn_authenticator:
       headerTitle: Fido 2 WebAuthn - Security Settings
-      pageTitle: Authentication
+      pageTitle: First-Factor Authentication
       text1: Configure your first-factor authentication here. You can select any combination of authenticators, including multiple security keys and any combination of security keys and internal authenticators.
       text2: Once an authenticator has been selected you can sign out and then sign in to experience the WebAuthn authentication.
     end:
       headerTitle: Login Has Never Been Easier-Or Safer!
       pageTitle: Welcome
+      congratulations: Congratulations ! You have successfully signed in.
+      text: You are on the last page of this demonstration. You can nevertheless access the management page of your authenticator or simply log out to start the process again.
+      webauthn1: We hope you enjoyed this new authentication experience and that you will never want to use a password again in the future.
+      webauthn2: Talk to those around you and ask that the WebAuthn protocol be integrated into as many applications as possible so that everyone enjoys maximum security.
+      advices: To safeguard your account further, we recommend you to enroll First-Factor authenticator and stop using your username and password.
+      enrollment: To do this, simply click on the button and you will be redirected to your authenticator management page in order to enroll a security key or Biometrics.
+      authenticators: Authenticator
+      logout: Logout
+      errorWebAuthn: Your browser doesn't support WebAuthn protocol
     error:
       headerTitle: Login Has Never Been Easier-Or Safer!
       pageTitle: An error occurred

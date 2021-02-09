@@ -1,7 +1,7 @@
-import { Observable, throwError } from 'rxjs';
-import { ajax, AjaxError, AjaxResponse } from 'rxjs/ajax';
+import { Observable } from 'rxjs';
+import { ajax, AjaxResponse } from 'rxjs/ajax';
 import { User } from './_user';
-import { catchError, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 export class Api {
   // private static property to store singleton instance
@@ -60,6 +60,18 @@ export class Api {
   }
 
   /**
+   * Function to delete the session
+   */
+  logout(): Observable<void> {
+    return ajax({
+      url: `/api/delete-session`,
+      method: 'DELETE',
+    }).pipe(
+      map((resp: AjaxResponse) => resp.response),
+    );
+  }
+
+  /**
    * Function to patch user value
    *
    * @param {string} userId unique identifier of the user
@@ -99,13 +111,13 @@ export class Api {
   }
 
   /**
-   * Function to clear session value
+   * Function to clean session value
    *
    * @param {any} partial session key to clear it
    */
-  clearSession(partial: { key: string }): Observable<void> {
+  cleanSession(partial: { key: string }): Observable<void> {
     return ajax({
-      url: `/api/clear-session-data`,
+      url: `/api/clean-session-data`,
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

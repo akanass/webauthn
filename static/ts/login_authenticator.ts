@@ -40,8 +40,6 @@ window.addEventListener('load', () => {
 /**
  * Function to reset error message block
  */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 const resetErrorMessage = () => {
   // hide error messages
   errorLoginAuthenticator.style.display = 'none';
@@ -87,6 +85,33 @@ const resetButtonToStopEnrollment = () => {
 };
 
 /**
+ * Function to disable button and checkbox
+ */
+const disableButtonAndCheckbox = () => {
+  // disable button & checkbox
+  buttonEnrollment.disabled = true;
+  checkboxStopEnrollment.disabled = true;
+}
+
+/**
+ * Function to enable button and checkbox
+ */
+const enableButtonAndCheckbox = () => {
+  // enable button & checkbox
+  buttonEnrollment.disabled = false;
+  checkboxStopEnrollment.disabled = false;
+}
+
+/**
+ * Function to force stop enrollment
+ */
+const forceStopEnrollment = () => {
+  resetButtonToStopEnrollment();
+  buttonEnrollment.disabled = false;
+  checkboxStopEnrollment.checked = true;
+}
+
+/**
  * Function to change UI when click on the checkbox
  */
 const checkStopEnrollmentProcess = () => {
@@ -112,8 +137,7 @@ const startOrSkipEnrollmentProcess = () => {
     resetErrorMessage();
 
     // disable button & checkbox
-    buttonEnrollment.disabled = true;
-    checkboxStopEnrollment.disabled = true;
+    disableButtonAndCheckbox();
 
     // delete previous subscriptions to memory free
     if (!!userSubscription) {
@@ -131,7 +155,6 @@ const startOrSkipEnrollmentProcess = () => {
         userSubscription = api.loggedIn()
           .pipe(
             mergeMap((user: User) => api.patchUser(user.userId, { skip_authenticator_registration: true })),
-            mergeMap(() => api.clearSession({ key: 'previous_step' })),
           )
           .subscribe(
             () => {
@@ -140,7 +163,7 @@ const startOrSkipEnrollmentProcess = () => {
 
               window.location.href = '/end'; // TODO THIS IS THE END OF THE PROCESS FOR NOW - SHOULD BE AN OIDC STEP
             },
-            (err: AjaxError) => manageApiError(err),
+            (err: AjaxError) => manageApiError(err, userSubscription),
           );
       });
     } else {
@@ -150,6 +173,8 @@ const startOrSkipEnrollmentProcess = () => {
         if (!webAuthn.supported) {
           // display error message and stop redirection
           displayLoginAuthenticatorWebAuthnErrorMessage();
+          // enable button with timeout to avoid flickering
+          setTimeout(() => forceStopEnrollment(), 500);
         } else {
           import('./_api').then(({ api }) => {
             sessionSubscription = api.patchSession({ key: 'previous_step', value: 'login_authenticator' })
@@ -161,7 +186,7 @@ const startOrSkipEnrollmentProcess = () => {
                   // redirect user to webauthn/authenticator page
                   window.location.href = '/webauthn/authenticator';
                 },
-                (err: AjaxError) => manageApiError(err),
+                (err: AjaxError) => manageApiError(err, sessionSubscription),
               );
           });
         }
@@ -174,10 +199,16 @@ const startOrSkipEnrollmentProcess = () => {
  * Function to manage API error
  *
  * @param {AjaxError} err instance of AjaxError
+ * @param {Subscription} sub instance of Subscription
  */
-const manageApiError = (err: AjaxError) => {
+const manageApiError = (err: AjaxError, sub: Subscription) => {
   // check if user is authenticated
   if (err.status === 401) {
+    // delete previous subscription to memory free
+    if (!!sub) {
+      sub.unsubscribe();
+    }
+    // redirect user to error page
     window.location.href = '/error';
   } else {
     // error message is an array so we take only the first one
@@ -188,9 +219,6 @@ const manageApiError = (err: AjaxError) => {
     displayLoginAuthenticatorErrorMessage(errorMessage);
 
     // enable button with timeout to avoid flickering
-    setTimeout(() => {
-      buttonEnrollment.disabled = false;
-      checkboxStopEnrollment.disabled = false;
-    }, 500);
+    setTimeout(() => enableButtonAndCheckbox(), 500);
   }
 };

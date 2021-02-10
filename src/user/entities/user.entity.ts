@@ -46,6 +46,16 @@ export class UserEntity {
   last_access_time: number;
 
   /**
+   * Creation date in timestamp format but not exposed in the API
+   */
+  created_at: number;
+
+  /**
+   * Update date in timestamp format but not exposed in the API
+   */
+  updated_at: number;
+
+  /**
    * Class constructor
    *
    * @param partial data to insert in object instance

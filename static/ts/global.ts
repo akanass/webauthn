@@ -2,6 +2,7 @@ import { MDCRipple } from '@material/ripple';
 import { MDCTextField } from '@material/textfield';
 import { MDCCheckbox } from '@material/checkbox';
 import { MDCFormField } from '@material/form-field/component';
+import { MDCTabBar } from '@material/tab-bar';
 
 // add ripple effect
 const rippleSelectors = '.mdc-button, .mdc-icon-button, .mdc-card__primary-action';
@@ -19,3 +20,6 @@ const rippleSelectors = '.mdc-button, .mdc-icon-button, .mdc-card__primary-actio
     formField.input = checkbox;
   }
 });
+
+// add tab bar
+[].map.call(document.querySelectorAll('.mdc-tab-bar'), el => new MDCTabBar(el));

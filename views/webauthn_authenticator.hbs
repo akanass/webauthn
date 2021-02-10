@@ -1,2 +1,59 @@
+<div id="error-authenticator-list" class="error-message mdc-typography--subtitle2">
+  <i class="material-icons" aria-hidden="true">error_outline</i>
+  <span id="error-authenticator-list-message" class="message"></span>
+  <span id="error-webauthn-message" class="message">{{errorWebAuthn}}</span>
+</div>
 <div class="mdc-typography--body2">{{text1}}</div>
-<div class="mdc-typography--body2">{{text2}}</div>
+<div class="mdc-typography--body2">{{text2}} <a href="#" class="link" id="logout">{{signOut}}</a> {{text3}}</div>
+<div id="authenticators-tab-bar" class="mgt20 mdc-tab-bar" role="tablist">
+  <div class="mdc-tab-scroller">
+    <div class="mdc-tab-scroller__scroll-area">
+      <div class="mdc-tab-scroller__scroll-content">
+        <button class="mdc-tab mdc-tab--active" role="tab" aria-selected="true" tabindex="0">
+          <span class="mdc-tab__content">
+            <span class="mdc-tab__icon material-icons" aria-hidden="true">vpn_key</span>
+            <span class="mdc-tab__text-label">{{securityKeys}}</span>
+          </span>
+          <span class="mdc-tab-indicator mdc-tab-indicator--active">
+            <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+          </span>
+          <span class="mdc-tab__ripple"></span>
+        </button>
+        <button class="mdc-tab mdc-tab--active" role="tab" aria-selected="false" tabindex="1">
+          <span class="mdc-tab__content">
+            <span class="mdc-tab__icon material-icons" aria-hidden="true">fingerprint</span>
+            <span class="mdc-tab__text-label">{{biometrics}}</span>
+          </span>
+          <span class="mdc-tab-indicator">
+            <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+          </span>
+          <span class="mdc-tab__ripple"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="security-keys" class="authenticator-list authenticator-list--active mdc-typography--body2">
+  <div id="security-keys-list">
+    {{>authenticator}}
+  </div>
+  <div class="content-center">
+    <button id="add-security-key" class="mgt50 mdc-button mdc-button--raised">
+      <div class="mdc-button__ripple"></div>
+      <i class="material-icons mdc-button__icon" aria-hidden="true">vpn_key</i>
+      <span class="mdc-button__label">{{addSecurityKey}}</span>
+    </button>
+  </div>
+</div>
+<div id="biometrics" class="authenticator-list mdc-typography--body2">
+  <div id="biometrics-list">
+    {{>authenticator}}
+  </div>
+  <div class="content-center">
+    <button id="add-biometric" class="mgt50 mdc-button mdc-button--raised">
+      <div class="mdc-button__ripple"></div>
+      <i class="material-icons mdc-button__icon" aria-hidden="true">fingerprint</i>
+      <span class="mdc-button__label">{{addbBiometric}}</span>
+    </button>
+  </div>
+</div>

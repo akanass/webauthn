@@ -1,0 +1,81 @@
+@use "@material/theme";
+@use "@material/button";
+
+#error-authenticator-list {
+  display: none;
+}
+
+.authenticator-list {
+  padding: 20px 0;
+  display: none;
+}
+
+.authenticator-list--active {
+  display: block;
+}
+
+.authenticator-detail {
+  display: flex;
+  width: 100%;
+}
+
+.authenticator-icon-container {
+  color: theme.$grey-600;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: theme.$background;
+}
+
+.authenticator-icon {
+  fill: currentColor;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  font-size: 1.5rem;
+  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.authenticator-icon.security-key {
+  width: 32px;
+  height: 32px;
+}
+
+.authenticator-description-container {
+  width: 80%;
+  display: flex;
+  margin-left: 16px;
+  margin-bottom: 16px;
+  justify-content: space-between;
+}
+
+.authenticator-description-container .mdc-typography--body2 {
+  color: theme.$grey-800;
+  padding: 0;
+}
+
+.authenticator-description-container .mdc-typography--caption {
+  color: theme.$grey-500;
+  padding: 0;
+}
+
+.authenticator-action-container .mdc-button {
+  min-width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  @include button.icon-color(theme.$grey-600);
+  @include button.container-fill-color(theme.$background);
+}
+
+.authenticator-action-container .mdc-button__icon {
+  margin: 0;
+}
+
+.authenticator-action-container .mdc-button--raised {
+  padding: 0;
+}

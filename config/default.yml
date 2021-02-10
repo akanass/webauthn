@@ -28,6 +28,8 @@ views:
       removeEmptyAttributes: true
       minifyCSS: true
       minifyJS: true
+    partials:
+      authenticator: _authenticator.hbs
   defaultContext:
     title: Fido2 WebAuthn + OpenID Connect
   i18n:
@@ -54,7 +56,15 @@ views:
       headerTitle: Fido 2 WebAuthn - Security Settings
       pageTitle: First-Factor Authentication
       text1: Configure your first-factor authentication here. You can select any combination of authenticators, including multiple security keys and any combination of security keys and internal authenticators.
-      text2: Once an authenticator has been selected you can sign out and then sign in to experience the WebAuthn authentication.
+      text2: Once an authenticator has been selected you can
+      text3: and then sign in to experience the WebAuthn authentication.
+      signOut: sign out
+      biometrics: Biometrics
+      securityKeys: Security Keys
+      addbBiometric: Add Biometric
+      addSecurityKey: Add Security Key
+      noAuthenticator: No authenticator added.
+      errorWebAuthn: Your browser doesn't support WebAuthn protocol
     end:
       headerTitle: Login Has Never Been Easier-Or Safer!
       pageTitle: Welcome

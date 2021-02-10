@@ -74,20 +74,20 @@ export class AppController {
    * Handler to answer to GET /webauthn/authenticator route and display the associated page
    *  if user is logged in else the error page
    */
-  @SetMetadata('session_data', { key: 'previous_step', value: [ 'login_authenticator', 'end' ] })
-  @UseGuards(AuthGuard, SessionValueGuard)
+  /*@SetMetadata('session_data', { key: 'previous_step', value: [ 'login_authenticator', 'end' ] })
+  @UseGuards(AuthGuard, SessionValueGuard)*/
   @Get('webauthn/authenticator')
   async webauthnAuthenticatorPage(@Res() res, @Session() session: secureSession.Session) {
     // get user in session
-    const user: UserEntity = this._securityService.getLoggedInUserSync(session);
+    //const user: UserEntity = this._securityService.getLoggedInUserSync(session);
 
     // check if user has skipped this step before displaying this page
-    if (!!user.skip_authenticator_registration) { // TODO USE MIDDLEWARE
+    /*if (!!user.skip_authenticator_registration) { // TODO USE MIDDLEWARE
       await res.status(302).redirect('end');
-    } else {
+    } else {*/
       await res
         .view('webauthn_authenticator', this._appService.getMetadata('webauthn_authenticator'));
-    }
+    //}
   }
 
   /**

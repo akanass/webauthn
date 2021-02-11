@@ -34,12 +34,13 @@ export class CredentialDao {
    * Patch the credential for the given credential id with the given patch values
    *
    * @param {string} id of the Credential
+   * @param {string} userId unique identifier of the owner of the credential to update
    * @param {PatchCredentialDto} patch the values to patch the credential
    *
    * @return {Observable<Credential | void>} patched credential or undefined if not found
    */
-  patch(id: string, patch: PatchCredentialDto): Observable<Credential | void> {
-    return from(this._credentialModel.findByIdAndUpdate(id, patch, {
+  updateCredentialName(id: string, userId: string, patch: PatchCredentialDto): Observable<Credential | void> {
+    return from(this._credentialModel.findOneAndUpdate({ id, user_id: userId }, patch, {
       new: true,
       runValidators: true,
     }))
@@ -143,11 +144,12 @@ export class CredentialDao {
    * Delete a credential in database
    *
    * @param {string} id of the credential in the db
+   * @param {string} userId unique identifier of the owner of the credential to remove
    *
    * @return {Observable<Credential | void>} credential deleted object or undefined if not found
    */
-  findByIdAndRemove(id: string): Observable<Credential | void> {
-    return from(this._credentialModel.findByIdAndRemove(id))
+  findByIdAndUserIdThenRemove(id: string, userId: string): Observable<Credential | void> {
+    return from(this._credentialModel.findOneAndRemove({ id, user_id: userId }))
       .pipe(
         map((doc: CredentialDocument) => !!doc ? doc.toJSON() : undefined),
       );

@@ -4,7 +4,7 @@ import { CredentialDao } from './dao/credential.dao';
 import { Observable } from 'rxjs';
 import { CredentialEntity } from './entities/credential.entity';
 import { Credential } from './schemas/credential.schema';
-import { map } from 'rxjs/operators';
+import { defaultIfEmpty, filter, map } from 'rxjs/operators';
 
 @Injectable()
 export class CredentialService {
@@ -27,7 +27,9 @@ export class CredentialService {
   findCredentialsForUser(userId: string): Observable<CredentialEntity[] | void> {
     return this._credentialDao.findAllByUserId(userId)
       .pipe(
-        map((credentials: Credential[]) => !!credentials ? credentials.map((credential: Credential) => new CredentialEntity(credential)) : undefined),
+        filter((credentials: Credential[]) => !!credentials),
+        map((credentials: Credential[]) => credentials.map((credential: Credential) => new CredentialEntity(credential))),
+        defaultIfEmpty(undefined),
       );
   }
 }

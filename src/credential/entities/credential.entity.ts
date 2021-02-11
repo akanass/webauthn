@@ -67,15 +67,22 @@ export class CredentialEntity {
    */
   attestation: Buffer;
 
-  @ApiProperty({ name: 'metadata', description: 'Authenticator metadata' })
+  @ApiProperty({
+    name: 'metadata',
+    description: 'Authenticator metadata',
+    example: {
+      authenticator_attachment: 'cross-platform'
+    },
+    type: CredentialMetadataEntity
+  })
   @Expose()
   @Type(() => CredentialMetadataEntity)
   metadata: CredentialMetadataEntity;
 
   @ApiProperty({
     name: 'last_access_time',
-    description: 'Last access time, in timestamp format, when user has used this authenticator',
-    example: 101343600000
+    description: 'Last access time, in timestamp format, when user used this authenticator',
+    example: 101343600000,
   })
   @Expose()
   @Type(() => Number)

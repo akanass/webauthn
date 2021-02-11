@@ -28,9 +28,6 @@ views:
       removeEmptyAttributes: true
       minifyCSS: true
       minifyJS: true
-    partials:
-      authenticators_list: _authenticators_list.hbs
-      authenticator: _authenticator.hbs
   defaultContext:
     title: Fido2 WebAuthn + OpenID Connect
   i18n:
@@ -64,8 +61,8 @@ views:
       securityKeys: Security Keys
       addbBiometric: Add Biometric
       addSecurityKey: Add Security Key
-      noAuthenticator: No authenticator added.
       errorWebAuthn: Your browser doesn't support WebAuthn protocol
+      loading: Loading...
     end:
       headerTitle: Login Has Never Been Easier-Or Safer!
       pageTitle: Welcome

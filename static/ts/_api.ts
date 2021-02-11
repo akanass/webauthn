@@ -2,6 +2,7 @@ import { Observable } from 'rxjs';
 import { ajax, AjaxResponse } from 'rxjs/ajax';
 import { User } from './_user';
 import { map } from 'rxjs/operators';
+import { CredentialsList } from './_credentials_list';
 
 export class Api {
   // private static property to store singleton instance
@@ -11,6 +12,7 @@ export class Api {
    * Create new instance
    * @private
    */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {
   }
 
@@ -126,6 +128,23 @@ export class Api {
     }).pipe(
       map((resp: AjaxResponse) => resp.response),
     );
+  }
+
+  /**
+   * Function to get all credentials for current user
+   *
+   * @param {string} userId unique identifier of the user
+   *
+   * @return {Observable<CredentialsList>} list of all credentials
+   */
+  getCredentialsList(userId: string): Observable<CredentialsList> {
+    return ajax({
+      url: `/api/users/${userId}/credentials`,
+      method: 'GET',
+    })
+      .pipe(
+        map((resp: AjaxResponse) => new CredentialsList(resp.response)),
+      );
   }
 }
 

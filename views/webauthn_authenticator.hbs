@@ -34,11 +34,9 @@
   </div>
 </div>
 <div id="security-keys" class="authenticators-list authenticators-list--active mdc-typography--body2">
-  <div id="security-keys-list">
-    {{>authenticators_list}}
-  </div>
+  <div id="security-keys-list"><p>{{loading}}</p></div>
   <div class="content-center">
-    <button id="add-security-key" class="mgt50 mdc-button mdc-button--raised">
+    <button id="add-security-key" class="mgt50 mdc-button mdc-button--raised" disabled>
       <div class="mdc-button__ripple"></div>
       <i class="material-icons mdc-button__icon" aria-hidden="true">vpn_key</i>
       <span class="mdc-button__label">{{addSecurityKey}}</span>
@@ -46,11 +44,9 @@
   </div>
 </div>
 <div id="biometrics" class="authenticators-list mdc-typography--body2">
-  <div id="biometrics-list">
-    {{>authenticators_list}}
-  </div>
+  <div id="biometrics-list"><p>{{loading}}</p></div>
   <div class="content-center">
-    <button id="add-biometric" class="mgt50 mdc-button mdc-button--raised">
+    <button id="add-biometric" class="mgt50 mdc-button mdc-button--raised" disabled>
       <div class="mdc-button__ripple"></div>
       <i class="material-icons mdc-button__icon" aria-hidden="true">fingerprint</i>
       <span class="mdc-button__label">{{addbBiometric}}</span>

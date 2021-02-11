@@ -1,12 +1,14 @@
 import {
   Body,
   ClassSerializerInterceptor,
-  Controller, Delete,
+  Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
   Patch,
   Post,
+  Req,
   Session,
   UseGuards,
   UseInterceptors,
@@ -42,6 +44,8 @@ import { UserIdParams } from './validators/user-id.params';
 import { PatchUserDto } from '../user/dto/patch-user.dto';
 import { OwnerGuard } from '../security/guards/owner.guard';
 import { CredentialEntity } from '../credential/entities/credential.entity';
+import { FastifyRequest } from 'fastify';
+import { CredentialsListEntity } from '../credential/entities/credentials-list.entity';
 
 @ApiTags('api')
 @Controller('api')
@@ -146,7 +150,7 @@ export class ApiController {
       );
   }
 
-  @ApiOkResponse({ description: 'Returns an array of credentials', type: CredentialEntity, isArray: true })
+  @ApiOkResponse({ description: 'Returns an array of credentials', type: CredentialsListEntity })
   @ApiNoContentResponse({ description: 'No credential exists in the database for this user' })
   @ApiForbiddenResponse({ description: 'User is not the owner of the resource' })
   @ApiParam({
@@ -158,8 +162,8 @@ export class ApiController {
   @ApiCookieAuth()
   @UseGuards(AuthGuard, OwnerGuard)
   @Get('users/:id/credentials')
-  findCredentialsForUser(@Param() params: UserIdParams): Observable<CredentialEntity[] | void> {
-    return this._apiService.findCredentialsForUser(params.id);
+  findCredentialsListForUser(@Param() params: UserIdParams, @Req() request: FastifyRequest): Observable<CredentialsListEntity | void> {
+    return this._apiService.findCredentialsListForUser(params.id, request.headers[ 'user-agent' ]);
   }
 
   /**

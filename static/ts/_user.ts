@@ -48,9 +48,9 @@ export class User {
   }
 
   /**
-   * Returns last access time, in timestamp format, when user was connected
+   * Returns last access time when user was connected
    */
-  get lastAccessTime(): number {
-    return this.last_access_time;
+  get lastAccessTime(): string {
+    return new Date(this.last_access_time).toString();
   }
 }

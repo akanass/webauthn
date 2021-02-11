@@ -1,6 +1,6 @@
-<div id="error-authenticator-list" class="error-message mdc-typography--subtitle2">
+<div id="error-authenticators-list" class="error-message mdc-typography--subtitle2">
   <i class="material-icons" aria-hidden="true">error_outline</i>
-  <span id="error-authenticator-list-message" class="message"></span>
+  <span id="error-authenticators-list-message" class="message"></span>
   <span id="error-webauthn-message" class="message">{{errorWebAuthn}}</span>
 </div>
 <div class="mdc-typography--body2">{{text1}}</div>
@@ -33,9 +33,9 @@
     </div>
   </div>
 </div>
-<div id="security-keys" class="authenticator-list authenticator-list--active mdc-typography--body2">
+<div id="security-keys" class="authenticators-list authenticators-list--active mdc-typography--body2">
   <div id="security-keys-list">
-    {{>authenticator}}
+    {{>authenticators_list}}
   </div>
   <div class="content-center">
     <button id="add-security-key" class="mgt50 mdc-button mdc-button--raised">
@@ -45,9 +45,9 @@
     </button>
   </div>
 </div>
-<div id="biometrics" class="authenticator-list mdc-typography--body2">
+<div id="biometrics" class="authenticators-list mdc-typography--body2">
   <div id="biometrics-list">
-    {{>authenticator}}
+    {{>authenticators_list}}
   </div>
   <div class="content-center">
     <button id="add-biometric" class="mgt50 mdc-button mdc-button--raised">

@@ -1,16 +1,16 @@
 @use "@material/theme";
 @use "@material/button";
 
-#error-authenticator-list {
+#error-authenticators-list {
   display: none;
 }
 
-.authenticator-list {
+.authenticators-list {
   padding: 20px 0;
   display: none;
 }
 
-.authenticator-list--active {
+.authenticators-list--active {
   display: block;
 }
 

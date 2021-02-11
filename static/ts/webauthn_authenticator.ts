@@ -2,9 +2,9 @@
  * Get page's elements
  */
 
-const errorAuthenticatorList: HTMLDivElement = document.querySelector('#error-authenticator-list');
-const errorAuthenticatorListMessage: HTMLSpanElement = document.querySelector('#error-authenticator-list-message');
-const errorAuthenticatorListWebAuthnMessage: HTMLSpanElement = document.querySelector('#error-webauthn-message');
+const errorAuthenticatorsList: HTMLDivElement = document.querySelector('#error-authenticators-list');
+const errorAuthenticatorsListMessage: HTMLSpanElement = document.querySelector('#error-authenticators-list-message');
+const errorAuthenticatorsListWebAuthnMessage: HTMLSpanElement = document.querySelector('#error-webauthn-message');
 const tabBar: HTMLDivElement = document.querySelector('#authenticators-tab-bar');
 const securityKeys: HTMLDivElement = document.querySelector('#security-keys');
 const securityKeysList: HTMLDivElement = document.querySelector('#security-keys-list');
@@ -22,6 +22,9 @@ window.addEventListener('load', () => {
 
   // tar bar switch process
   tabBarSwitch();
+
+  // edit authenticator process
+  editAuthenticatorProcess();
 });
 
 
@@ -30,30 +33,30 @@ window.addEventListener('load', () => {
  */
 const resetErrorMessage = () => {
   // hide error messages
-  errorAuthenticatorList.style.display = 'none';
-  errorAuthenticatorListMessage.style.display = 'none';
-  errorAuthenticatorListMessage.innerText = '';
-  errorAuthenticatorListWebAuthnMessage.style.display = 'none';
+  errorAuthenticatorsList.style.display = 'none';
+  errorAuthenticatorsListMessage.style.display = 'none';
+  errorAuthenticatorsListMessage.innerText = '';
+  errorAuthenticatorsListWebAuthnMessage.style.display = 'none';
 };
 
 /**
  * Function to display authenticator list error message
  */
 const displayAuthenticatorListErrorMessage = (message: string) => {
-  errorAuthenticatorList.style.display = 'flex';
-  errorAuthenticatorListMessage.style.display = 'inline';
-  errorAuthenticatorListMessage.innerText = message;
-  errorAuthenticatorListWebAuthnMessage.style.display = 'none';
+  errorAuthenticatorsList.style.display = 'flex';
+  errorAuthenticatorsListMessage.style.display = 'inline';
+  errorAuthenticatorsListMessage.innerText = message;
+  errorAuthenticatorsListWebAuthnMessage.style.display = 'none';
 };
 
 /**
  * Function to display WebAuthn error message
  */
 const displayAuthenticatorListWebAuthnErrorMessage = () => {
-  errorAuthenticatorList.style.display = 'flex';
-  errorAuthenticatorListMessage.style.display = 'none';
-  errorAuthenticatorListMessage.innerText = '';
-  errorAuthenticatorListWebAuthnMessage.style.display = 'inline';
+  errorAuthenticatorsList.style.display = 'flex';
+  errorAuthenticatorsListMessage.style.display = 'none';
+  errorAuthenticatorsListMessage.innerText = '';
+  errorAuthenticatorsListWebAuthnMessage.style.display = 'inline';
 };
 
 /**
@@ -66,17 +69,34 @@ const tabBarSwitch = () => {
 
     switch (e.detail.index) {
       case 0:
-        securityKeys.classList.add('authenticator-list--active');
-        biometrics.classList.remove('authenticator-list--active');
+        securityKeys.classList.add('authenticators-list--active');
+        biometrics.classList.remove('authenticators-list--active');
         break;
       case 1:
-        securityKeys.classList.remove('authenticator-list--active');
-        biometrics.classList.add('authenticator-list--active');
+        securityKeys.classList.remove('authenticators-list--active');
+        biometrics.classList.add('authenticators-list--active');
         break;
       default:
-        securityKeys.classList.remove('authenticator-list--active');
-        biometrics.classList.remove('authenticator-list--active');
+        securityKeys.classList.remove('authenticators-list--active');
+        biometrics.classList.remove('authenticators-list--active');
         displayAuthenticatorListErrorMessage('Authenticators list can\'t be displayed');
     }
   })
+}
+
+/**
+ * Function to handle authenticator edition
+ */
+const editAuthenticatorProcess = () => {
+  [].map.call(document.querySelectorAll('.edit-authenticator'), (button: HTMLButtonElement) => {
+    button.addEventListener('click', () => {
+      // reset error message
+      resetErrorMessage();
+
+      // get authenticator id
+      const authenticatorId = button.dataset?.authenticatorid;
+
+      console.log(authenticatorId);
+    });
+  });
 }

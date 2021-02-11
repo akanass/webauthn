@@ -53,12 +53,12 @@ export class User {
     type: Boolean,
     default: false,
   })
-  skip_authenticator_registration: boolean;
+  skip_authenticator_registration?: boolean;
 
   @Prop({
     type: Date,
   })
-  last_access_time: number;
+  last_access_time?: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

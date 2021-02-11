@@ -34,24 +34,24 @@ export class UserDao {
   /**
    * Update last access time for the given user id
    *
-   * @param {string} userId of the User
+   * @param {string} id of the User
    *
    * @return {Observable<User | void>} updated user or undefined if not found
    */
-  updateLastAccessTime(userId: string): Observable<User | void> {
-    return this.patch(userId, { last_access_time: new Date().getTime() });
+  updateLastAccessTime(id: string): Observable<User | void> {
+    return this.patch(id, { last_access_time: new Date().getTime() });
   }
 
   /**
    * Patch the user for the given user id with the given patch values
    *
-   * @param {string} userId of the User
+   * @param {string} id of the User
    * @param {Partial<PatchUserDto & { last_access_time: number }>} patch the values to patch the user
    *
    * @return {Observable<User | void>} patched user or undefined if not found
    */
-  patch(userId: string, patch: Partial<PatchUserDto & { last_access_time: number }>): Observable<User | void> {
-    return from(this._userModel.findByIdAndUpdate(userId, patch, {
+  patch(id: string, patch: Partial<PatchUserDto & { last_access_time: number }>): Observable<User | void> {
+    return from(this._userModel.findByIdAndUpdate(id, patch, {
       new: true,
       runValidators: true,
     }))

@@ -29,6 +29,7 @@ views:
       minifyCSS: true
       minifyJS: true
     partials:
+      authenticators_list: _authenticators_list.hbs
       authenticator: _authenticator.hbs
   defaultContext:
     title: Fido2 WebAuthn + OpenID Connect

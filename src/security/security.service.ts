@@ -2,8 +2,8 @@ import { ForbiddenException, Injectable, InternalServerErrorException, Unauthori
 import { merge, Observable, of, throwError } from 'rxjs';
 import * as Config from 'config';
 import { PasswordConfig } from '../interfaces/security-config.interface';
-import { HashService } from '@akanass/nestjsx-crypto';
-import { defaultIfEmpty, filter, map, mergeMap, tap } from 'rxjs/operators';
+import { HashService, RandomStringService } from '@akanass/nestjsx-crypto';
+import { defaultIfEmpty, filter, map, mergeMap } from 'rxjs/operators';
 import * as secureSession from 'fastify-secure-session';
 import { UserEntity } from '../user/entities/user.entity';
 import { SessionData } from './interfaces/session-data.interface';
@@ -14,8 +14,9 @@ export class SecurityService {
    * Class constructor
    *
    * @param {HashService} _hashService dependency injection of HashService instance
+   * @param {RandomStringService} _randomStringService dependency injection of RandomStringService instance
    */
-  constructor(private readonly _hashService: HashService) {
+  constructor(private readonly _hashService: HashService, private readonly _randomStringService: RandomStringService) {
   }
 
   /**
@@ -194,5 +195,14 @@ export class SecurityService {
           ),
         ),
       );
+  }
+
+  /**
+   * Function to generate 64 bytes random string
+   *
+   * @return {Observable<string>} the random user handle string
+   */
+  generateUserHandle(): Observable<string> {
+    return this._randomStringService.generate(64);
   }
 }

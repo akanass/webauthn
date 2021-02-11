@@ -1,5 +1,6 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import * as mongoose from 'mongoose';
+import { Document } from 'mongoose';
 import { CredentialMetadata } from '../interfaces/credential-metadata.interface';
 
 export type CredentialDocument = Credential & Document;

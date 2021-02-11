@@ -41,6 +41,7 @@ import { SessionDataDto } from '../security/dto/session-data.dto';
 import { UserIdParams } from './validators/user-id.params';
 import { PatchUserDto } from '../user/dto/patch-user.dto';
 import { OwnerGuard } from '../security/guards/owner.guard';
+import { CredentialEntity } from '../credential/entities/credential.entity';
 
 @ApiTags('api')
 @Controller('api')
@@ -143,6 +144,22 @@ export class ApiController {
       .pipe(
         tap((user: UserEntity) => this._securityService.setSessionData(session, 'user', user)),
       );
+  }
+
+  @ApiOkResponse({ description: 'Returns an array of credentials', type: CredentialEntity, isArray: true })
+  @ApiNoContentResponse({ description: 'No credential exists in the database for this user' })
+  @ApiForbiddenResponse({ description: 'User is not the owner of the resource' })
+  @ApiParam({
+    name: 'id',
+    description: 'Unique identifier of the user in the database',
+    type: String,
+    allowEmptyValue: false,
+  })
+  @ApiCookieAuth()
+  @UseGuards(AuthGuard, OwnerGuard)
+  @Get('users/:id/credentials')
+  findCredentialsForUser(@Param() params: UserIdParams): Observable<CredentialEntity[] | void> {
+    return this._apiService.findCredentialsForUser(params.id);
   }
 
   /**

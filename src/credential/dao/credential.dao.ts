@@ -76,7 +76,7 @@ export class CredentialDao {
    *
    * @return {Observable<Credential[] | void>} list of credentials or undefined if not found
    */
-  findAllForUser(userId: string): Observable<Credential[] | void> {
+  findAllByUserId(userId: string): Observable<Credential[] | void> {
     return from(this._credentialModel.find({ user_id: userId }))
       .pipe(
         map((docs: CredentialDocument[]) => (!!docs && docs.length > 0) ? docs.map(_ => _.toJSON()) : undefined),
@@ -134,6 +134,20 @@ export class CredentialDao {
    */
   findById(id: string): Observable<Credential | void> {
     return from(this._credentialModel.findById(id))
+      .pipe(
+        map((doc: CredentialDocument) => !!doc ? doc.toJSON() : undefined),
+      );
+  }
+
+  /**
+   * Delete a credential in database
+   *
+   * @param {string} id of the credential in the db
+   *
+   * @return {Observable<Credential | void>} credential deleted object or undefined if not found
+   */
+  findByIdAndRemove(id: string): Observable<Credential | void> {
+    return from(this._credentialModel.findByIdAndRemove(id))
       .pipe(
         map((doc: CredentialDocument) => !!doc ? doc.toJSON() : undefined),
       );

@@ -41,11 +41,11 @@ export class Credential {
 
   @Prop({
     type: String,
+    required: true,
     minlength: 2,
     trim: true,
-    default: 'unknown',
   })
-  type?: 'unknown' | string;
+  type: 'unknown' | string;
 
   @Prop({
     type: String,
@@ -112,8 +112,9 @@ export class Credential {
 
   @Prop({
     type: Date,
+    required: true,
   })
-  last_access_time?: number;
+  last_access_time: number;
 }
 
 export const CredentialSchema = SchemaFactory.createForClass(Credential);

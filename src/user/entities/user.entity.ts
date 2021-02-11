@@ -46,12 +46,12 @@ export class UserEntity {
   last_access_time: number;
 
   /**
-   * Creation date in timestamp format but not exposed in the API
+   * Creation date in timestamp format - not exposed in API answer
    */
   created_at: number;
 
   /**
-   * Update date in timestamp format but not exposed in the API
+   * Update date in timestamp format - not exposed in API answer
    */
   updated_at: number;
 

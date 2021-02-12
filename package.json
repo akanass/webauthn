@@ -28,6 +28,7 @@
     "@material/button": "^9.0.0",
     "@material/card": "^9.0.0",
     "@material/checkbox": "^9.0.0",
+    "@material/dialog": "^9.0.0",
     "@material/form-field": "^9.0.0",
     "@material/tab-bar": "^9.0.0",
     "@material/textfield": "^9.0.0",

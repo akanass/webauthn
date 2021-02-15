@@ -81,6 +81,7 @@ views:
       labelEditInput: Name your authenticator
       processTitle: Interact with your authenticator
       errorRegisterMessage: There was an error in the registration procedure, please try again
+      successTitle: You have successfully registered your authenticator
     end:
       headerTitle: Login Has Never Been Easier-Or Safer!
       pageTitle: Welcome

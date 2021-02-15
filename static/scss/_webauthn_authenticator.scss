@@ -5,8 +5,10 @@
 #error-edit-credential,
 #error-register-credential,
 #submit-edit,
+#register-success,
 #register-processing,
 #register-security-key,
+#error-register-credential-edit
 {
   display: none;
 }
@@ -114,6 +116,10 @@
 
 #process-img {
   width: 40%;
+}
+
+#success-img {
+  width: 20%;
 }
 
 #edit-security-key-title, #edit-biometric-title {

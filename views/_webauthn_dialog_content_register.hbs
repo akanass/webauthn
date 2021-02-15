@@ -11,12 +11,35 @@
   </div>
   <div id="register-processing">
     <div class="mdc-dialog__content-title mdc-typography--headline6">{{processTitle}}</div>
-    <div id="error-register-credential" class="error-message mdc-typography--subtitle2">
+    <div class="mgt20 content-center">
+      <img id="process-img" src="/public/img/fido-authenticator.svg" alt="fido-authenticator" />
+    </div>
+    <div id="error-register-credential" class="mgt20 error-message mdc-typography--subtitle2">
       <i class="material-icons" aria-hidden="true">error_outline</i>
       <span class="message">{{errorRegisterMessage}}</span>
     </div>
-    <div class="mgt20 content-center">
-      <img id="process-img" src="/public/img/fido-authenticator.svg" alt="fido-authenticator" />
+  </div>
+  <div id="register-success">
+    <div class="mdc-dialog__content-title mdc-typography--headline6">{{successTitle}}</div>
+    <div class="content-center">
+      <img id="success-img" src="/public/img/fido-success.svg" alt="fido-success" />
+    </div>
+    <div id="error-register-credential-edit" class="mgt20 error-message mdc-typography--subtitle2">
+      <i class="material-icons" aria-hidden="true">error_outline</i>
+      <span id="error-register-credential-edit-message" class="message"></span>
+    </div>
+    <div class="mgt30 content-center direction-column">
+      <label id="register-edit-credential-text-field" class="mdc-text-field mdc-text-field--filled mdc-text-field--label-floating">
+        <span class="mdc-text-field__ripple"></span>
+        <span class="mdc-floating-label mdc-floating-label--float-above"
+              id="register-edit-credential-name-label">{{labelEditInput}}</span>
+        <input id="register-edit-credential-name" required minlength="2" class="mdc-text-field__input"
+               type="text"
+               aria-labelledby="register-edit-credential-name-label" autocomplete="off" spellcheck="false" />
+        <span class="mdc-line-ripple"></span>
+      </label>
+      <input type="hidden" id="register-edit-credential-original-name" />
+      <input type="hidden" id="register-edit-credential-id" />
     </div>
   </div>
 </div>

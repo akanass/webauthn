@@ -32,6 +32,14 @@ const registerDoButton: HTMLButtonElement = document.querySelector('#register-do
 const errorRegisterCredential: HTMLDivElement = document.querySelector('#error-register-credential');
 const buttonRegisterDoActionIcon: HTMLElement = document.querySelector('#register-do-action-icon');
 const buttonRegisterDoActionLabel: HTMLLabelElement = document.querySelector('#register-do-action-label');
+const registerSuccess: HTMLDivElement = document.querySelector('#register-success');
+const errorRegisterCredentialEdit: HTMLDivElement = document.querySelector('#error-register-credential-edit');
+const errorRegisterCredentialEditMessage: HTMLSpanElement = document.querySelector('#error-register-credential-edit-message');
+const registerEditCredentialNameInput: HTMLInputElement = document.querySelector('#register-edit-credential-name');
+const registerEditCredentialOriginalNameInput: HTMLInputElement = document.querySelector('#register-edit-credential-original-name');
+const registerEditCredentialIdInput: HTMLInputElement = document.querySelector('#register-edit-credential-id');
+const registerEditCredentialTextField: HTMLLabelElement = document.querySelector('#register-edit-credential-text-field');
+const registerEditCredentialNameLabel: HTMLSpanElement = document.querySelector('#register-edit-credential-name-label');
 
 /**
  * Edit dialog elements
@@ -55,6 +63,7 @@ const editCredentialNameLabel: HTMLSpanElement = document.querySelector('#edit-c
  */
 let initSubscription: Subscription;
 let editSubscription: Subscription;
+let registerSubscription: Subscription;
 
 /**
  * Variable to store current logged in user
@@ -74,7 +83,7 @@ let credentialTypeToBeRegistered: 'cross-platform' | 'platform';
 /**
  * Variable to store register do action button state
  */
-let registerDoActionState: 'security-key' | 'processing' | 'retry' | 'done';
+let registerDoActionState: 'security-key' | 'processing' | 'retry' | 'success';
 
 /**
  * Add event listener on window.load to put all process in place
@@ -99,6 +108,7 @@ const resetErrorMessage = () => {
 
   // hide register dialog error message
   resetRegisterErrorMessage();
+  resetRegisterEditErrorMessage();
 };
 
 /**
@@ -121,6 +131,22 @@ const resetRegisterErrorMessage = () => {
  */
 const displayRegisterErrorMessage = () => {
   errorRegisterCredential.style.display = 'flex';
+};
+
+/**
+ * Function to reset register edition dialog error message block
+ */
+const resetRegisterEditErrorMessage = () => {
+  errorRegisterCredentialEdit.style.display = 'none';
+  errorRegisterCredentialEditMessage.innerText = '';
+};
+
+/**
+ * Function to display register edition dialog error message
+ */
+const displayRegisterEditErrorMessage = (message: string) => {
+  errorRegisterCredentialEdit.style.display = 'flex';
+  errorRegisterCredentialEditMessage.innerText = message;
 };
 
 /**
@@ -153,9 +179,20 @@ const displayRegisterRetryElements = () => {
 };
 
 /**
+ * Function to display register edition elements in register dialog
+ */
+const displayRegisterEditElements = () => {
+  // hide processing elements
+  registerProcessing.style.display = 'none';
+  // display right elements
+  registerSuccess.style.display = 'block';
+  displayButtonRegisterDoActionElements('success');
+};
+
+/**
  * Function to display good element on register button action
  */
-const displayButtonRegisterDoActionElements = (state?: 'security-key' | 'processing' | 'retry' | 'done') => {
+const displayButtonRegisterDoActionElements = (state?: 'security-key' | 'processing' | 'retry' | 'success') => {
   // set global state
   if (!!state) {
     registerDoActionState = state;
@@ -178,15 +215,17 @@ const displayButtonRegisterDoActionElements = (state?: 'security-key' | 'process
       registerCancelButton.style.visibility = 'visible';
       registerDoButton.style.visibility = 'visible';
       break;
-    case 'done':
+    case 'success':
       buttonRegisterDoActionIcon.innerText = 'done_outline';
       buttonRegisterDoActionLabel.innerText = 'Done';
-      registerCancelButton.style.visibility = 'visible';
+      registerCancelButton.style.display = 'none';
       registerDoButton.style.visibility = 'visible';
       break;
     default:
       // hide all buttons
       hideRegisterDialogButtons();
+      registerCancelButton.style.display = 'inline-flex';
+      registerDoButton.style.display = 'inline-flex';
       buttonRegisterDoActionIcon.innerText = '';
       buttonRegisterDoActionLabel.innerText = '';
   }
@@ -310,6 +349,12 @@ const resetEditDialogElements = () => {
 const resetRegisterDialogElements = () => {
   registerSecurityKey.style.display = 'none';
   registerProcessing.style.display = 'none';
+  registerSuccess.style.display = 'none';
+  registerEditCredentialNameInput.value = '';
+  registerEditCredentialOriginalNameInput.value = '';
+  registerEditCredentialIdInput.value = '';
+  registerEditCredentialTextField.classList.remove('mdc-text-field--invalid');
+  registerEditCredentialNameLabel.classList.add('mdc-floating-label--float-above');
   disableRegisterDialogButtons(false);
   displayButtonRegisterDoActionElements();
 };
@@ -323,6 +368,11 @@ const setCredentialValuesInEditForm = (credential: Credential) => {
   editCredentialNameInput.value = editCredentialOriginalNameInput.value = credential.credentialName;
   editCredentialIdInput.value = credential.credentialId;
   editCredentialCreatedAt.innerText = credential.createdAt;
+};
+
+const setCredentialValuesInRegisterEditForm = (credential: Credential) => {
+  registerEditCredentialNameInput.value = registerEditCredentialOriginalNameInput.value = credential.credentialName;
+  registerEditCredentialIdInput.value = credential.credentialId;
 };
 
 /**
@@ -411,22 +461,26 @@ const editCredentialProcess = (action: 'done' | 'remove') => {
   // get credential id
   const credentialId = editCredentialIdInput.value;
 
-  // do right action TODO
+  // do right action
   switch (action) {
     case 'done':
       // get form values
       const credentialName = editCredentialNameInput.value;
       const credentialOriginalName = editCredentialOriginalNameInput.value;
 
-      console.log(credentialName, credentialOriginalName, credentialId, action);
+      // check if new name is different than original one
+      if (credentialName !== credentialOriginalName) {
+        // we update name in database
+        editCredentialName(credentialId, credentialName, webauthnDialogEdit, disableEditDialogButtons);
+      } else {
+        // nothing to do so we close the dialog
+        webauthnDialogEdit.close();
+      }
       break;
     case 'remove':
-      console.log(credentialId, action);
+      removeCredential(credentialId, webauthnDialogEdit, disableEditDialogButtons)
       break;
   }
-
-  // close dialog TODO
-  setTimeout(() => webauthnDialogEdit.close(), 1000);
 };
 
 /**
@@ -456,9 +510,65 @@ const registerCredentialProcess = () => {
 
   console.log('REGISTER CREDENTIAL TYPE =>', credentialTypeToBeRegistered);
   setTimeout(() => {
-    displayRegisterRetryElements();
+    displayRegisterEditElements();
     disableRegisterDialogButtons(false);
-  }, 3000); // TODO registration process
+    setCredentialValuesInRegisterEditForm(new Credential({ id: '1234567890', name: 'My Super Authenticator' } as any));
+  }, 3000); // TODO REGISTER PROCESS
+};
+
+/**
+ * Function to edit credential name database after registration succeed
+ */
+const registerCredentialEditProcess = () => {
+  // reset error message
+  resetRegisterEditErrorMessage();
+
+  // disable buttons
+  disableRegisterDialogButtons(true);
+
+  // delete previous subscription to memory free
+  if (!!editSubscription) {
+    editSubscription.unsubscribe();
+  }
+
+  // get form values
+  const credentialId = registerEditCredentialIdInput.value;
+  const credentialName = registerEditCredentialNameInput.value;
+  const credentialOriginalName = registerEditCredentialOriginalNameInput.value;
+
+  // check if new name is different than original one
+  if (credentialName !== credentialOriginalName) {
+    // we update name in database
+    editCredentialName(credentialId, credentialName, webauthnDialogRegister, disableRegisterDialogButtons);
+  } else {
+    // nothing to do so we close the dialog
+    webauthnDialogRegister.close();
+  }
+};
+
+/**
+ * Function to edit credential name in database through the API
+ *
+ * @param {string} credentialId unique identifier of the credential
+ * @param {string} credentialName new name of the credential
+ * @param {MDCDialog} dialogToCLose dialog to close at the end of the edition
+ * @param {Function} funcToDisableButtons function to disable buttons
+ */
+const editCredentialName = (credentialId: string, credentialName: string, dialogToCLose: MDCDialog, funcToDisableButtons: (display: boolean) => void) => {
+  console.log('EDIT CREDENTIAL WITH ID =>', credentialId, ' | NAME =>', credentialName);
+  setTimeout(() => dialogToCLose.close(), 2000); // TODO EDIT PROCESS
+};
+
+/**
+ * Function to remove credential in database through the API
+ *
+ * @param {string} credentialId unique identifier of the credential
+ * @param {MDCDialog} dialogToCLose dialog to close at the end of the edition
+ * @param {Function} funcToDisableButtons function to disable buttons
+ */
+const removeCredential = (credentialId: string, dialogToCLose: MDCDialog, funcToDisableButtons: (display: boolean) => void) => {
+  console.log('REMOVE CREDENTIAL WITH ID =>', credentialId);
+  setTimeout(() => dialogToCLose.close(), 2000); // TODO REMOVE PROCESS
 };
 
 /**
@@ -484,15 +594,18 @@ const registerCredentialButtonsProcess = () => {
       case 'processing':
         break;
       case 'retry':
-        // hide error message
-        resetRegisterErrorMessage();
         // display good elements
         displayRegisterProcessingElements(false);
         // launch process
         registerCredentialProcess();
         break;
-      case 'done':
-
+      case 'success':
+        // launch process
+        if (!!registerEditCredentialNameInput.validity.valid) {
+          registerCredentialEditProcess();
+        } else {
+          displayRegisterEditErrorMessage('Authenticator name is mandatory and must have at least 2 characters');
+        }
         break;
     }
   });
@@ -569,7 +682,7 @@ const addCredentialProcess = (type: 'cross-platform' | 'platform') => {
 };
 
 /**
- * We get current user and generate credentials HTML when page is loaded
+ * We get current user and generate credentials HTML when page is loaded then initialize all processes
  */
 const initProcess = () => {
   // reset all error messages
@@ -669,7 +782,7 @@ const buildHtmlProcess = (credentialsList: CredentialsList): void => {
  * @param {Subscription} sub instance of Subscription
  * @param {boolean} enableButtons flag to know we have to enable edit buttons
  */
-const manageApiError = (err: AjaxError, errorMessageFunc: (message: string) => void, sub: Subscription, enableButtons?: { add?: boolean, edit?: boolean, editDialog?: boolean }) => {
+const manageApiError = (err: AjaxError, errorMessageFunc: (message: string) => void, sub: Subscription, enableButtons?: { add?: boolean, edit?: boolean, registerDialog?: boolean, editDialog?: boolean }) => {
   // check if user is authenticated
   if (err.status === 401) {
     // delete previous subscription to memory free
@@ -689,9 +802,10 @@ const manageApiError = (err: AjaxError, errorMessageFunc: (message: string) => v
     // enable buttons with timeout to avoid flickering
     const hasEnableAddValue = !!enableButtons && typeof enableButtons.add !== 'undefined';
     const hasEnableEditValue = !!enableButtons && typeof enableButtons.edit !== 'undefined';
+    const hasEnableRegisterDialogValue = !!enableButtons && typeof enableButtons.registerDialog !== 'undefined';
     const hasEnableEditDialogValue = !!enableButtons && typeof enableButtons.editDialog !== 'undefined';
 
-    if (!!hasEnableAddValue || !!hasEnableEditValue || !!hasEnableEditDialogValue) {
+    if (!!hasEnableAddValue || !!hasEnableEditValue || !!hasEnableRegisterDialogValue || !!hasEnableEditDialogValue) {
       setTimeout(() => {
         if (!!hasEnableAddValue) {
           disableAddSecurityKeyButton(!enableButtons.add);
@@ -699,6 +813,9 @@ const manageApiError = (err: AjaxError, errorMessageFunc: (message: string) => v
         }
         if (!!hasEnableEditValue) {
           disableAllCredentialsEditButtons(!enableButtons.edit);
+        }
+        if (!!hasEnableRegisterDialogValue) {
+          disableRegisterDialogButtons(!enableButtons.registerDialog);
         }
         if (!!hasEnableEditDialogValue) {
           disableEditDialogButtons(!enableButtons.editDialog);

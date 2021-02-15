@@ -30,6 +30,8 @@ const registerProcessing: HTMLDivElement = document.querySelector('#register-pro
 const registerCancelButton: HTMLButtonElement = document.querySelector('#register-cancel-action');
 const registerDoButton: HTMLButtonElement = document.querySelector('#register-do-action');
 const errorRegisterCredential: HTMLDivElement = document.querySelector('#error-register-credential');
+const buttonRegisterDoActionIcon: HTMLElement = document.querySelector('#register-do-action-icon');
+const buttonRegisterDoActionLabel: HTMLLabelElement = document.querySelector('#register-do-action-label');
 
 /**
  * Edit dialog elements
@@ -125,24 +127,69 @@ const displayRegisterErrorMessage = () => {
  * Function to display security keys elements in register dialog
  */
 const displayRegisterSecurityKeyElements = () => {
-  // hide all buttons
-  hideRegisterDialogButtons();
   // display right elements
   registerSecurityKey.style.display = 'block';
-  registerCancelButton.style.display = 'inline-flex';
-  registerDoButton.style.display = 'inline-flex';
+  displayButtonRegisterDoActionElements('security-key');
 };
 
 /**
  * Function to display processing elements in register dialog
  */
 const displayRegisterProcessingElements = (hideSecurityKey: boolean) => {
-  // hide all buttons
-  hideRegisterDialogButtons();
   // hide security key elements
   if (!!hideSecurityKey) registerSecurityKey.style.display = 'none';
   // display right elements
   registerProcessing.style.display = 'block';
+  displayButtonRegisterDoActionElements('processing');
+};
+
+/**
+ * Function to display retry elements in register dialog
+ */
+const displayRegisterRetryElements = () => {
+  // display right elements
+  displayRegisterErrorMessage();
+  displayButtonRegisterDoActionElements('retry');
+};
+
+/**
+ * Function to display good element on register button action
+ */
+const displayButtonRegisterDoActionElements = (state?: 'security-key' | 'processing' | 'retry' | 'done') => {
+  // set global state
+  if (!!state) {
+    registerDoActionState = state;
+  } else {
+    registerDoActionState = undefined;
+  }
+
+  // display good element on button
+  switch (registerDoActionState) {
+    case 'security-key':
+      buttonRegisterDoActionIcon.innerText = 'vpn_key';
+      buttonRegisterDoActionLabel.innerText = 'Next';
+      registerCancelButton.style.visibility = 'visible';
+      registerDoButton.style.visibility = 'visible';
+      break;
+    case 'processing':
+    case 'retry':
+      buttonRegisterDoActionIcon.innerText = 'restart_alt';
+      buttonRegisterDoActionLabel.innerText = 'Retry';
+      registerCancelButton.style.visibility = 'visible';
+      registerDoButton.style.visibility = 'visible';
+      break;
+    case 'done':
+      buttonRegisterDoActionIcon.innerText = 'done_outline';
+      buttonRegisterDoActionLabel.innerText = 'Done';
+      registerCancelButton.style.visibility = 'visible';
+      registerDoButton.style.visibility = 'visible';
+      break;
+    default:
+      // hide all buttons
+      hideRegisterDialogButtons();
+      buttonRegisterDoActionIcon.innerText = '';
+      buttonRegisterDoActionLabel.innerText = '';
+  }
 };
 
 /**
@@ -197,8 +244,8 @@ const disableRegisterDialogButtons = (disabled: boolean) => {
 };
 
 const hideRegisterDialogButtons = () => {
-  registerCancelButton.style.display = 'none';
-  registerDoButton.style.display = 'none';
+  registerCancelButton.style.visibility = 'hidden';
+  registerDoButton.style.visibility = 'hidden';
 };
 
 /**
@@ -263,8 +310,8 @@ const resetEditDialogElements = () => {
 const resetRegisterDialogElements = () => {
   registerSecurityKey.style.display = 'none';
   registerProcessing.style.display = 'none';
-  hideRegisterDialogButtons();
   disableRegisterDialogButtons(false);
+  displayButtonRegisterDoActionElements();
 };
 
 /**
@@ -401,8 +448,17 @@ const editCredentialButtonsProcess = () => {
  * Function to register credential in browser and database
  */
 const registerCredentialProcess = () => {
+  // reset error messages
+  resetRegisterErrorMessage();
+
+  // disable buttons with timeout to avoid flickering in dialog open state
+  setTimeout(() => disableRegisterDialogButtons(true), 200);
+
   console.log('REGISTER CREDENTIAL TYPE =>', credentialTypeToBeRegistered);
-  setTimeout(() => webauthnDialogRegister.close(), 1000); // TODO registration process
+  setTimeout(() => {
+    displayRegisterRetryElements();
+    disableRegisterDialogButtons(false);
+  }, 3000); // TODO registration process
 };
 
 /**
@@ -418,10 +474,27 @@ const addCredentialButtonsProcess = () => {
  */
 const registerCredentialButtonsProcess = () => {
   registerDoButton.addEventListener('click', () => {
-    // display good elements
-    displayRegisterProcessingElements(true);
-    // launch process
-    registerCredentialProcess();
+    switch (registerDoActionState) {
+      case 'security-key':
+        // display good elements
+        displayRegisterProcessingElements(true);
+        // launch process
+        registerCredentialProcess();
+        break;
+      case 'processing':
+        break;
+      case 'retry':
+        // hide error message
+        resetRegisterErrorMessage();
+        // display good elements
+        displayRegisterProcessingElements(false);
+        // launch process
+        registerCredentialProcess();
+        break;
+      case 'done':
+
+        break;
+    }
   });
 };
 

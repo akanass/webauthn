@@ -7,10 +7,13 @@
 #submit-edit,
 #register-processing,
 #register-security-key,
-#register-cancel-action,
-#register-do-action,
 {
   display: none;
+}
+
+#register-cancel-action,
+#register-do-action {
+  visibility: hidden;
 }
 
 .authenticators-list {
@@ -110,7 +113,7 @@
 }
 
 #process-img {
-  width: 65%;
+  width: 40%;
 }
 
 #edit-security-key-title, #edit-biometric-title {

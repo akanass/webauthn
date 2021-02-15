@@ -79,7 +79,7 @@ export class ApiService {
             },
             last_access_time: 1613051133445,
             created_at: 1613051133445,
-          }),
+          })/*,
           new CredentialEntity({
             id: '5763cd4dc378a38ecd386689',
             type: 'unknown',
@@ -91,7 +91,7 @@ export class ApiService {
             },
             last_access_time: 1613051140324,
             created_at: 1613051140324,
-          }),
+          })*/,
         ]),
         map((credentials: CredentialEntity[]) => {
           // get user agent data

@@ -71,13 +71,11 @@ views:
       errorWebAuthn: Your browser doesn't support WebAuthn protocol
       loading: Loading...
       cancel: Cancel
-      next: Next
       register: Register
       registerSecurityKeyTitle: Do you have a security key ?
       registerSecurityKeyInfo: To register a security key insert it into the USB port and press NEXT. When it starts flashing, press the gold disc on it.
       edit: Edit
       done: Done
-      retry: Retry
       remove: Remove
       createdAt: Registration date
       labelEditInput: Name your authenticator

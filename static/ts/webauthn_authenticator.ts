@@ -501,12 +501,16 @@ const editCredentialButtonsProcess = () => {
 /**
  * Function to register credential in browser and database
  */
-const registerCredentialProcess = () => {
+const registerCredentialProcess = (waitToDisableButtons = true) => {
   // reset error messages
   resetRegisterErrorMessage();
 
   // disable buttons with timeout to avoid flickering in dialog open state
-  setTimeout(() => disableRegisterDialogButtons(true), 200);
+  if (!!waitToDisableButtons) {
+    setTimeout(() => disableRegisterDialogButtons(true), 200);
+  } else {
+    disableRegisterDialogButtons(true)
+  }
 
   console.log('REGISTER CREDENTIAL TYPE =>', credentialTypeToBeRegistered);
   setTimeout(() => {
@@ -589,7 +593,7 @@ const registerCredentialButtonsProcess = () => {
         // display good elements
         displayRegisterProcessingElements(true);
         // launch process
-        registerCredentialProcess();
+        registerCredentialProcess(false);
         break;
       case 'processing':
         break;
@@ -597,7 +601,7 @@ const registerCredentialButtonsProcess = () => {
         // display good elements
         displayRegisterProcessingElements(false);
         // launch process
-        registerCredentialProcess();
+        registerCredentialProcess(false);
         break;
       case 'success':
         // launch process

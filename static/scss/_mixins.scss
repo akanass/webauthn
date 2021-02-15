@@ -14,6 +14,7 @@
 @use "@material/tab-scroller/mdc-tab-scroller";
 @use "@material/tab-indicator/mdc-tab-indicator";
 @use "@material/tab/mdc-tab";
+@use "@material/dialog";
 
 
 @include typography.core-styles; // apply typography style
@@ -22,3 +23,5 @@
 @include textfield.core-styles; // apply textfield style
 @include checkbox.core-styles; // apply checkbox style
 @include form-field.core-styles; // apply form-field style
+@include dialog.core-styles; // apply dialog style
+

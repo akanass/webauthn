@@ -28,6 +28,11 @@ views:
       removeEmptyAttributes: true
       minifyCSS: true
       minifyJS: true
+    partials:
+      webauthn-dialog: _webauthn_dialog.hbs
+      webauthn-dialog-register: _webauthn_dialog_content_register.hbs
+      webauthn-dialog-verify: _webauthn_dialog_content_verify.hbs
+      webauthn-dialog-edit: _webauthn_dialog_content_edit.hbs
   defaultContext:
     title: Fido2 WebAuthn + OpenID Connect
   i18n:
@@ -58,11 +63,26 @@ views:
       text3: and then sign in to experience the WebAuthn authentication.
       signOut: sign out
       biometrics: Biometrics
+      biometric: Biometric
       securityKeys: Security Keys
+      securityKey: Security Key
       addbBiometric: Add Biometric
       addSecurityKey: Add Security Key
       errorWebAuthn: Your browser doesn't support WebAuthn protocol
       loading: Loading...
+      cancel: Cancel
+      next: Next
+      register: Register
+      registerSecurityKeyTitle: Do you have a security key ?
+      registerSecurityKeyInfo: To register a security key insert it into the USB port and press NEXT. When it starts flashing, press the gold disc on it.
+      edit: Edit
+      done: Done
+      retry: Retry
+      remove: Remove
+      createdAt: Registration date
+      labelEditInput: Name your authenticator
+      processTitle: Interact with your authenticator
+      errorRegisterMessage: There was an error in the registration procedure, please try again
     end:
       headerTitle: Login Has Never Been Easier-Or Safer!
       pageTitle: Welcome

@@ -78,6 +78,7 @@ export class ApiService {
               authenticator_attachment: 'cross-platform',
             },
             last_access_time: 1613051133445,
+            created_at: 1613051133445,
           }),
           new CredentialEntity({
             id: '5763cd4dc378a38ecd386689',
@@ -89,6 +90,7 @@ export class ApiService {
               device: 'Other 0.0.0',
             },
             last_access_time: 1613051140324,
+            created_at: 1613051140324,
           }),
         ]),
         map((credentials: CredentialEntity[]) => {

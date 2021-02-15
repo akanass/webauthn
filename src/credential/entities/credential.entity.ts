@@ -88,6 +88,20 @@ export class CredentialEntity {
   @Type(() => Number)
   last_access_time: number;
 
+  @ApiProperty({
+    name: 'created_at',
+    description: 'Creation date, in timestamp format',
+    example: 101343600000,
+  })
+  @Expose()
+  @Type(() => Number)
+  created_at: number;
+
+  /**
+   * Update date in timestamp format - not exposed in API answer
+   */
+  updated_at: number;
+
   /**
    * Class constructor
    *

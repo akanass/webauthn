@@ -1,6 +1,7 @@
 @use "@material/theme";
 @use "@material/textfield";
 @use "@material/button";
+@use "@material/dialog";
 
 html, body {
   padding: 0;
@@ -20,6 +21,48 @@ html, body {
 
 .direction-column {
   flex-direction: column;
+}
+
+.mdc-typography--caption {
+  color: theme.$grey-600;
+  padding: 5px 0;
+  text-align: justify;
+}
+
+.mdc-typography--headline6 {
+  color: theme.$grey-500;
+  padding: 10px 0;
+  text-align: justify;
+}
+
+.mdc-typography--body2 {
+  color: theme.$grey-700;
+  padding: 7px 0;
+  text-align: justify;
+}
+
+.mdc-dialog {
+  @include dialog.min-width(50vw);
+  @include dialog.title-ink-color(theme.$secondary);
+}
+
+.mdc-dialog__title {
+  background: theme.$primary url("/public/img/fido-logo.svg") no-repeat 15px;
+  padding: 20px;
+  text-align: center;
+}
+
+.mdc-dialog__title:before {
+  height: 0;
+  content: inherit;
+}
+
+.mdc-dialog__content {
+  min-height: 50vh;
+}
+
+.mdc-dialog__actions {
+  padding-bottom: 15px;
 }
 
 .mdc-card {
@@ -45,11 +88,11 @@ html, body {
   border-top-right-radius: inherit;
 }
 
-.mdc-card__content {
+.mdc-card__content, .mdc-dialog .mdc-dialog__content {
   padding: 15px 20px;
 }
 
-.mdc-card__content-title {
+.mdc-card__content-title, .mdc-dialog__content-title {
   padding: 15px 0 30px 0;
   color: theme.$primary;
   text-align: center;
@@ -81,18 +124,6 @@ html, body {
 
 .mdc-button:disabled .mdc-button__label {
   color: theme.$grey-600;
-}
-
-.mdc-typography--caption {
-  color: theme.$grey-600;
-  padding: 5px 0;
-  text-align: justify;
-}
-
-.mdc-typography--body2 {
-  color: theme.$grey-700;
-  padding: 7px 0;
-  text-align: justify;
 }
 
 .link {

@@ -15,6 +15,13 @@ export class WebAuthn {
   }
 
   /**
+   * Returns flag to know if the browser supports WebAuthn protocol
+   */
+  get supported(): boolean {
+    return this._supported;
+  }
+
+  /**
    * Method returns new singleton instance
    */
   static instance(): WebAuthn {
@@ -23,13 +30,6 @@ export class WebAuthn {
     }
 
     return WebAuthn._instance;
-  }
-
-  /**
-   * Returns flag to know if the browser supports WebAuthn protocol
-   */
-  get supported(): boolean {
-    return this._supported;
   }
 }
 

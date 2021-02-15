@@ -1,7 +1,15 @@
 @use "@material/theme";
 @use "@material/button";
 
-#error-authenticators-list {
+#error-authenticators-list,
+#error-edit-credential,
+#error-register-credential,
+#submit-edit,
+#register-processing,
+#register-security-key,
+#register-cancel-action,
+#register-do-action,
+{
   display: none;
 }
 
@@ -72,10 +80,39 @@
   @include button.container-fill-color(theme.$background);
 }
 
+#edit-remove-action {
+  @include button.icon-color(theme.$on-error);
+  @include button.container-fill-color(theme.$error);
+}
+
+#edit-remove-action .mdc-button__label {
+  color: theme.$on-error;
+}
+
+#edit-remove-action.mdc-button:disabled {
+  @include button.icon-color(theme.$grey-600);
+}
+
+#edit-remove-action.mdc-button:disabled .mdc-button__label {
+  color: theme.$grey-600;
+}
+
 .authenticator-action-container .mdc-button__icon {
   margin: 0;
 }
 
 .authenticator-action-container .mdc-button--raised {
   padding: 0;
+}
+
+#yubikey-img {
+  width: 65%;
+}
+
+#process-img {
+  width: 65%;
+}
+
+#edit-security-key-title, #edit-biometric-title {
+  display: none;
 }

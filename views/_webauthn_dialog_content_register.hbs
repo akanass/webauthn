@@ -1,0 +1,48 @@
+<div class="mdc-dialog__title">
+  <div class="mdc-typography--headline4">{{register}}</div>
+</div>
+<div class="mdc-dialog__content">
+  <div id="register-security-key">
+    <div class="mdc-dialog__content-title mdc-typography--headline6">{{registerSecurityKeyTitle}}</div>
+    <div class="mdc-typography--body2">{{registerSecurityKeyInfo}}</div>
+    <div class="mgt20 content-center">
+      <img id="yubikey-img" src="/public/img/yubikey.png" alt="fido-authenticator" />
+    </div>
+  </div>
+  <div id="register-processing">
+    <div class="mdc-dialog__content-title mdc-typography--headline6">{{processTitle}}</div>
+    <div id="error-register-credential" class="error-message mdc-typography--subtitle2">
+      <i class="material-icons" aria-hidden="true">error_outline</i>
+      <span class="message">{{errorRegisterMessage}}</span>
+    </div>
+    <div class="mgt20 content-center">
+      <img id="process-img" src="/public/img/fido-authenticator.svg" alt="fido-authenticator" />
+    </div>
+  </div>
+</div>
+<div class="mdc-dialog__actions content-center justify-content-space">
+  <button id="register-cancel-action" type="button"
+          class="mdc-button mdc-dialog__button mdc-button--raised" data-mdc-dialog-action="cancel">
+    <div class="mdc-button__ripple"></div>
+    <i class="material-icons mdc-button__icon" aria-hidden="true">clear</i>
+    <span class="mdc-button__label">{{cancel}}</span>
+  </button>
+  <button id="register-do-action" type="button"
+          class="mdc-button mdc-dialog__button mdc-button--raised">
+    <div class="mdc-button__ripple"></div>
+    <i class="material-icons mdc-button__icon" aria-hidden="true">vpn_key</i>
+    <span class="mdc-button__label">{{next}}</span>
+  </button>
+  <!--<button id="register-done-action" type="button"
+          class="mdc-button mdc-dialog__button mdc-button--raised">
+    <div class="mdc-button__ripple"></div>
+    <i class="material-icons mdc-button__icon" aria-hidden="true">done_outline</i>
+    <span class="mdc-button__label">{{done}}</span>
+  </button>
+  <button id="register-retry-action" type="button"
+          class="mdc-button mdc-dialog__button mdc-button--raised">
+    <div class="mdc-button__ripple"></div>
+    <i class="material-icons mdc-button__icon" aria-hidden="true">restart_alt</i>
+    <span class="mdc-button__label">{{retry}}</span>
+  </button>-->
+</div>

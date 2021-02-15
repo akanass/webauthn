@@ -9,6 +9,8 @@ export class Credential {
   private metadata: CredentialMetadata;
   // private property to store last access time, in timestamp format, when user used this credential
   private last_access_time: number;
+  // private property to store created date, in timestamp format
+  private created_at: number;
 
   /**
    * Class constructor
@@ -48,10 +50,17 @@ export class Credential {
   }
 
   /**
-   * Returns last access time, in timestamp format, when user used this authenticator
+   * Returns last access time, in date format, when user used this authenticator
    */
   get lastAccessTime(): string {
     return new Date(this.last_access_time).toString();
+  }
+
+  /**
+   * Returns creation date, in date format
+   */
+  get createdAt(): string {
+    return new Date(this.created_at).toString();
   }
 }
 

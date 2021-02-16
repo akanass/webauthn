@@ -86,7 +86,7 @@ export class Credential {
     required: true,
     enum: [ 'packed', 'tpm', 'android-key', 'android-safetynet', 'fido-u2f', 'none', 'apple' ],
   })
-  attestation_format: string;
+  attestation_format: 'packed' | 'tpm' | 'android-key' | 'android-safetynet' | 'fido-u2f' | 'none' | 'apple';
 
   @Prop({
     type: 'Buffer',

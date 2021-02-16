@@ -46,6 +46,9 @@ import { OwnerGuard } from '../security/guards/owner.guard';
 import { CredentialEntity } from '../credential/entities/credential.entity';
 import { FastifyRequest } from 'fastify';
 import { CredentialsListEntity } from '../credential/entities/credentials-list.entity';
+import { CredentialIdParams } from './validators/credential-id.params';
+import { PatchCredentialDto } from '../credential/dto/patch-credential.dto';
+import { AttestationStartDto } from '../webauthn/dto/attestation-start.dto';
 
 @ApiTags('api')
 @Controller('api')
@@ -129,9 +132,10 @@ export class ApiController {
    */
   @ApiOkResponse({ description: 'The user has been successfully patched', type: UserEntity })
   @ApiConflictResponse({ description: 'The username already exists in the database' })
-  @ApiBadRequestResponse({ description: 'The payload provided to patch the user isn\'t good' })
+  @ApiBadRequestResponse({ description: 'The payload or the parameter provided to patch the user isn\'t good' })
   @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
   @ApiPreconditionFailedResponse({ description: 'An error occurred during patch process' })
+  @ApiUnauthorizedResponse({ description: 'User is not logged in' })
   @ApiForbiddenResponse({ description: 'User is not the owner of the resource' })
   @ApiParam({
     name: 'id',
@@ -150,8 +154,18 @@ export class ApiController {
       );
   }
 
+  /**
+   * Handler to answer to GET /api/users/:id/credentials route
+   *
+   * @param {UserIdParams} params path parameters
+   * @param {FastifyRequest} request current request object
+   *
+   * @return Observable<CredentialsListEntity>
+   */
   @ApiOkResponse({ description: 'Returns an array of credentials', type: CredentialsListEntity })
+  @ApiBadRequestResponse({ description: 'The parameter or the parameter provided to patch the credential isn\'t good' })
   @ApiNoContentResponse({ description: 'No credential exists in the database for this user' })
+  @ApiUnauthorizedResponse({ description: 'User is not logged in' })
   @ApiForbiddenResponse({ description: 'User is not the owner of the resource' })
   @ApiParam({
     name: 'id',
@@ -164,6 +178,101 @@ export class ApiController {
   @Get('users/:id/credentials')
   findCredentialsListForUser(@Param() params: UserIdParams, @Req() request: FastifyRequest): Observable<CredentialsListEntity | void> {
     return this._apiService.findCredentialsListForUser(params.id, request.headers[ 'user-agent' ]);
+  }
+
+  /**
+   * Handler to answer to PATCH /api/users/:id/credentials/:credId route
+   *
+   * @param {CredentialIdParams} params path parameters
+   * @param {PatchCredentialDto} credential payload to patch the credential
+   *
+   * @return Observable<CredentialEntity>
+   */
+  @ApiOkResponse({ description: 'The credential has been successfully patched', type: CredentialEntity })
+  @ApiBadRequestResponse({ description: 'The payload or the parameters provided to patch the credential isn\'t good' })
+  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
+  @ApiPreconditionFailedResponse({ description: 'An error occurred during patch process' })
+  @ApiUnauthorizedResponse({ description: 'User is not logged in' })
+  @ApiForbiddenResponse({ description: 'User is not the owner of the resource' })
+  @ApiParam({
+    name: 'id',
+    description: 'Unique identifier of the user in the database',
+    type: String,
+    allowEmptyValue: false,
+  })
+  @ApiParam({
+    name: 'credId',
+    description: 'Unique identifier of the credential in the database',
+    type: String,
+    allowEmptyValue: false,
+  })
+  @ApiBody({ description: 'Payload to patch a credential', type: PatchCredentialDto })
+  @ApiCookieAuth()
+  @UseGuards(AuthGuard, OwnerGuard)
+  @Patch('users/:id/credentials/:credId')
+  patchCredential(@Param() params: CredentialIdParams, @Body() credential: PatchCredentialDto): Observable<CredentialEntity> {
+    return this._apiService.patchCredential(params.credId, params.id, credential);
+  }
+
+  /**
+   * Handler to answer to POST /api/users/:id/credentials/mock route
+   *
+   * @param {UserIdParams} params path parameters
+   * @param {PatchCredentialDto} dto payload to create the credential mock
+   * @param {FastifyRequest} request current request object
+   *
+   * @return Observable<CredentialEntity>
+   */
+  @ApiCreatedResponse({ description: 'The credential mock has been successfully created', type: CredentialEntity })
+  @ApiConflictResponse({ description: 'The credential mock already exists in the database' })
+  @ApiBadRequestResponse({ description: 'The payload or the parameter provided to create the credential mock isn\'t good' })
+  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
+  @ApiUnauthorizedResponse({ description: 'User is not logged in' })
+  @ApiForbiddenResponse({ description: 'User is not the owner of the resource' })
+  @ApiParam({
+    name: 'id',
+    description: 'Unique identifier of the user in the database',
+    type: String,
+    allowEmptyValue: false,
+  })
+  @ApiBody({ description: 'Payload to create a credential mock', type: AttestationStartDto })
+  @ApiCookieAuth()
+  @UseGuards(AuthGuard, OwnerGuard)
+  @Post('users/:id/credentials/mock')
+  createCredentialMock(@Param() params: UserIdParams, @Body() dto: AttestationStartDto, @Req() request: FastifyRequest): Observable<CredentialEntity> {
+    return this._apiService.createCredentialMock(params.id, dto, request.headers[ 'user-agent' ]);
+  }
+
+  /**
+   * Handler to answer to DELETE /api/users/:id/credentials/:credId route
+   *
+   * @param {CredentialIdParams} params path parameters
+   *
+   * @return {Observable<void>}
+   */
+  @ApiNoContentResponse({ description: 'The credential has been successfully deleted' })
+  @ApiBadRequestResponse({ description: 'The payload or the parameters provided to remove the credential isn\'t good' })
+  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
+  @ApiPreconditionFailedResponse({ description: 'An error occurred during remove process' })
+  @ApiUnauthorizedResponse({ description: 'User is not logged in' })
+  @ApiForbiddenResponse({ description: 'User is not the owner of the resource' })
+  @ApiParam({
+    name: 'id',
+    description: 'Unique identifier of the user in the database',
+    type: String,
+    allowEmptyValue: false,
+  })
+  @ApiParam({
+    name: 'credId',
+    description: 'Unique identifier of the credential in the database',
+    type: String,
+    allowEmptyValue: false,
+  })
+  @ApiCookieAuth()
+  @UseGuards(AuthGuard, OwnerGuard)
+  @Delete('users/:id/credentials/:credId')
+  removeCredential(@Param() params: CredentialIdParams): Observable<void> {
+    return this._apiService.removeCredential(params.credId, params.id);
   }
 
   /**

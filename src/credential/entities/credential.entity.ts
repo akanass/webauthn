@@ -60,7 +60,7 @@ export class CredentialEntity {
   /**
    * Attestation format - not exposed in API answer
    */
-  attestation_format: string;
+  attestation_format: 'packed' | 'tpm' | 'android-key' | 'android-safetynet' | 'fido-u2f' | 'none' | 'apple';
 
   /**
    * Attestation object - not exposed in API answer

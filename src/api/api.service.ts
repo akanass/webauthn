@@ -11,6 +11,9 @@ import { defaultIfEmpty, filter, map } from 'rxjs/operators';
 import { CredentialsListEntity } from '../credential/entities/credentials-list.entity';
 import * as useragent from 'useragent';
 import { UserAgentData } from './interfaces/useragent-data.interface';
+import { PatchCredentialDto } from '../credential/dto/patch-credential.dto';
+import { AttestationStartDto } from '../webauthn/dto/attestation-start.dto';
+import { Credential } from '../credential/schemas/credential.schema';
 
 @Injectable()
 export class ApiService {
@@ -58,6 +61,88 @@ export class ApiService {
   }
 
   /**
+   * Function to patch a credential in the database
+   *
+   * @param {string} id credential unique identifier
+   * @param {string} userId user unique identifier
+   * @param {PatchCredentialDto} credential payload to patch the user
+   *
+   * @return {Observable<CredentialEntity>} the entity representing the patched credential
+   */
+  patchCredential(id: string, userId: string, credential: PatchCredentialDto): Observable<CredentialEntity> {
+    return this._credentialService.patch(id, userId, credential);
+  }
+
+  /**
+   * Function to remove a credential in the database
+   *
+   * @param {string} id credential unique identifier
+   * @param {string} userId user unique identifier
+   *
+   * @return {Observable<void>}
+   */
+  removeCredential(id: string, userId: string): Observable<void> {
+    return this._credentialService.remove(id, userId);
+  }
+
+  /**
+   * Function to create credential MOCK
+   *
+   * @param {string} userId unique identifier of the owner of all credentials
+   * @param {AttestationStartDto} authenticatorAttachment type of mock
+   * @param {string} ua value of the useragent making the request
+   *
+   * @return {Observable<CredentialEntity>} the entity representing the patched credential
+   */
+  createCredentialMock(userId: string, authenticatorAttachment: AttestationStartDto, ua: string): Observable<CredentialEntity> {
+    let credential: Credential;
+    const userAgentData: UserAgentData = this.userAgentData(ua);
+
+    switch (authenticatorAttachment.authenticator_attachment) {
+      case 'cross-platform':
+        credential = {
+          user_id: userId,
+          credential_id: new Buffer('credential_id-cross-platform'),
+          type: 'yk5series',
+          name: 'YubiKey 5 Series',
+          aaguid: '' + new Date().getTime(),
+          user_handle: new Buffer('user_handle-cross-platform'),
+          public_key: new Buffer('public_key-cross-platform'),
+          signature_count: 1,
+          attestation_format: 'fido-u2f',
+          attestation: new Buffer('attestation-cross-platform'),
+          metadata: {
+            authenticator_attachment: authenticatorAttachment.authenticator_attachment,
+          },
+          last_access_time: new Date().getTime(),
+        };
+        break;
+      case 'platform':
+        credential = {
+          user_id: userId,
+          credential_id: new Buffer('credential_id-platform'),
+          type: 'unknown',
+          name: 'My Computer',
+          aaguid: '' + new Date().getTime(),
+          user_handle: new Buffer('user_handle-platform'),
+          public_key: new Buffer('public_key-platform'),
+          signature_count: 1,
+          attestation_format: 'apple',
+          attestation: new Buffer('attestation-platform'),
+          metadata: {
+            authenticator_attachment: authenticatorAttachment.authenticator_attachment,
+            os: userAgentData.os,
+            device: userAgentData.device,
+          },
+          last_access_time: new Date().getTime(),
+        };
+        break;
+    }
+
+    return this._credentialService.create(credential);
+  }
+
+  /**
    * Returns all credentials for the given user
    *
    * @param {string} userId unique identifier of the owner of all credentials
@@ -69,30 +154,6 @@ export class ApiService {
     return this._credentialService.findCredentialsForUser(userId)
       .pipe(
         filter((credentials: CredentialEntity[]) => !!credentials),
-        defaultIfEmpty([ // TODO DELETE MOCK
-          new CredentialEntity({
-            id: '5763cd4dc378a38ecd387737',
-            type: 'yk5series',
-            name: 'YubiKey 5 Series',
-            metadata: {
-              authenticator_attachment: 'cross-platform',
-            },
-            last_access_time: 1613051133445,
-            created_at: 1613051133445,
-          })/*,
-          new CredentialEntity({
-            id: '5763cd4dc378a38ecd386689',
-            type: 'unknown',
-            name: 'Macbook Pro',
-            metadata: {
-              authenticator_attachment: 'platform',
-              os: 'Mac OS X 11.2.1',
-              device: 'Other 0.0.0',
-            },
-            last_access_time: 1613051140324,
-            created_at: 1613051140324,
-          })*/,
-        ]),
         map((credentials: CredentialEntity[]) => {
           // get user agent data
           const userAgentData: UserAgentData = this.userAgentData(ua);
@@ -112,7 +173,7 @@ export class ApiService {
           // return new credentials list with the flag
           return new CredentialsListEntity({ credentials, can_add_new_biometric: canAddNewBiometric });
         }),
-        //defaultIfEmpty(undefined), // TODO ACTIVATE DEFAULT WHEN MOCK DELETED
+        defaultIfEmpty(undefined),
       );
   }
 

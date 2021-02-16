@@ -3,6 +3,7 @@ import { ajax, AjaxResponse } from 'rxjs/ajax';
 import { User } from './_user';
 import { map } from 'rxjs/operators';
 import { CredentialsList } from './_credentials_list';
+import { Credential } from './_credential';
 
 export class Api {
   // private static property to store singleton instance
@@ -145,6 +146,45 @@ export class Api {
       .pipe(
         map((resp: AjaxResponse) => new CredentialsList(resp.response)),
       );
+  }
+
+  /**
+   * Function to patch user value
+   *
+   * @param {string} userId unique identifier of the user
+   * @param {string} credentialId unique identifier of the credential
+   * @param {{ name: string }} partial credential object to patch it
+   *
+   * @return {Observable<Credential>} the new instance of the credential with the patched value
+   */
+  patchCredential(userId: string, credentialId: string, partial: { name: string }): Observable<Credential> {
+    return ajax({
+      url: `/api/users/${userId}/credentials/${credentialId}`,
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: partial,
+    }).pipe(
+      map((resp: AjaxResponse) => new Credential(resp.response)),
+    );
+  }
+
+  /**
+   * Function to delete the credential
+   *
+   * @param {string} userId unique identifier of the user
+   * @param {string} credentialId unique identifier of the credential
+   *
+   * return {Observable<void>}
+   */
+  deleteCredential(userId: string, credentialId: string): Observable<void> {
+    return ajax({
+      url: `/api/users/${userId}/credentials/${credentialId}`,
+      method: 'DELETE',
+    }).pipe(
+      map((resp: AjaxResponse) => resp.response),
+    );
   }
 }
 

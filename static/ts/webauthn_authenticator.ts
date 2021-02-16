@@ -1,10 +1,11 @@
 import { User } from './_user';
-import { Subscription } from 'rxjs';
-import { mergeMap, tap } from 'rxjs/operators';
+import { of, Subscription } from 'rxjs';
+import { defaultIfEmpty, filter, mergeMap, tap } from 'rxjs/operators';
 import { Credential } from './_credential';
 import { CredentialsList } from './_credentials_list';
 import { AjaxError } from 'rxjs/ajax';
 import { MDCDialog } from '@material/dialog';
+import { MDCTabBar } from '@material/tab-bar';
 
 /**
  * Get page's elements
@@ -13,6 +14,7 @@ const errorAuthenticatorsList: HTMLDivElement = document.querySelector('#error-a
 const errorAuthenticatorsListMessage: HTMLSpanElement = document.querySelector('#error-authenticators-list-message');
 const errorAuthenticatorsListWebAuthnMessage: HTMLSpanElement = document.querySelector('#error-webauthn-message');
 const tabBar: HTMLDivElement = document.querySelector('#authenticators-tab-bar');
+const mdcTabBar: MDCTabBar = new MDCTabBar(tabBar);
 const securityKeys: HTMLDivElement = document.querySelector('#security-keys');
 const securityKeysList: HTMLDivElement = document.querySelector('#security-keys-list');
 const biometrics: HTMLDivElement = document.querySelector('#biometrics');
@@ -20,6 +22,7 @@ const biometricsList: HTMLDivElement = document.querySelector('#biometrics-list'
 const addSecurityKeyButton: HTMLButtonElement = document.querySelector('#add-security-key');
 const addBiometricButton: HTMLButtonElement = document.querySelector('#add-biometric');
 const mainDiv: HTMLDivElement = document.querySelector('#main-content');
+const logoutLink: HTMLLinkElement = document.querySelector('#logout');
 
 /**
  * Register dialog elements
@@ -64,6 +67,7 @@ const editCredentialNameLabel: HTMLSpanElement = document.querySelector('#edit-c
 let initSubscription: Subscription;
 let editSubscription: Subscription;
 let registerSubscription: Subscription;
+let logoutSubscription: Subscription;
 
 /**
  * Variable to store current logged in user
@@ -84,6 +88,11 @@ let credentialTypeToBeRegistered: 'cross-platform' | 'platform';
  * Variable to store register do action button state
  */
 let registerDoActionState: 'security-key' | 'processing' | 'retry' | 'success';
+
+/**
+ * Variable to store initial tab bar index
+ */
+let tabBarIndex: number;
 
 /**
  * Add event listener on window.load to put all process in place
@@ -313,6 +322,11 @@ const tabBarSwitch = () => {
 };
 
 /**
+ * Function to display good tab bar content
+ */
+const switchTabBar = () => mdcTabBar.activateTab(tabBarIndex);
+
+/**
  * Function to display edit security key title
  */
 const displayEditSecurityKeyTitle = () => {
@@ -376,6 +390,39 @@ const setCredentialValuesInRegisterEditForm = (credential: Credential) => {
 };
 
 /**
+ * Function to handle logout process
+ */
+const logoutProcess = () => {
+  logoutLink.addEventListener('click', (e) => {
+    // stop normal process
+    e.preventDefault();
+
+    // reset error messages
+    resetErrorMessage();
+
+    // delete previous subscription to memory free
+    if (!!logoutSubscription) {
+      logoutSubscription.unsubscribe();
+    }
+
+    // import api script
+    import('./_api').then(({ api }) => {
+      logoutSubscription = api.logout()
+        .subscribe(
+          () => {
+            // delete previous subscription to memory free
+            logoutSubscription.unsubscribe();
+
+            // redirect user to home page
+            window.location.href = logoutLink.href;
+          },
+          (err: AjaxError) => manageApiError(err, displayAuthenticatorListErrorMessage, logoutSubscription),
+        );
+    });
+  });
+}
+
+/**
  * Function to handle credential edition button click
  */
 const editCredentialButtonProcess = () => {
@@ -430,12 +477,8 @@ const editCredentialButtonProcess = () => {
             resetEditDialogElements();
           },
           () => {
-            // reset all elements to good state
-            setTimeout(() => {
-              disableAllCredentialsEditButtons(false);
-              disableAddBiometricButton(!addBiometricIsEnabled);
-              disableAddSecurityKeyButton(false);
-            }, 100);
+            // reload credentials list
+            loadCredentialsListForCurrentUser(() => switchTabBar());
           },
         );
       });
@@ -471,14 +514,14 @@ const editCredentialProcess = (action: 'done' | 'remove') => {
       // check if new name is different than original one
       if (credentialName !== credentialOriginalName) {
         // we update name in database
-        editCredentialName(credentialId, credentialName, webauthnDialogEdit, disableEditDialogButtons);
+        editCredentialName(credentialId, credentialName, webauthnDialogEdit, displayEditErrorMessage, { editDialog: true });
       } else {
         // nothing to do so we close the dialog
         webauthnDialogEdit.close();
       }
       break;
     case 'remove':
-      removeCredential(credentialId, webauthnDialogEdit, disableEditDialogButtons)
+      removeCredential(credentialId, webauthnDialogEdit, displayEditErrorMessage, { editDialog: true });
       break;
   }
 };
@@ -509,7 +552,7 @@ const registerCredentialProcess = (waitToDisableButtons = true) => {
   if (!!waitToDisableButtons) {
     setTimeout(() => disableRegisterDialogButtons(true), 200);
   } else {
-    disableRegisterDialogButtons(true)
+    disableRegisterDialogButtons(true);
   }
 
   console.log('REGISTER CREDENTIAL TYPE =>', credentialTypeToBeRegistered);
@@ -543,7 +586,7 @@ const registerCredentialEditProcess = () => {
   // check if new name is different than original one
   if (credentialName !== credentialOriginalName) {
     // we update name in database
-    editCredentialName(credentialId, credentialName, webauthnDialogRegister, disableRegisterDialogButtons);
+    editCredentialName(credentialId, credentialName, webauthnDialogRegister, displayRegisterErrorMessage, { registerDialog: true });
   } else {
     // nothing to do so we close the dialog
     webauthnDialogRegister.close();
@@ -556,11 +599,24 @@ const registerCredentialEditProcess = () => {
  * @param {string} credentialId unique identifier of the credential
  * @param {string} credentialName new name of the credential
  * @param {MDCDialog} dialogToCLose dialog to close at the end of the edition
- * @param {Function} funcToDisableButtons function to disable buttons
+ * @param {Function} errorMessageFunc function to disable error message
+ * @param {{ registerDialog?: boolean, editDialog?: boolean }} enableButtons for good dialog
  */
-const editCredentialName = (credentialId: string, credentialName: string, dialogToCLose: MDCDialog, funcToDisableButtons: (display: boolean) => void) => {
-  console.log('EDIT CREDENTIAL WITH ID =>', credentialId, ' | NAME =>', credentialName);
-  setTimeout(() => dialogToCLose.close(), 2000); // TODO EDIT PROCESS
+const editCredentialName = (credentialId: string, credentialName: string, dialogToCLose: MDCDialog, errorMessageFunc: (message: string) => void, enableButtons: { registerDialog?: boolean, editDialog?: boolean }) => {
+  import('./_api').then(({ api }) => {
+    // edit credential name
+    editSubscription = api.patchCredential(currentUser.userId, credentialId, { name: credentialName })
+      .subscribe(
+        () => {
+          // delete previous subscription to memory free
+          editSubscription.unsubscribe();
+
+          // close dialog
+          dialogToCLose.close();
+        },
+        (err: AjaxError) => manageApiError(err, errorMessageFunc, editSubscription, enableButtons),
+      );
+  });
 };
 
 /**
@@ -568,11 +624,24 @@ const editCredentialName = (credentialId: string, credentialName: string, dialog
  *
  * @param {string} credentialId unique identifier of the credential
  * @param {MDCDialog} dialogToCLose dialog to close at the end of the edition
- * @param {Function} funcToDisableButtons function to disable buttons
+ * @param {Function} errorMessageFunc function to display error message
+ * @param {{ editDialog: boolean }} enableButtons for good dialog
  */
-const removeCredential = (credentialId: string, dialogToCLose: MDCDialog, funcToDisableButtons: (display: boolean) => void) => {
-  console.log('REMOVE CREDENTIAL WITH ID =>', credentialId);
-  setTimeout(() => dialogToCLose.close(), 2000); // TODO REMOVE PROCESS
+const removeCredential = (credentialId: string, dialogToCLose: MDCDialog, errorMessageFunc: (message: string) => void, enableButtons: { editDialog: boolean }) => {
+  import('./_api').then(({ api }) => {
+    // edit credential name
+    editSubscription = api.deleteCredential(currentUser.userId, credentialId)
+      .subscribe(
+        () => {
+          // delete previous subscription to memory free
+          editSubscription.unsubscribe();
+
+          // close dialog
+          dialogToCLose.close();
+        },
+        (err: AjaxError) => manageApiError(err, errorMessageFunc, editSubscription, enableButtons),
+      );
+  });
 };
 
 /**
@@ -672,12 +741,8 @@ const addCredentialProcess = (type: 'cross-platform' | 'platform') => {
             resetRegisterDialogElements();
           },
           () => {
-            // reset all elements to good state
-            setTimeout(() => {
-              disableAllCredentialsEditButtons(false);
-              disableAddBiometricButton(!addBiometricIsEnabled);
-              disableAddSecurityKeyButton(false);
-            }, 100);
+            // reload credentials list
+            loadCredentialsListForCurrentUser(() => switchTabBar());
           },
         );
       });
@@ -686,9 +751,9 @@ const addCredentialProcess = (type: 'cross-platform' | 'platform') => {
 };
 
 /**
- * We get current user and generate credentials HTML when page is loaded then initialize all processes
+ * Function to reload credentials list after dialog closed
  */
-const initProcess = () => {
+const loadCredentialsListForCurrentUser = (funcToExecute?: () => void, loadUser = false) => {
   // reset all error messages
   resetErrorMessage();
 
@@ -701,13 +766,14 @@ const initProcess = () => {
   }
 
   import('./_api').then(({ api }) => {
-    // get logged in user
-    initSubscription = api.loggedIn()
+    initSubscription = of(loadUser)
       .pipe(
+        filter((_: boolean) => !!_),
+        mergeMap(() => api.loggedIn()),
         tap((user: User) => currentUser = user),
+        defaultIfEmpty(currentUser),
         mergeMap((user: User) => api.getCredentialsList(user.userId)),
-      )
-      .subscribe(
+      ).subscribe(
         (credentialsList: CredentialsList) => {
           // delete previous subscription to memory free
           initSubscription.unsubscribe();
@@ -715,34 +781,47 @@ const initProcess = () => {
           // build html
           buildHtmlProcess(credentialsList);
 
-          // set tar bar switch process
-          tabBarSwitch();
-
-          // enable add security key button
-          disableAddSecurityKeyButton(false);
-
-          // set add credential buttons process
-          addCredentialButtonsProcess();
-
-          // delete esc handler
-          initDialogCancelAction();
-
-          // reset edit dialog elements
-          resetEditDialogElements();
-
-          // set edit credential buttons dialog process
-          editCredentialButtonsProcess();
-
-          // reset register dialog elements
-          resetRegisterDialogElements();
-
-          // set register credential buttons dialog process
-          registerCredentialButtonsProcess();
+          // execute callback if needed
+          if (!!funcToExecute) {
+            funcToExecute();
+          }
         },
         (err: AjaxError) => manageApiError(err, displayAuthenticatorListErrorMessage, initSubscription),
       );
   });
 };
+
+/**
+ * We get current user and generate credentials HTML when page is loaded then initialize all processes
+ */
+const initProcess = () => loadCredentialsListForCurrentUser(() => {
+  // set tar bar switch process
+  tabBarSwitch();
+
+  // display good tab bar element
+  switchTabBar();
+
+  // set add credential buttons process
+  addCredentialButtonsProcess();
+
+  // delete esc handler
+  initDialogCancelAction();
+
+  // reset edit dialog elements
+  resetEditDialogElements();
+
+  // set edit credential buttons dialog process
+  editCredentialButtonsProcess();
+
+  // reset register dialog elements
+  resetRegisterDialogElements();
+
+  // set register credential buttons dialog process
+  registerCredentialButtonsProcess();
+
+  // set logout process
+  logoutProcess();
+}, true);
 
 /**
  * Function to suppress cancel action outside cancel button
@@ -774,6 +853,14 @@ const buildHtmlProcess = (credentialsList: CredentialsList): void => {
   // enable add biometric button if allowed
   addBiometricIsEnabled = credentialsList.addBiometricsButtonIsEnabled;
   disableAddBiometricButton(!addBiometricIsEnabled);
+  // enable add security key button
+  disableAddSecurityKeyButton(false);
+  // set tab bar index
+  if (credentialsList.biometrics.length > 0 && credentialsList.securityKeys.length === 0) {
+    tabBarIndex = 1;
+  } else {
+    tabBarIndex = 0;
+  }
   // set event listener on all credential edit button - use timeout to wait for html rendering
   setTimeout(() => editCredentialButtonProcess(), 100);
 };
@@ -798,7 +885,7 @@ const manageApiError = (err: AjaxError, errorMessageFunc: (message: string) => v
   } else {
     // error message is an array so we take only the first one
     // and we set the message in the page
-    const errorMessage = [].concat(err.message).shift();
+    const errorMessage = [].concat(err.response.message).shift();
 
     // display message
     errorMessageFunc(errorMessage);

@@ -30,18 +30,6 @@ export class Template {
     <p>No authenticator added.</p>
   `;
 
-  // private property to store loading template
-  private _loadingCredentialListTpl = `
-    <p>Loading...</p>
-  `;
-
-  /**
-   * Function to returns loading template
-   */
-  get loadingCredentialListTpl(): string {
-    return this._loadingCredentialListTpl;
-  }
-
   /**
    * Method returns new singleton instance
    */

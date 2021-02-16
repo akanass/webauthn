@@ -181,7 +181,7 @@ const manageApiError = (err: AjaxError, sub: Subscription) => {
   } else {
     // error message is an array so we take only the first one
     // and we set the message in the page
-    const errorMessage = [].concat(err.message).shift();
+    const errorMessage = [].concat(err.response.message).shift();
 
     // display message
     displayEndErrorMessage(errorMessage);

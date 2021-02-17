@@ -31,6 +31,7 @@ export interface WebAuthnConfig {
   rpName: string;
   rpID: string;
   rpPort?: number;
+  useRpPort: boolean;
   timeout: number;
   attestationType: AttestationConveyancePreference;
   authenticatorSelection: AuthenticatorSelectionCriteria;

@@ -149,6 +149,7 @@ security:
     rpName: Fido2 WebAuthn Example by Akanass
     rpID: akanass.local
     rpPort: 3000
+    useRpPort: true
     timeout: 60000
     attestationType: direct
     authenticatorSelection:

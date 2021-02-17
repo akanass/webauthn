@@ -98,7 +98,7 @@ export class WebAuthnService {
           verifyAttestationOptions: {
             credential: attestation,
             expectedChallenge: _.data.challenge,
-            expectedOrigin: !!_.config.rpPort ? `https://${_.config.rpID}:${_.config.rpPort}` : `https://${_.config.rpID}`,
+            expectedOrigin: !!_.config.useRpPort && !!_.config.rpPort ? `https://${_.config.rpID}:${_.config.rpPort}` : `https://${_.config.rpID}`,
             expectedRPID: _.config.rpID,
             requireUserVerification: _.config.authenticatorSelection.userVerification === 'required',
           },

@@ -35,19 +35,56 @@ export class AppController {
    * Handler to answer to GET / route and redirect to login page
    */
   @Get()
-  async homePage(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
-    await res
-      .status(302)
-      .redirect(`login${this._appService.buildQueryString(req.query)}`); // TODO USE MIDDLEWARE
+  async homePage(@Req() req: FastifyRequest, @Res() res: FastifyReply, @Session() session: secureSession.Session) {
+    // get authentication type
+    const auth_type = this._securityService.getSessionData(session, 'auth_type');
+
+    // get user
+    const user = this._securityService.getSessionData(session, 'user');
+
+    // check if we are already logged in
+    if (!!user) {
+      // indicate we are going from login or webauthn page regarding authentication type
+      this._securityService.setSessionData(session, 'previous_step', auth_type);
+
+      // check type of authentication and if user skipped authenticator registration page
+      if (auth_type === 'login' && !user.skip_authenticator_registration) {
+        // redirect to login/authenticator page
+        await res.status(302).redirect('login/authenticator');
+      } else {
+        await res.status(302).redirect('end');
+      }
+    } else {
+      await res
+        .status(302)
+        .redirect(`login${this._appService.buildQueryString(req.query)}`);
+    }
   }
 
   /**
    * Handler to answer to GET /login route and display the associated page
    */
   @Get('login')
-  async loginPage(@Res() res) {
-    await res
-      .view('login', this._appService.getMetadata('login')); // TODO USE MIDDLEWARE
+  async loginPage(@Res() res, @Session() session: secureSession.Session) {
+    // get user
+    const user = this._securityService.getSessionData(session, 'user');
+
+    // check if we are already logged in
+    if (!!user) {
+      // indicate we are going from login page
+      this._securityService.setSessionData(session, 'previous_step', 'login');
+
+      // check type of authentication and if user skipped authenticator registration page
+      if (!user.skip_authenticator_registration) {
+        // redirect to login/authenticator page
+        await res.status(302).redirect('login/authenticator');
+      } else {
+        await res.status(302).redirect('end');
+      }
+    } else {
+      await res
+        .view('login', this._appService.getMetadata('login'));
+    }
   }
 
   /**
@@ -62,7 +99,7 @@ export class AppController {
     const user: UserEntity = this._securityService.getLoggedInUserSync(session);
 
     // check if user has skipped this step before displaying this page
-    if (!!user.skip_authenticator_registration) { // TODO USE MIDDLEWARE
+    if (!!user.skip_authenticator_registration) {
       await res.status(302).redirect('end');
     } else {
       await res
@@ -78,11 +115,14 @@ export class AppController {
   @UseGuards(AuthGuard, SessionValueGuard)
   @Get('webauthn/authenticator')
   async webauthnAuthenticatorPage(@Res() res, @Session() session: secureSession.Session) {
+    // get previous step
+    const previous_step = this._securityService.getSessionData(session, 'previous_step');
+
     // get user in session
     const user: UserEntity = this._securityService.getLoggedInUserSync(session);
 
     // check if user has skipped this step before displaying this page
-    if (!!user.skip_authenticator_registration) { // TODO USE MIDDLEWARE
+    if (!!user.skip_authenticator_registration && previous_step === 'login_authenticator') {
       await res.status(302).redirect('end');
     } else {
       await res
@@ -98,8 +138,8 @@ export class AppController {
   @UseGuards(AuthGuard, SessionValueGuard)
   @Get('end')
   async endPage(@Res() res, @Session() session: secureSession.Session) {
-    // get previous step
-    const previous_step = this._securityService.getSessionData(session, 'previous_step');
+    // get authentication type
+    const auth_type = this._securityService.getSessionData(session, 'auth_type');
 
     // get user
     const user = this._securityService.getSessionData(session, 'user');
@@ -108,7 +148,7 @@ export class AppController {
     await res
       .view('end', Object.assign({}, this._appService.getMetadata('end'), {
         dynamicTitleValue: user.display_name,
-        webauthn_login: previous_step === 'webauthn',
+        webauthn_login: auth_type === 'webauthn',
       }));
   }
 

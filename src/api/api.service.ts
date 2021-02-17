@@ -12,12 +12,14 @@ import { CredentialsListEntity } from '../credential/entities/credentials-list.e
 import * as useragent from 'useragent';
 import { UserAgentData } from './interfaces/useragent-data.interface';
 import { PatchCredentialDto } from '../credential/dto/patch-credential.dto';
-import { AttestationStartDto } from '../webauthn/dto/attestation-start.dto';
+import { StartAttestationDto } from '../webauthn/dto/start-attestation.dto';
 import { Credential } from '../credential/schemas/credential.schema';
 import { WebAuthnService } from '../webauthn/webauthn.service';
 import * as secureSession from 'fastify-secure-session';
-import { AuthenticatorAttachment, PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/typescript-types';
+import { AuthenticatorAttachment } from '@simplewebauthn/typescript-types';
 import { PublicKeyCredentialCreationOptionsEntity } from '../webauthn/entities/public-key-credential-creation-options.entity';
+import { ATTESTATION_FORMAT } from '@simplewebauthn/server/dist/helpers/decodeAttestationObject';
+import { VerifyAttestationDto } from '../webauthn/dto/verify-attestation.dto';
 
 @Injectable()
 export class ApiService {
@@ -94,12 +96,12 @@ export class ApiService {
    * Function to create credential MOCK
    *
    * @param {string} userId unique identifier of the owner of all credentials
-   * @param {AttestationStartDto} authenticatorAttachment type of mock
+   * @param {StartAttestationDto} authenticatorAttachment type of mock
    * @param {string} ua value of the useragent making the request
    *
    * @return {Observable<CredentialEntity>} the entity representing the patched credential
    */
-  createCredentialMock(userId: string, authenticatorAttachment: AttestationStartDto, ua: string): Observable<CredentialEntity> {
+  createCredentialMock(userId: string, authenticatorAttachment: StartAttestationDto, ua: string): Observable<CredentialEntity> {
     let credential: Credential;
     const userAgentData: UserAgentData = this.userAgentData(ua);
 
@@ -108,13 +110,14 @@ export class ApiService {
         credential = {
           user_id: userId,
           credential_id: new Buffer('credential_id-cross-platform'),
-          type: 'yk5series',
+          type: 'public-key',
           name: 'YubiKey 5 Series',
           aaguid: '' + new Date().getTime(),
           user_handle: new Buffer('user_handle-cross-platform'),
+          user_verified: false,
           public_key: new Buffer('public_key-cross-platform'),
           signature_count: 1,
-          attestation_format: 'fido-u2f',
+          attestation_format: ATTESTATION_FORMAT.FIDO_U2F,
           attestation: new Buffer('attestation-cross-platform'),
           metadata: {
             authenticator_attachment: authenticatorAttachment.authenticator_attachment,
@@ -127,13 +130,14 @@ export class ApiService {
         credential = {
           user_id: userId,
           credential_id: new Buffer('credential_id-platform'),
-          type: 'unknown',
+          type: 'public-key',
           name: 'My Computer',
           aaguid: '' + new Date().getTime(),
           user_handle: new Buffer('user_handle-platform'),
+          user_verified: false,
           public_key: new Buffer('public_key-platform'),
           signature_count: 1,
-          attestation_format: 'apple',
+          attestation_format: ATTESTATION_FORMAT.APPLE,
           attestation: new Buffer('attestation-platform'),
           metadata: {
             authenticator_attachment: authenticatorAttachment.authenticator_attachment,
@@ -204,7 +208,20 @@ export class ApiService {
    *
    * @return {Observable<PublicKeyCredentialCreationOptionsEntity>} attestation options object
    */
-  attestationStart(authenticatorAttachment: AuthenticatorAttachment, session: secureSession.Session): Observable<PublicKeyCredentialCreationOptionsEntity> {
-    return this._webauthnService.attestationStart(authenticatorAttachment, session);
+  startAttestation(authenticatorAttachment: AuthenticatorAttachment, session: secureSession.Session): Observable<PublicKeyCredentialCreationOptionsEntity> {
+    return this._webauthnService.startAttestation(authenticatorAttachment, session);
+  }
+
+  /**
+   * Returns the new credential after attestation was verified
+   *
+   * @param {VerifyAttestationDto} attestation to verify
+   * @param {secureSession.Session} session the current session instance
+   * @param {string} ua value of the useragent making the request
+   *
+   * @return {Observable<CredentialEntity>} the new credential for the given attestation
+   */
+  verifyAttestation(attestation: VerifyAttestationDto, session: secureSession.Session, ua: string): Observable<CredentialEntity> {
+    return this._webauthnService.finishAttestation(attestation, session, this.userAgentData(ua));
   }
 }

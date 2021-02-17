@@ -1,4 +1,8 @@
-import { AttestationConveyancePreference, AuthenticatorSelectionCriteria } from '@simplewebauthn/typescript-types';
+import {
+  AttestationConveyancePreference,
+  AuthenticatorSelectionCriteria,
+  AuthenticatorTransport,
+} from '@simplewebauthn/typescript-types';
 
 export interface PasswordConfig {
   salt: string;
@@ -26,7 +30,11 @@ export interface CookieOptions {
 export interface WebAuthnConfig {
   rpName: string;
   rpID: string;
+  rpPort?: number;
   timeout: number;
   attestationType: AttestationConveyancePreference;
   authenticatorSelection: AuthenticatorSelectionCriteria;
+  defaultSecurityKeyName: string;
+  defaultBiometricName: string;
+  defaultTransports: AuthenticatorTransport[]
 }

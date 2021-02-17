@@ -17,12 +17,12 @@ export class PublicKeyCredentialDescriptorEntity {
   @ApiProperty({
     name: 'transports',
     description: 'This enumeration defines hints as to how clients might communicate with a particular authenticator',
-    example: 'usb',
+    example: [ 'ble', 'internal', 'nfc', 'usb' ],
     isArray: true,
     required: false
   })
   @Expose()
-  @Type(() => String)
+  @Type(() => Array)
   transports?: AuthenticatorTransport[];
 
   @ApiProperty({

@@ -7,7 +7,7 @@ export class CredentialMetadataEntity {
   @ApiProperty({
     name: 'authenticator_attachment',
     description: 'Authenticator attachment',
-    example: 'cross-platform',
+    example: 'platform',
     enum: [ 'cross-platform', 'platform' ],
   })
   @Expose()

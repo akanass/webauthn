@@ -2,6 +2,8 @@ import { Exclude, Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { CredentialMetadataEntity } from './credential-metadata.entity';
 import { AuthenticatorTransport } from '@simplewebauthn/typescript-types';
+import { ATTESTATION_FORMAT } from '@simplewebauthn/server/dist/helpers/decodeAttestationObject';
+import { IsInstance, ValidateNested } from 'class-validator';
 
 @Exclude()
 export class CredentialEntity {
@@ -23,16 +25,16 @@ export class CredentialEntity {
   @ApiProperty({
     name: 'type',
     description: 'Credential type',
-    example: 'yk5series',
+    example: 'public-key',
   })
   @Expose()
   @Type(() => String)
-  type: 'unknown' | string;
+  type: PublicKeyCredentialType;
 
   @ApiProperty({
     name: 'name',
     description: 'Credential name',
-    example: 'YubiKey 5 Series',
+    example: 'YubiKey 5C NFC',
   })
   @Expose()
   @Type(() => String)
@@ -49,6 +51,11 @@ export class CredentialEntity {
   user_handle: Buffer;
 
   /**
+   * Whether the user was uniquely identified during attestation - not exposed in API answer
+   */
+  user_verified: boolean;
+
+  /**
    * Public key of the credential - not exposed in API answer
    */
   public_key: Buffer;
@@ -61,7 +68,7 @@ export class CredentialEntity {
   /**
    * Attestation format - not exposed in API answer
    */
-  attestation_format: 'packed' | 'tpm' | 'android-key' | 'android-safetynet' | 'fido-u2f' | 'none' | 'apple';
+  attestation_format: ATTESTATION_FORMAT;
 
   /**
    * Attestation object - not exposed in API answer
@@ -72,10 +79,12 @@ export class CredentialEntity {
     name: 'metadata',
     description: 'Authenticator metadata',
     example: {
-      authenticator_attachment: 'cross-platform'
+      authenticator_attachment: 'cross-platform',
     },
-    type: CredentialMetadataEntity
+    type: CredentialMetadataEntity,
   })
+  @IsInstance(CredentialMetadataEntity)
+  @ValidateNested()
   @Expose()
   @Type(() => CredentialMetadataEntity)
   metadata: CredentialMetadataEntity;

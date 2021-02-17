@@ -7,6 +7,8 @@ import { defaultIfEmpty, filter, map, mergeMap } from 'rxjs/operators';
 import * as secureSession from 'fastify-secure-session';
 import { UserEntity } from '../user/entities/user.entity';
 import { SessionData } from './interfaces/session-data.interface';
+import { WebAuthnAttestationSession } from '../webauthn/interfaces/webauthn-attestation-session.interface';
+import { WebAuthnAssertionSession } from '../webauthn/interfaces/webauthn-assertion-session.interface';
 
 @Injectable()
 export class SecurityService {
@@ -190,6 +192,48 @@ export class SecurityService {
             ),
             obs.pipe(
               filter(_ => !_),
+              mergeMap(() => throwError(new InternalServerErrorException('Missing metadata on the route handler'))),
+            ),
+          ),
+        ),
+      );
+  }
+
+  /**
+   * Function to check if the webauthn value in session in the one expected
+   *
+   * @param {secureSession.Session} session the current secure session instance
+   * @param {'webauthn_attestation' | 'webauthn_assertion'} type the type of webauthn data in session
+   *
+   * @return {Observable<boolean>} the flag to know if the data in the secure session is good
+   */
+  checkWebAuthnSessionData(session: secureSession.Session, type: 'webauthn_attestation' | 'webauthn_assertion'): Observable<boolean> {
+    return of(of(type))
+      .pipe(
+        mergeMap((obs: Observable<'webauthn_attestation' | 'webauthn_assertion'>) =>
+          merge(
+            obs.pipe(
+              filter(_ => !!_ && _ === 'webauthn_attestation'),
+              map((_: 'webauthn_attestation') => this.getSessionData(session, _)),
+              map((_: WebAuthnAttestationSession) => !!_ && !!_.challenge && !!_.user_handle && !!_.authenticator_attachment),
+              mergeMap((_: boolean) =>
+                !!_ ?
+                  of(_) :
+                  throwError(new ForbiddenException('Missing WebAuthn data to verify attestation')),
+              ),
+            ),
+            obs.pipe(
+              filter(_ => !!_ && _ === 'webauthn_assertion'),
+              map((_: 'webauthn_assertion') => this.getSessionData(session, _)),
+              map((_: WebAuthnAssertionSession) => !!_ && !!_.challenge),
+              mergeMap((_: boolean) =>
+                !!_ ?
+                  of(_) :
+                  throwError(new ForbiddenException('Missing WebAuthn data to verify assertion')),
+              ),
+            ),
+            obs.pipe(
+              filter(_ => !_ || (_ !== 'webauthn_attestation' && _ !== 'webauthn_assertion')),
               mergeMap(() => throwError(new InternalServerErrorException('Missing metadata on the route handler'))),
             ),
           ),

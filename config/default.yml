@@ -147,9 +147,17 @@ security:
       maxAge: 1800
   webauthn:
     rpName: Fido2 WebAuthn Example by Akanass
-    rpID: 'akanass.local:3000'
+    rpID: akanass.local
+    rpPort: 3000
     timeout: 60000
     attestationType: direct
     authenticatorSelection:
       residentKey: required
       userVerification: required
+    defaultSecurityKeyName: My Security Key Authenticator
+    defaultBiometricName: My Biometric Authenticator
+    defaultTransports:
+      - ble
+      - internal
+      - nfc
+      - usb

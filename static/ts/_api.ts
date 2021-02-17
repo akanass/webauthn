@@ -4,6 +4,11 @@ import { User } from './_user';
 import { map } from 'rxjs/operators';
 import { CredentialsList } from './_credentials_list';
 import { Credential } from './_credential';
+import {
+  AttestationCredentialJSON,
+  AuthenticatorAttachment,
+  PublicKeyCredentialCreationOptionsJSON,
+} from '@simplewebauthn/typescript-types';
 
 export class Api {
   // private static property to store singleton instance
@@ -184,6 +189,39 @@ export class Api {
       method: 'DELETE',
     }).pipe(
       map((resp: AjaxResponse) => resp.response),
+    );
+  }
+
+  /**
+   * Function to start webauthn attestation
+   *
+   * @param {{ authenticator_attachment: AuthenticatorAttachment }} authenticatorAttachment type of authenticator attachment
+   *
+   * @return {Observable<PublicKeyCredentialCreationOptionsJSON>} attestation options object
+   */
+  startAttestation(authenticatorAttachment: { authenticator_attachment: AuthenticatorAttachment }): Observable<PublicKeyCredentialCreationOptionsJSON> {
+    return ajax({
+      url: `/api/webauthn/register/start`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: authenticatorAttachment,
+    }).pipe(
+      map((resp: AjaxResponse) => resp.response),
+    );
+  }
+
+  verifyAttestation(attestation: AttestationCredentialJSON): Observable<Credential> {
+    return ajax({
+      url: `/api/webauthn/register/finish`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: attestation,
+    }).pipe(
+      map((resp: AjaxResponse) => new Credential(resp.response)),
     );
   }
 }

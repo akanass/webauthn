@@ -6,6 +6,7 @@ import { PublicKeyCredentialUserEntity } from './public-key-credential-user.enti
 import { PublicKeyCredentialParametersEntity } from './public-key-credential-parameters.entity';
 import { PublicKeyCredentialDescriptorEntity } from './public-key-credential-descriptor.entity';
 import { AuthenticatorSelectionCriteriaEntity } from './authenticator-selection-criteria.entity';
+import { IsInstance, ValidateNested } from 'class-validator';
 
 @Exclude()
 export class PublicKeyCredentialCreationOptionsEntity {
@@ -21,12 +22,10 @@ export class PublicKeyCredentialCreationOptionsEntity {
   @ApiProperty({
     name: 'rp',
     description: 'Relying Party data',
-    example: {
-      id: 'akanass.local:3000',
-      name: 'Fido2 WebAuthn Example by Akanass',
-    },
     type: PublicKeyCredentialRpEntity,
   })
+  @IsInstance(PublicKeyCredentialRpEntity)
+  @ValidateNested()
   @Expose()
   @Type(() => PublicKeyCredentialRpEntity)
   rp: PublicKeyCredentialRpEntity;
@@ -34,27 +33,22 @@ export class PublicKeyCredentialCreationOptionsEntity {
   @ApiProperty({
     name: 'user',
     description: 'User data',
-    example: {
-      id: 'EC7pwA0q1VJlVwMIipmVKoSVvaSBwyTGCdmfQMzegb2xX7KEcGDkRGUkvxT7ytDy',
-      name: 'akanass',
-      displayName: 'Akanass',
-    },
     type: PublicKeyCredentialUserEntity,
   })
+  @IsInstance(PublicKeyCredentialUserEntity)
+  @ValidateNested()
   @Expose()
-  @Type(() => PublicKeyCredentialRpEntity)
+  @Type(() => PublicKeyCredentialUserEntity)
   user: PublicKeyCredentialUserEntity;
 
   @ApiProperty({
     name: 'pubKeyCredParams',
     description: 'PublicKey Credential Parameters',
-    example: {
-      alg: -7,
-      type: 'public-key',
-    },
     type: PublicKeyCredentialParametersEntity,
     isArray: true,
   })
+  @IsInstance(PublicKeyCredentialParametersEntity)
+  @ValidateNested()
   @Expose()
   @Type(() => PublicKeyCredentialParametersEntity)
   pubKeyCredParams: PublicKeyCredentialParametersEntity[];
@@ -83,17 +77,11 @@ export class PublicKeyCredentialCreationOptionsEntity {
   @ApiProperty({
     name: 'excludeCredentials',
     description: 'List of credentials, already registered, to be excluded',
-    example: {
-      id: 'Y3JlZGVudGlhbF9pZC1jcm9zcy1wbGF0Zm9ybQ',
-      transports: [
-        'usb',
-        'nfc',
-      ],
-      type: 'public-key',
-    },
     type: PublicKeyCredentialDescriptorEntity,
     isArray: true,
   })
+  @IsInstance(PublicKeyCredentialDescriptorEntity)
+  @ValidateNested()
   @Expose()
   @Type(() => PublicKeyCredentialDescriptorEntity)
   excludeCredentials: PublicKeyCredentialDescriptorEntity[];
@@ -101,15 +89,11 @@ export class PublicKeyCredentialCreationOptionsEntity {
   @ApiProperty({
     name: 'authenticatorSelection',
     description: 'Authenticator selection criteria',
-    example: {
-      residentKey: 'required',
-      userVerification: 'required',
-      authenticatorAttachment: 'cross-platform',
-      requireResidentKey: true,
-    },
     type: AuthenticatorSelectionCriteriaEntity,
     required: false,
   })
+  @IsInstance(AuthenticatorSelectionCriteriaEntity)
+  @ValidateNested()
   @Expose()
   @Type(() => AuthenticatorSelectionCriteriaEntity)
   authenticatorSelection?: AuthenticatorSelectionCriteriaEntity;

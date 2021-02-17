@@ -2,7 +2,8 @@ import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Document } from 'mongoose';
 import { CredentialMetadata } from '../interfaces/credential-metadata.interface';
-import { AuthenticatorTransport } from '@simplewebauthn/typescript-types';
+import { AuthenticatorTransport, PublicKeyCredentialType } from '@simplewebauthn/typescript-types';
+import { ATTESTATION_FORMAT } from '@simplewebauthn/server/dist/helpers/decodeAttestationObject';
 
 export type CredentialDocument = Credential & Document;
 
@@ -44,10 +45,8 @@ export class Credential {
   @Prop({
     type: String,
     required: true,
-    minlength: 2,
-    trim: true,
   })
-  type: 'unknown' | string;
+  type: PublicKeyCredentialType;
 
   @Prop({
     type: String,
@@ -71,6 +70,12 @@ export class Credential {
   user_handle: Buffer;
 
   @Prop({
+    type: Boolean,
+    required: true,
+  })
+  user_verified: boolean;
+
+  @Prop({
     type: 'Buffer',
     required: true,
   })
@@ -87,7 +92,7 @@ export class Credential {
     required: true,
     enum: [ 'packed', 'tpm', 'android-key', 'android-safetynet', 'fido-u2f', 'none', 'apple' ],
   })
-  attestation_format: 'packed' | 'tpm' | 'android-key' | 'android-safetynet' | 'fido-u2f' | 'none' | 'apple';
+  attestation_format: ATTESTATION_FORMAT;
 
   @Prop({
     type: 'Buffer',
@@ -113,7 +118,7 @@ export class Credential {
   metadata: CredentialMetadata;
 
   @Prop({
-    type: [String],
+    type: [ String ],
     required: true,
   })
   transports: AuthenticatorTransport[];

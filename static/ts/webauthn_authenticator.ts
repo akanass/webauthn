@@ -6,6 +6,7 @@ import { CredentialsList } from './_credentials_list';
 import { AjaxError } from 'rxjs/ajax';
 import { MDCDialog } from '@material/dialog';
 import { MDCTabBar } from '@material/tab-bar';
+import { AttestationCredentialJSON, PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/typescript-types';
 
 /**
  * Get page's elements
@@ -420,7 +421,7 @@ const logoutProcess = () => {
         );
     });
   });
-}
+};
 
 /**
  * Function to handle credential edition button click
@@ -555,12 +556,45 @@ const registerCredentialProcess = (waitToDisableButtons = true) => {
     disableRegisterDialogButtons(true);
   }
 
-  console.log('REGISTER CREDENTIAL TYPE =>', credentialTypeToBeRegistered);
-  setTimeout(() => {
-    displayRegisterEditElements();
-    disableRegisterDialogButtons(false);
-    setCredentialValuesInRegisterEditForm(new Credential({ id: '1234567890', name: 'My Super Authenticator' } as any));
-  }, 3000); // TODO REGISTER PROCESS
+  // delete previous subscription to memory free
+  if (!!registerSubscription) {
+    registerSubscription.unsubscribe();
+  }
+
+  // import webauthn and api to start registration process
+  import('./_webauthn').then(({ webAuthn }) => import('./_api').then(({ api }) => {
+    registerSubscription = api.startAttestation({ authenticator_attachment: credentialTypeToBeRegistered })
+      .pipe(
+        mergeMap((_: PublicKeyCredentialCreationOptionsJSON) => webAuthn.startAttestation(_)),
+        mergeMap((_: AttestationCredentialJSON) => api.verifyAttestation(_)),
+      )
+      .subscribe(
+        (credential: Credential) => {
+          // delete previous subscription to memory free
+          registerSubscription.unsubscribe();
+
+          // set credential in the form
+          setCredentialValuesInRegisterEditForm(credential);
+
+          // display good elements
+          displayRegisterEditElements();
+          disableRegisterDialogButtons(false);
+        },
+        (err: any) => {
+          if (!!err.status && err.status === 401) {
+            // delete previous subscription to memory free
+            registerSubscription.unsubscribe();
+
+            // redirect user to error page
+            window.location.href = '/error';
+          } else {
+            console.error(err);
+            displayRegisterRetryElements();
+            setTimeout(() => disableRegisterDialogButtons(false), 500);
+          }
+        },
+      );
+  }));
 };
 
 /**

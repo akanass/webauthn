@@ -10,6 +10,7 @@ import {
   Post,
   Req,
   Session,
+  SetMetadata,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -48,10 +49,12 @@ import { FastifyRequest } from 'fastify';
 import { CredentialsListEntity } from '../credential/entities/credentials-list.entity';
 import { CredentialIdParams } from './validators/credential-id.params';
 import { PatchCredentialDto } from '../credential/dto/patch-credential.dto';
-import { AttestationStartDto } from '../webauthn/dto/attestation-start.dto';
-import { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/typescript-types';
+import { StartAttestationDto } from '../webauthn/dto/start-attestation.dto';
+import { AttestationCredentialJSON, PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/typescript-types';
 import { WebAuthnAttestationSession } from '../webauthn/interfaces/webauthn-attestation-session.interface';
 import { PublicKeyCredentialCreationOptionsEntity } from '../webauthn/entities/public-key-credential-creation-options.entity';
+import { WebAuthnSessionGuard } from '../security/guards/webauthn-session.guard';
+import { VerifyAttestationDto } from '../webauthn/dto/verify-attestation.dto';
 
 @ApiTags('api')
 @Controller('api')
@@ -88,33 +91,69 @@ export class ApiController {
       .pipe(
         tap((user: UserEntity) => this._securityService.setSessionData(session, 'user', user)),
         tap(() => this._securityService.setSessionData(session, 'previous_step', 'login')),
+        tap(() => this._securityService.setSessionData(session, 'auth_type', 'login')),
       );
   }
 
   /**
    * Handler to answer to POST /webauthn/register/start route
    *
-   * @param {AttestationStartDto} dto payload to generate attestation options
+   * @param {StartAttestationDto} dto payload to generate attestation options
    * @param {secureSession.Session} session secure data for the current session
    *
    * @return {Observable<PublicKeyCredentialCreationOptionsJSON>} attestation options object
    */
-  @ApiOkResponse({ description: 'Returns the successful attestation options object', type: PublicKeyCredentialCreationOptionsEntity })
+  @ApiOkResponse({
+    description: 'Returns the successful attestation options object',
+    type: PublicKeyCredentialCreationOptionsEntity,
+  })
   @ApiBadRequestResponse({ description: 'The payload provided to get attestation options isn\'t good' })
   @ApiUnauthorizedResponse({ description: 'User is not logged in' })
-  @ApiBody({ description: 'Payload to start webauthn registration', type: AttestationStartDto })
+  @ApiBody({ description: 'Payload to start webauthn registration', type: StartAttestationDto })
   @ApiCookieAuth()
   @UseGuards(AuthGuard)
   @HttpCode(200)
   @Post('/webauthn/register/start')
-  attestationStart(@Body() dto: AttestationStartDto, @Session() session: secureSession.Session): Observable<PublicKeyCredentialCreationOptionsEntity> {
-    return this._apiService.attestationStart(dto.authenticator_attachment, session)
+  startAttestation(@Body() dto: StartAttestationDto, @Session() session: secureSession.Session): Observable<PublicKeyCredentialCreationOptionsEntity> {
+    return this._apiService.startAttestation(dto.authenticator_attachment, session)
       .pipe(
         tap((_: PublicKeyCredentialCreationOptionsJSON) => this._securityService.setSessionData(session, 'webauthn_attestation', {
           challenge: _.challenge,
           user_handle: _.user.id,
           authenticator_attachment: _.authenticatorSelection.authenticatorAttachment,
         } as WebAuthnAttestationSession)),
+      );
+  }
+
+  /**
+   * Handler to answer to POST /webauthn/register/finish route
+   *
+   * @param {AttestationCredentialJSON} attestation payload to verify attestation
+   * @param {secureSession.Session} session secure data for the current session
+   * @param {FastifyRequest} request current request object
+   *
+   * @return {Observable<CredentialEntity>} the credential created after attestation verification
+   */
+  @ApiOkResponse({
+    description: 'The attestation has been successfully verified and the credential has been successfully created',
+    type: CredentialEntity,
+  })
+  @ApiBadRequestResponse({ description: 'The payload provided to verify attestation isn\'t good' })
+  @ApiConflictResponse({ description: 'The credential already exists in the database' })
+  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
+  @ApiUnauthorizedResponse({ description: 'User is not logged in' })
+  @ApiForbiddenResponse({ description: 'Missing WebAuthn session data' })
+  @ApiPreconditionFailedResponse({ description: 'An error occurred during attestation verification process' })
+  @ApiBody({ description: 'Payload to verify webauthn registration', type: VerifyAttestationDto })
+  @ApiCookieAuth()
+  @SetMetadata('webauthn_session', 'webauthn_attestation')
+  @UseGuards(AuthGuard, WebAuthnSessionGuard)
+  @HttpCode(200)
+  @Post('/webauthn/register/finish')
+  verifyAttestation(@Body() attestation: VerifyAttestationDto, @Session() session: secureSession.Session, @Req() request: FastifyRequest): Observable<CredentialEntity> {
+    return this._apiService.verifyAttestation(attestation, session, request.headers[ 'user-agent' ])
+      .pipe(
+        tap(() => this._securityService.cleanSessionData(session, 'webauthn_attestation')),
       );
   }
 
@@ -265,11 +304,11 @@ export class ApiController {
     type: String,
     allowEmptyValue: false,
   })
-  @ApiBody({ description: 'Payload to create a credential mock', type: AttestationStartDto })
+  @ApiBody({ description: 'Payload to create a credential mock', type: StartAttestationDto })
   @ApiCookieAuth()
   @UseGuards(AuthGuard, OwnerGuard)
   @Post('users/:id/credentials/mock')
-  createCredentialMock(@Param() params: UserIdParams, @Body() dto: AttestationStartDto, @Req() request: FastifyRequest): Observable<CredentialEntity> {
+  createCredentialMock(@Param() params: UserIdParams, @Body() dto: StartAttestationDto, @Req() request: FastifyRequest): Observable<CredentialEntity> {
     return this._apiService.createCredentialMock(params.id, dto, request.headers[ 'user-agent' ]);
   }
 

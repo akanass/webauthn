@@ -1,5 +1,6 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { AuthenticatorAttachment } from '@simplewebauthn/typescript-types';
 
 @Exclude()
 export class CredentialMetadataEntity {
@@ -11,7 +12,7 @@ export class CredentialMetadataEntity {
   })
   @Expose()
   @Type(() => String)
-  authenticator_attachment: 'cross-platform' | 'platform';
+  authenticator_attachment: AuthenticatorAttachment;
 
   @ApiProperty({
     name: 'os',

@@ -11,6 +11,7 @@ import { CredentialEntity } from './entities/credential.entity';
 import { Credential } from './schemas/credential.schema';
 import { catchError, defaultIfEmpty, filter, map, mergeMap } from 'rxjs/operators';
 import { PatchCredentialDto } from './dto/patch-credential.dto';
+import { AuthenticatorAttachment } from '@simplewebauthn/typescript-types';
 
 @Injectable()
 export class CredentialService {
@@ -32,6 +33,23 @@ export class CredentialService {
    */
   findCredentialsForUser(userId: string): Observable<CredentialEntity[] | void> {
     return this._credentialDao.findAllByUserId(userId)
+      .pipe(
+        filter((credentials: Credential[]) => !!credentials),
+        map((credentials: Credential[]) => credentials.map((credential: Credential) => new CredentialEntity(credential))),
+        defaultIfEmpty(undefined),
+      );
+  }
+
+  /**
+   * Returns all credentials for the given user and authenticator attachment
+   *
+   * @param {string} userId unique identifier of the owner of all credentials
+   * @param {AuthenticatorAttachment} authenticatorAttachment type of platform
+   *
+   * @return {Observable<Credential[] | void>} list of credentials or undefined if not found
+   */
+  findCredentialsForUserWithAuthenticatorAttachment(userId: string, authenticatorAttachment: AuthenticatorAttachment): Observable<CredentialEntity[] | void> {
+    return this._credentialDao.findAllByUserIdAndAuthenticatorAttachment(userId, authenticatorAttachment)
       .pipe(
         filter((credentials: Credential[]) => !!credentials),
         map((credentials: Credential[]) => credentials.map((credential: Credential) => new CredentialEntity(credential))),

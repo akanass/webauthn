@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { AuthenticatorAttachment } from '@simplewebauthn/typescript-types';
 
 export class AttestationStartDto {
   @ApiProperty({
@@ -10,5 +11,5 @@ export class AttestationStartDto {
   })
   @IsString()
   @IsNotEmpty()
-  authenticator_attachment: 'cross-platform' | 'platform';
+  authenticator_attachment: AuthenticatorAttachment;
 }

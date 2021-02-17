@@ -145,3 +145,11 @@ security:
       secure: true
       sameSite: true
       maxAge: 1800
+  webauthn:
+    rpName: Fido2 WebAuthn Example by Akanass
+    rpID: 'akanass.local:3000'
+    timeout: 60000
+    attestationType: direct
+    authenticatorSelection:
+      residentKey: required
+      userVerification: required

@@ -49,6 +49,9 @@ import { CredentialsListEntity } from '../credential/entities/credentials-list.e
 import { CredentialIdParams } from './validators/credential-id.params';
 import { PatchCredentialDto } from '../credential/dto/patch-credential.dto';
 import { AttestationStartDto } from '../webauthn/dto/attestation-start.dto';
+import { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/typescript-types';
+import { WebAuthnAttestationSession } from '../webauthn/interfaces/webauthn-attestation-session.interface';
+import { PublicKeyCredentialCreationOptionsEntity } from '../webauthn/entities/public-key-credential-creation-options.entity';
 
 @ApiTags('api')
 @Controller('api')
@@ -85,6 +88,33 @@ export class ApiController {
       .pipe(
         tap((user: UserEntity) => this._securityService.setSessionData(session, 'user', user)),
         tap(() => this._securityService.setSessionData(session, 'previous_step', 'login')),
+      );
+  }
+
+  /**
+   * Handler to answer to POST /webauthn/register/start route
+   *
+   * @param {AttestationStartDto} dto payload to generate attestation options
+   * @param {secureSession.Session} session secure data for the current session
+   *
+   * @return {Observable<PublicKeyCredentialCreationOptionsJSON>} attestation options object
+   */
+  @ApiOkResponse({ description: 'Returns the successful attestation options object', type: PublicKeyCredentialCreationOptionsEntity })
+  @ApiBadRequestResponse({ description: 'The payload provided to get attestation options isn\'t good' })
+  @ApiUnauthorizedResponse({ description: 'User is not logged in' })
+  @ApiBody({ description: 'Payload to start webauthn registration', type: AttestationStartDto })
+  @ApiCookieAuth()
+  @UseGuards(AuthGuard)
+  @HttpCode(200)
+  @Post('/webauthn/register/start')
+  attestationStart(@Body() dto: AttestationStartDto, @Session() session: secureSession.Session): Observable<PublicKeyCredentialCreationOptionsEntity> {
+    return this._apiService.attestationStart(dto.authenticator_attachment, session)
+      .pipe(
+        tap((_: PublicKeyCredentialCreationOptionsJSON) => this._securityService.setSessionData(session, 'webauthn_attestation', {
+          challenge: _.challenge,
+          user_handle: _.user.id,
+          authenticator_attachment: _.authenticatorSelection.authenticatorAttachment,
+        } as WebAuthnAttestationSession)),
       );
   }
 

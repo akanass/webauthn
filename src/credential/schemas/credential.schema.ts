@@ -2,6 +2,7 @@ import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Document } from 'mongoose';
 import { CredentialMetadata } from '../interfaces/credential-metadata.interface';
+import { AuthenticatorTransport } from '@simplewebauthn/typescript-types';
 
 export type CredentialDocument = Credential & Document;
 
@@ -110,6 +111,12 @@ export class Credential {
     },
   }))
   metadata: CredentialMetadata;
+
+  @Prop({
+    type: [String],
+    required: true,
+  })
+  transports: AuthenticatorTransport[];
 
   @Prop({
     type: Date,

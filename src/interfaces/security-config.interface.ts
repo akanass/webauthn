@@ -1,3 +1,5 @@
+import { AttestationConveyancePreference, AuthenticatorSelectionCriteria } from '@simplewebauthn/typescript-types';
+
 export interface PasswordConfig {
   salt: string;
   iterations: number;
@@ -19,4 +21,12 @@ export interface CookieOptions {
   signed: boolean;
   sameSite: boolean;
   maxAge: number;
+}
+
+export interface WebAuthnConfig {
+  rpName: string;
+  rpID: string;
+  timeout: number;
+  attestationType: AttestationConveyancePreference;
+  authenticatorSelection: AuthenticatorSelectionCriteria;
 }

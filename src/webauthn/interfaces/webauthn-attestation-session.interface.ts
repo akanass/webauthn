@@ -1,7 +1,7 @@
 import { AuthenticatorAttachment } from '@simplewebauthn/typescript-types';
 
-export interface CredentialMetadata {
+export class WebAuthnAttestationSession {
+  challenge: string;
+  user_handle: string;
   authenticator_attachment: AuthenticatorAttachment;
-  os?: string;
-  device?: string;
 }

@@ -14,6 +14,10 @@ import { UserAgentData } from './interfaces/useragent-data.interface';
 import { PatchCredentialDto } from '../credential/dto/patch-credential.dto';
 import { AttestationStartDto } from '../webauthn/dto/attestation-start.dto';
 import { Credential } from '../credential/schemas/credential.schema';
+import { WebAuthnService } from '../webauthn/webauthn.service';
+import * as secureSession from 'fastify-secure-session';
+import { AuthenticatorAttachment, PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/typescript-types';
+import { PublicKeyCredentialCreationOptionsEntity } from '../webauthn/entities/public-key-credential-creation-options.entity';
 
 @Injectable()
 export class ApiService {
@@ -22,8 +26,9 @@ export class ApiService {
    *
    * @param {UserService} _userService dependency injection of UserService instance
    * @param {CredentialService} _credentialService dependency injection of CredentialService instance
+   * @param {WebAuthnService} _webauthnService dependency injection of WebAuthnService instance
    */
-  constructor(private readonly _userService: UserService, private readonly _credentialService: CredentialService) {
+  constructor(private readonly _userService: UserService, private readonly _credentialService: CredentialService, private readonly _webauthnService: WebAuthnService) {
   }
 
   /**
@@ -114,6 +119,7 @@ export class ApiService {
           metadata: {
             authenticator_attachment: authenticatorAttachment.authenticator_attachment,
           },
+          transports: [ 'usb', 'nfc' ],
           last_access_time: new Date().getTime(),
         };
         break;
@@ -134,6 +140,7 @@ export class ApiService {
             os: userAgentData.os,
             device: userAgentData.device,
           },
+          transports: [ 'internal' ],
           last_access_time: new Date().getTime(),
         };
         break;
@@ -187,5 +194,17 @@ export class ApiService {
       os: useragent.parse(ua)?.os?.toString(),
       device: useragent.parse(ua)?.device?.toString(),
     };
+  }
+
+  /**
+   * Returns attestation options object
+   *
+   * @param {AuthenticatorAttachment} authenticatorAttachment type of platform
+   * @param {secureSession.Session} session the current session instance
+   *
+   * @return {Observable<PublicKeyCredentialCreationOptionsEntity>} attestation options object
+   */
+  attestationStart(authenticatorAttachment: AuthenticatorAttachment, session: secureSession.Session): Observable<PublicKeyCredentialCreationOptionsEntity> {
+    return this._webauthnService.attestationStart(authenticatorAttachment, session);
   }
 }

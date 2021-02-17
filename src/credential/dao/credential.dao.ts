@@ -5,6 +5,7 @@ import { Credential, CredentialDocument } from '../schemas/credential.schema';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PatchCredentialDto } from '../dto/patch-credential.dto';
+import { AuthenticatorAttachment } from '@simplewebauthn/typescript-types';
 
 @Injectable()
 export class CredentialDao {
@@ -79,6 +80,21 @@ export class CredentialDao {
    */
   findAllByUserId(userId: string): Observable<Credential[] | void> {
     return from(this._credentialModel.find({ user_id: userId }))
+      .pipe(
+        map((docs: CredentialDocument[]) => (!!docs && docs.length > 0) ? docs.map(_ => _.toJSON()) : undefined),
+      );
+  }
+
+  /**
+   * Find all credentials for the given user id and authenticator attachment
+   *
+   * @param {string} userId unique identifier of the owner of all credentials
+   * @param {AuthenticatorAttachment} authenticatorAttachment type of platform
+   *
+   * @return {Observable<Credential[] | void>} list of credentials or undefined if not found
+   */
+  findAllByUserIdAndAuthenticatorAttachment(userId: string, authenticatorAttachment: AuthenticatorAttachment): Observable<Credential[] | void> {
+    return from(this._credentialModel.find({ user_id: userId, 'metadata.authenticator_attachment': authenticatorAttachment }))
       .pipe(
         map((docs: CredentialDocument[]) => (!!docs && docs.length > 0) ? docs.map(_ => _.toJSON()) : undefined),
       );

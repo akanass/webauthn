@@ -1,6 +1,7 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { CredentialMetadataEntity } from './credential-metadata.entity';
+import { AuthenticatorTransport } from '@simplewebauthn/typescript-types';
 
 @Exclude()
 export class CredentialEntity {
@@ -78,6 +79,11 @@ export class CredentialEntity {
   @Expose()
   @Type(() => CredentialMetadataEntity)
   metadata: CredentialMetadataEntity;
+
+  /**
+   * Credential transports - not exposed in API answer
+   */
+  transports: AuthenticatorTransport[];
 
   @ApiProperty({
     name: 'last_access_time',

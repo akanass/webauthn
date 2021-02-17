@@ -114,20 +114,9 @@ export class AppController {
   @SetMetadata('session_data', { key: 'previous_step', value: [ 'login_authenticator', 'end' ] })
   @UseGuards(AuthGuard, SessionValueGuard)
   @Get('webauthn/authenticator')
-  async webauthnAuthenticatorPage(@Res() res, @Session() session: secureSession.Session) {
-    // get previous step
-    const previous_step = this._securityService.getSessionData(session, 'previous_step');
-
-    // get user in session
-    const user: UserEntity = this._securityService.getLoggedInUserSync(session);
-
-    // check if user has skipped this step before displaying this page
-    if (!!user.skip_authenticator_registration && previous_step === 'login_authenticator') {
-      await res.status(302).redirect('end');
-    } else {
-      await res
-        .view('webauthn_authenticator', this._appService.getMetadata('webauthn_authenticator'));
-    }
+  async webauthnAuthenticatorPage(@Res() res) {
+    await res
+      .view('webauthn_authenticator', this._appService.getMetadata('webauthn_authenticator'));
   }
 
   /**

@@ -36,6 +36,31 @@ export class AppController {
    */
   @Get()
   async homePage(@Req() req: FastifyRequest, @Res() res: FastifyReply, @Session() session: secureSession.Session) {
+    await this.checkIfUserIsAlreadyAuthenticatedThenRedirectOrDisplayPage(res, session, () => res
+      .status(302)
+      .redirect(`login${this._appService.buildQueryString(req.query)}`));
+  }
+
+  /**
+   * Handler to answer to GET /login route and display the associated page
+   */
+  @Get('login')
+  async loginPage(@Res() res, @Session() session: secureSession.Session) {
+    await this.checkIfUserIsAlreadyAuthenticatedThenRedirectOrDisplayPage(res, session, () => res.view('login', this._appService.getMetadata('login')));
+  }
+
+  /**
+   * Handler to answer to GET /webauthn route and display the associated page
+   */
+  @Get('webauthn')
+  async webAuthnPage(@Res() res, @Session() session: secureSession.Session) {
+    await this.checkIfUserIsAlreadyAuthenticatedThenRedirectOrDisplayPage(res, session, () => res.view('webauthn', this._appService.getMetadata('webauthn')));
+  }
+
+  /**
+   * Function to check if user is already authenticated and redirect him or display page
+   */
+  async checkIfUserIsAlreadyAuthenticatedThenRedirectOrDisplayPage(res: any, session: secureSession.Session, cb: () => void) {
     // get authentication type
     const auth_type = this._securityService.getSessionData(session, 'auth_type');
 
@@ -55,35 +80,7 @@ export class AppController {
         await res.status(302).redirect('end');
       }
     } else {
-      await res
-        .status(302)
-        .redirect(`login${this._appService.buildQueryString(req.query)}`);
-    }
-  }
-
-  /**
-   * Handler to answer to GET /login route and display the associated page
-   */
-  @Get('login')
-  async loginPage(@Res() res, @Session() session: secureSession.Session) {
-    // get user
-    const user = this._securityService.getSessionData(session, 'user');
-
-    // check if we are already logged in
-    if (!!user) {
-      // indicate we are going from login page
-      this._securityService.setSessionData(session, 'previous_step', 'login');
-
-      // check type of authentication and if user skipped authenticator registration page
-      if (!user.skip_authenticator_registration) {
-        // redirect to login/authenticator page
-        await res.status(302).redirect('login/authenticator');
-      } else {
-        await res.status(302).redirect('end');
-      }
-    } else {
-      await res
-        .view('login', this._appService.getMetadata('login'));
+      await cb();
     }
   }
 

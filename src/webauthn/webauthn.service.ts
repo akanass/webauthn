@@ -129,11 +129,13 @@ export class WebAuthnService {
         })),
         mergeMap((_: { verifyAttestationOptions: any, data: Partial<Credential> }) =>
           forkJoin([
-            from(verifyAttestationResponse(_.verifyAttestationOptions)),
+            from(verifyAttestationResponse(_.verifyAttestationOptions))
+              .pipe(
+                catchError(err => throwError(new BadRequestException(err.message))),
+              ),
             of(_.data),
           ]),
         ),
-        catchError(err => throwError(new BadRequestException(err.message))),
         map((merged: [ VerifiedAttestation, Partial<Credential> ]) => ({
           verifiedAttestation: merged[ 0 ],
           data: merged[ 1 ],

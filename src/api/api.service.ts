@@ -102,7 +102,7 @@ export class ApiService {
    *
    * @return {Observable<CredentialEntity>} the entity representing the patched credential
    */
-  createCredentialMock(userId: string, authenticatorAttachment: StartAttestationDto, ua: string): Observable<CredentialEntity> {
+  /*createCredentialMock(userId: string, authenticatorAttachment: StartAttestationDto, ua: string): Observable<CredentialEntity> {
     let credential: Credential;
     const userAgentData: UserAgentData = this.userAgentData(ua);
 
@@ -152,7 +152,7 @@ export class ApiService {
     }
 
     return this._credentialService.create(credential);
-  }
+  }*/
 
   /**
    * Returns all credentials for the given user

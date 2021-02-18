@@ -306,7 +306,7 @@ export class ApiController {
    *
    * @return Observable<CredentialEntity>
    */
-  @ApiCreatedResponse({ description: 'The credential mock has been successfully created', type: CredentialEntity })
+  /*@ApiCreatedResponse({ description: 'The credential mock has been successfully created', type: CredentialEntity })
   @ApiConflictResponse({ description: 'The credential mock already exists in the database' })
   @ApiBadRequestResponse({ description: 'The payload or the parameter provided to create the credential mock isn\'t good' })
   @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
@@ -324,7 +324,7 @@ export class ApiController {
   @Post('users/:id/credentials/mock')
   createCredentialMock(@Param() params: UserIdParams, @Body() dto: StartAttestationDto, @Req() request: FastifyRequest): Observable<CredentialEntity> {
     return this._apiService.createCredentialMock(params.id, dto, request.headers[ 'user-agent' ]);
-  }
+  }*/
 
   /**
    * Handler to answer to DELETE /api/users/:id/credentials/:credId route

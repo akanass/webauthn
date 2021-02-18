@@ -1,5 +1,7 @@
 import { MDCDialog } from '@material/dialog';
 import { Subscription } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
+import { AssertionCredentialJSON, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/typescript-types';
 
 /**
  * Get page's elements
@@ -122,7 +124,7 @@ const webAuthnProcess = () => {
             },
             () => {
               setTimeout(() => disableWebAuthnLoginButton(false), 500);
-            }
+            },
           );
         });
       }
@@ -134,8 +136,8 @@ const webAuthnProcess = () => {
  * Function to handle click on retry process
  */
 const retryProcess = () => {
-  verifyRetryButton.addEventListener('click', () => verifyCredentialProcess());
-}
+  verifyRetryButton.addEventListener('click', () => verifyCredentialProcess(false));
+};
 
 /**
  * Function to verify credential and login user
@@ -156,8 +158,26 @@ const verifyCredentialProcess = (waitToDisableButtons = true) => {
     verifySubscription.unsubscribe();
   }
 
-  setTimeout(() => { // TODO VERIFY
-    displayVerifyErrorMessage();
-    disableVerifyDialogButtons(false);
-  }, 1000);
-}
+  // import webauthn and api to start verification process
+  import('./_webauthn').then(({ webAuthn }) => import('./_api').then(({ api }) => {
+    verifySubscription = api.startAssertion()
+      .pipe(
+        mergeMap((_: PublicKeyCredentialRequestOptionsJSON) => webAuthn.startAssertion(_)),
+        mergeMap((_: AssertionCredentialJSON) => api.verifyAssertion(_)),
+      )
+      .subscribe(
+        () => {
+          // delete previous subscription to memory free
+          verifySubscription.unsubscribe();
+
+          // redirect user to end page
+          window.location.href = '/end';
+        },
+        (err: any) => {
+          console.error(err);
+          displayVerifyErrorMessage();
+          setTimeout(() => disableVerifyDialogButtons(false), 500);
+        },
+      );
+  }));
+};

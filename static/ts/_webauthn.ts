@@ -1,5 +1,10 @@
-import { startAttestation, supportsWebauthn } from '@simplewebauthn/browser';
-import { AttestationCredentialJSON, PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/typescript-types';
+import { startAssertion, startAttestation, supportsWebauthn } from '@simplewebauthn/browser';
+import {
+  AssertionCredentialJSON,
+  AttestationCredentialJSON,
+  PublicKeyCredentialCreationOptionsJSON,
+  PublicKeyCredentialRequestOptionsJSON,
+} from '@simplewebauthn/typescript-types';
 import { from, Observable } from 'rxjs';
 
 export class WebAuthn {
@@ -35,7 +40,7 @@ export class WebAuthn {
   }
 
   /**
-   * Function to pass options to the authenticator through webauthn protocol
+   * Function to pass options to the authenticator through webauthn protocol to register it
    *
    * @param {PublicKeyCredentialCreationOptionsJSON} creationOptionsJSON attestation options object
    *
@@ -43,6 +48,17 @@ export class WebAuthn {
    */
   startAttestation(creationOptionsJSON: PublicKeyCredentialCreationOptionsJSON): Observable<AttestationCredentialJSON> {
     return from(startAttestation(creationOptionsJSON));
+  }
+
+  /**
+   * Function to pass options to the authenticator through webauthn protocol to verify it
+   *
+   * @param {PublicKeyCredentialRequestOptionsJSON} requestOptionsJSON assertion options object
+   *
+   * @return {Observable<AssertionCredentialJSON>} assertion response object to be verified by the server
+   */
+  startAssertion(requestOptionsJSON: PublicKeyCredentialRequestOptionsJSON): Observable<AssertionCredentialJSON> {
+    return from(startAssertion(requestOptionsJSON));
   }
 }
 

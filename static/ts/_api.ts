@@ -5,9 +5,11 @@ import { map } from 'rxjs/operators';
 import { CredentialsList } from './_credentials_list';
 import { Credential } from './_credential';
 import {
+  AssertionCredentialJSON,
   AttestationCredentialJSON,
   AuthenticatorAttachment,
   PublicKeyCredentialCreationOptionsJSON,
+  PublicKeyCredentialRequestOptionsJSON,
 } from '@simplewebauthn/typescript-types';
 
 export class Api {
@@ -212,6 +214,13 @@ export class Api {
     );
   }
 
+  /**
+   * Function to verify webauthn attestation
+   *
+   * @param {AttestationCredentialJSON} attestation verify object
+   *
+   * @return {Observable<Credential>} the new credential created with this attestation
+   */
   verifyAttestation(attestation: AttestationCredentialJSON): Observable<Credential> {
     return ajax({
       url: `/api/webauthn/register/finish`,
@@ -222,6 +231,40 @@ export class Api {
       body: attestation,
     }).pipe(
       map((resp: AjaxResponse) => new Credential(resp.response)),
+    );
+  }
+
+  /**
+   * Function to start webauthn assertion
+   *
+   * @return {Observable<PublicKeyCredentialRequestOptionsJSON>} assertion options object
+   */
+  startAssertion(): Observable<PublicKeyCredentialRequestOptionsJSON> {
+    return ajax({
+      url: `/api/webauthn/verify/start`,
+      method: 'GET',
+    }).pipe(
+      map((resp: AjaxResponse) => resp.response),
+    );
+  }
+
+  /**
+   * Function to verify webauthn attestation
+   *
+   * @param {AssertionCredentialJSON} assertion verify object
+   *
+   * @return {Observable<Credential>} the user logged in with this assertion
+   */
+  verifyAssertion(assertion: AssertionCredentialJSON): Observable<User> {
+    return ajax({
+      url: `/api/webauthn/verify/finish`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: assertion,
+    }).pipe(
+      map((resp: AjaxResponse) => new User(resp.response)),
     );
   }
 }

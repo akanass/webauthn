@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, PreconditionFailedException } from '@nestjs/common';
+import { BadRequestException, Injectable, PreconditionFailedException, UnauthorizedException } from '@nestjs/common';
 import { SecurityService } from '../security/security.service';
 import { CredentialService } from '../credential/credential.service';
 import {
@@ -16,6 +16,7 @@ import { CredentialEntity } from '../credential/entities/credential.entity';
 import {
   generateAssertionOptions,
   generateAttestationOptions,
+  verifyAssertionResponse,
   verifyAttestationResponse,
 } from '@simplewebauthn/server';
 import { PublicKeyCredentialCreationOptionsEntity } from './entities/public-key-credential-creation-options.entity';
@@ -25,6 +26,10 @@ import { VerifiedAttestation } from '@simplewebauthn/server/dist/attestation/ver
 import { Credential } from '../credential/schemas/credential.schema';
 import { VerifyAttestationDto } from './dto/verify-attestation.dto';
 import { PublicKeyCredentialRequestOptionsEntity } from './entities/public-key-credential-request-options.entity';
+import { VerifyAssertionDto } from './dto/verify-assertion.dto';
+import { WebAuthnAssertionSession } from './interfaces/webauthn-assertion-session.interface';
+import { VerifiedAssertion } from '@simplewebauthn/server/dist/assertion/verifyAssertionResponse';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class WebAuthnService {
@@ -33,8 +38,9 @@ export class WebAuthnService {
    *
    * @param {SecurityService} _securityService dependency injection of SecurityService instance
    * @param {CredentialService} _credentialService dependency injection of CredentialService instance
+   * @param {UserService} _userService dependency injection of UserService instance
    */
-  constructor(private readonly _securityService: SecurityService, private readonly _credentialService: CredentialService) {
+  constructor(private readonly _securityService: SecurityService, private readonly _credentialService: CredentialService, private readonly _userService: UserService) {
   }
 
   /**
@@ -166,6 +172,63 @@ export class WebAuthnService {
         })),
         map((_: any) => generateAssertionOptions(_)),
         map((_: PublicKeyCredentialRequestOptionsJSON) => new PublicKeyCredentialRequestOptionsEntity(_)),
+      );
+  }
+
+  /**
+   * Verify assertion and log in the user
+   *
+   * @param {VerifyAssertionDto} assertion to verify
+   * @param {secureSession.Session} session secure data for the current session
+   *
+   * @return {Observable<UserEntity>} the user logged in with this credential
+   */
+  finishAssertion(assertion: VerifyAssertionDto, session: secureSession.Session): Observable<UserEntity> {
+    return this._credentialService.findCredentialByUserHandle(Buffer.from(assertion.response.userHandle, 'base64'))
+      .pipe(
+        mergeMap((credential: CredentialEntity) =>
+          !!credential ?
+            of(credential) :
+            throwError(new UnauthorizedException('User cannot use this authenticator to authenticate')),
+        ),
+        mergeMap((credential: CredentialEntity) =>
+          forkJoin([
+            of(credential),
+            of(this._securityService.getSessionData(session, 'webauthn_assertion')),
+            of(Config.get<WebAuthnConfig>('security.webauthn')),
+          ]),
+        ),
+        map((merged: [ CredentialEntity, WebAuthnAssertionSession, WebAuthnConfig ]) => ({
+          credential: merged[ 0 ],
+          data: merged[ 1 ],
+          config: merged[ 2 ],
+        })),
+        map((_: { credential: CredentialEntity, data: WebAuthnAssertionSession, config: WebAuthnConfig }) => ({
+          credential: assertion,
+          expectedChallenge: _.data.challenge,
+          expectedOrigin: !!_.config.useRpPort && !!_.config.rpPort ? `https://${_.config.rpID}:${_.config.rpPort}` : `https://${_.config.rpID}`,
+          expectedRPID: _.config.rpID,
+          authenticator: {
+            credentialID: Buffer.from(_.credential.credential_id),
+            credentialPublicKey: Buffer.from(_.credential.public_key),
+            counter: _.credential.signature_count,
+            transports: _.credential.transports,
+          },
+          fidoUserVerification: _.config.authenticatorSelection.userVerification === 'required',
+        })),
+        mergeMap((_: any) =>
+          of(verifyAssertionResponse(_))
+            .pipe(
+              catchError(err => throwError(new BadRequestException(err.message))),
+            ),
+        ),
+        mergeMap((_: VerifiedAssertion) =>
+          !!_.verified ?
+            of(_) :
+            throwError(new PreconditionFailedException('WebAuthn assertion can\'t be verified')),
+        ),
+        mergeMap((_: VerifiedAssertion) => this._credentialService.updateLoginData(_.assertionInfo.credentialID, _.assertionInfo.newCounter)),
+        mergeMap((credential: CredentialEntity) => this._userService.webAuthnLogin(credential.user_id)),
       );
   }
 }

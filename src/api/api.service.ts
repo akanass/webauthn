@@ -13,14 +13,13 @@ import * as useragent from 'useragent';
 import { UserAgentData } from './interfaces/useragent-data.interface';
 import { PatchCredentialDto } from '../credential/dto/patch-credential.dto';
 import { StartAttestationDto } from '../webauthn/dto/start-attestation.dto';
-import { Credential } from '../credential/schemas/credential.schema';
 import { WebAuthnService } from '../webauthn/webauthn.service';
 import * as secureSession from 'fastify-secure-session';
 import { AuthenticatorAttachment } from '@simplewebauthn/typescript-types';
 import { PublicKeyCredentialCreationOptionsEntity } from '../webauthn/entities/public-key-credential-creation-options.entity';
-import { ATTESTATION_FORMAT } from '@simplewebauthn/server/dist/helpers/decodeAttestationObject';
 import { VerifyAttestationDto } from '../webauthn/dto/verify-attestation.dto';
 import { PublicKeyCredentialRequestOptionsEntity } from '../webauthn/entities/public-key-credential-request-options.entity';
+import { VerifyAssertionDto } from '../webauthn/dto/verify-assertion.dto';
 
 @Injectable()
 export class ApiService {
@@ -102,6 +101,7 @@ export class ApiService {
    *
    * @return {Observable<CredentialEntity>} the entity representing the patched credential
    */
+
   /*createCredentialMock(userId: string, authenticatorAttachment: StartAttestationDto, ua: string): Observable<CredentialEntity> {
     let credential: Credential;
     const userAgentData: UserAgentData = this.userAgentData(ua);
@@ -233,5 +233,17 @@ export class ApiService {
    */
   startAssertion(): Observable<PublicKeyCredentialRequestOptionsEntity> {
     return this._webauthnService.startAssertion();
+  }
+
+  /**
+   * Returns the logged in user after assertion verification
+   *
+   * @param {VerifyAssertionDto} assertion to verify
+   * @param {secureSession.Session} session secure data for the current session
+   *
+   * @return {Observable<UserEntity>} the logged in user after assertion verification
+   */
+  finishAssertion(assertion: VerifyAssertionDto, session: secureSession.Session): Observable<UserEntity> {
+    return this._webauthnService.finishAssertion(assertion, session);
   }
 }

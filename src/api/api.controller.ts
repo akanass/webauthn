@@ -50,13 +50,13 @@ import { CredentialsListEntity } from '../credential/entities/credentials-list.e
 import { CredentialIdParams } from './validators/credential-id.params';
 import { PatchCredentialDto } from '../credential/dto/patch-credential.dto';
 import { StartAttestationDto } from '../webauthn/dto/start-attestation.dto';
-import { AttestationCredentialJSON, PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/typescript-types';
 import { WebAuthnAttestationSession } from '../webauthn/interfaces/webauthn-attestation-session.interface';
 import { PublicKeyCredentialCreationOptionsEntity } from '../webauthn/entities/public-key-credential-creation-options.entity';
 import { WebAuthnSessionGuard } from '../security/guards/webauthn-session.guard';
 import { VerifyAttestationDto } from '../webauthn/dto/verify-attestation.dto';
 import { WebAuthnAssertionSession } from '../webauthn/interfaces/webauthn-assertion-session.interface';
 import { PublicKeyCredentialRequestOptionsEntity } from '../webauthn/entities/public-key-credential-request-options.entity';
+import { VerifyAssertionDto } from '../webauthn/dto/verify-assertion.dto';
 
 @ApiTags('api')
 @Controller('api')
@@ -103,7 +103,7 @@ export class ApiController {
    * @param {StartAttestationDto} dto payload to generate attestation options
    * @param {secureSession.Session} session secure data for the current session
    *
-   * @return {Observable<PublicKeyCredentialCreationOptionsJSON>} attestation options object
+   * @return {Observable<PublicKeyCredentialCreationOptionsEntity>} attestation options object
    */
   @ApiOkResponse({
     description: 'Returns the successful attestation options object',
@@ -111,6 +111,7 @@ export class ApiController {
   })
   @ApiBadRequestResponse({ description: 'The payload provided to get attestation options isn\'t good' })
   @ApiUnauthorizedResponse({ description: 'User is not logged in' })
+  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
   @ApiBody({ description: 'Payload to start webauthn registration', type: StartAttestationDto })
   @ApiCookieAuth()
   @UseGuards(AuthGuard)
@@ -130,7 +131,7 @@ export class ApiController {
   /**
    * Handler to answer to POST /webauthn/register/finish route
    *
-   * @param {AttestationCredentialJSON} attestation payload to verify attestation
+   * @param {VerifyAttestationDto} attestation payload to verify attestation
    * @param {secureSession.Session} session secure data for the current session
    * @param {FastifyRequest} request current request object
    *
@@ -146,7 +147,7 @@ export class ApiController {
   @ApiUnauthorizedResponse({ description: 'User is not logged in' })
   @ApiForbiddenResponse({ description: 'Missing WebAuthn session data' })
   @ApiPreconditionFailedResponse({ description: 'An error occurred during attestation verification process' })
-  @ApiBody({ description: 'Payload to verify webauthn registration', type: VerifyAttestationDto })
+  @ApiBody({ description: 'Payload to verify webauthn attestation', type: VerifyAttestationDto })
   @ApiCookieAuth()
   @SetMetadata('webauthn_session', 'webauthn_attestation')
   @UseGuards(AuthGuard, WebAuthnSessionGuard)
@@ -159,6 +160,13 @@ export class ApiController {
       );
   }
 
+  /**
+   * Handler to answer to GET /webauthn/verify/start route
+   *
+   * @param {secureSession.Session} session secure data for the current session
+   *
+   * {Observable<PublicKeyCredentialRequestOptionsEntity>} assertion options object
+   */
   @ApiOkResponse({
     description: 'Returns the successful assertion options object',
     type: PublicKeyCredentialRequestOptionsEntity,
@@ -168,6 +176,38 @@ export class ApiController {
     return this._apiService.startAssertion()
       .pipe(
         tap((_: PublicKeyCredentialRequestOptionsEntity) => this._securityService.setSessionData(session, 'webauthn_assertion', { challenge: _.challenge } as WebAuthnAssertionSession)),
+      );
+  }
+
+  /**
+   * Handler to answer to POST /webauthn/register/finish route
+   *
+   * @param {VerifyAssertionDto} assertion payload to verify assertion
+   * @param {secureSession.Session} session secure data for the current session
+   *
+   * @return {Observable<UserEntity>} the user authenticated after attestation verification
+   */
+  @ApiOkResponse({
+    description: 'The assertion has been successfully verified and the user has been successfully authenticated',
+    type: UserEntity,
+  })
+  @ApiBadRequestResponse({ description: 'The payload provided to verify assertion isn\'t good' })
+  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
+  @ApiUnauthorizedResponse({ description: 'Could not find authenticator for the user' })
+  @ApiForbiddenResponse({ description: 'Missing WebAuthn session data' })
+  @ApiPreconditionFailedResponse({ description: 'An error occurred during assertion verification process' })
+  @ApiBody({ description: 'Payload to verify webauthn assertion', type: VerifyAssertionDto })
+  @SetMetadata('webauthn_session', 'webauthn_assertion')
+  @UseGuards(WebAuthnSessionGuard)
+  @HttpCode(200)
+  @Post('/webauthn/verify/finish')
+  verifyAssertion(@Body() assertion: VerifyAssertionDto, @Session() session: secureSession.Session): Observable<UserEntity> {
+    return this._apiService.finishAssertion(assertion, session)
+      .pipe(
+        tap((user: UserEntity) => this._securityService.setSessionData(session, 'user', user)),
+        tap(() => this._securityService.setSessionData(session, 'previous_step', 'webauthn')),
+        tap(() => this._securityService.setSessionData(session, 'auth_type', 'webauthn')),
+        tap(() => this._securityService.cleanSessionData(session, 'webauthn_assertion')),
       );
   }
 
@@ -247,6 +287,7 @@ export class ApiController {
    */
   @ApiOkResponse({ description: 'Returns an array of credentials', type: CredentialsListEntity })
   @ApiBadRequestResponse({ description: 'The parameter or the parameter provided to patch the credential isn\'t good' })
+  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
   @ApiNoContentResponse({ description: 'No credential exists in the database for this user' })
   @ApiUnauthorizedResponse({ description: 'User is not logged in' })
   @ApiForbiddenResponse({ description: 'User is not the owner of the resource' })
@@ -306,6 +347,7 @@ export class ApiController {
    *
    * @return Observable<CredentialEntity>
    */
+
   /*@ApiCreatedResponse({ description: 'The credential mock has been successfully created', type: CredentialEntity })
   @ApiConflictResponse({ description: 'The credential mock already exists in the database' })
   @ApiBadRequestResponse({ description: 'The payload or the parameter provided to create the credential mock isn\'t good' })

@@ -144,4 +144,36 @@ export class UserService {
         ),
       );
   }
+
+  /**
+   * Function to login an user by webauthn
+   *
+   * @param {string} id unique identifier of the user
+   *
+   * @return {Observable<UserEntity>} the entity representing the logged in user
+   */
+  webAuthnLogin(id: string): Observable<UserEntity> {
+    return this._userDao.findById(id)
+      .pipe(
+        catchError(e => throwError(new UnprocessableEntityException(e.message))),
+        mergeMap((user: User) =>
+          !!user ?
+            of(user) :
+            throwError(new UnauthorizedException('User cannot use this authenticator to authenticate')),
+        ),
+        mergeMap((user: User & { id: string }) =>
+          this._userDao.updateLastAccessTime(user.id)
+            .pipe(
+              catchError(e => throwError(new UnprocessableEntityException(e.message))),
+              mergeMap((user: User) =>
+                !!user ?
+                  of(user) :
+                  throwError(new PreconditionFailedException('An error occurred during webauthn login process')),
+              ),
+            ),
+        ),
+        tap((user: User) => delete user.password_hash),
+        map((user: User) => new UserEntity(user)),
+      );
+  }
 }

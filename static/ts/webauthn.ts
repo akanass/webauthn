@@ -35,6 +35,9 @@ window.addEventListener('load', () => {
 
   // retry process
   retryProcess();
+
+  // remove cancel action
+  initDialogCancelAction();
 });
 
 /**
@@ -180,4 +183,12 @@ const verifyCredentialProcess = (waitToDisableButtons = true) => {
         },
       );
   }));
+};
+
+/**
+ * Function to suppress cancel action outside cancel button
+ */
+const initDialogCancelAction = () => {
+  webAuthnDialogVerify.scrimClickAction = '';
+  webAuthnDialogVerify.escapeKeyAction = '';
 };

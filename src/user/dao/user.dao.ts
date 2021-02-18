@@ -32,6 +32,20 @@ export class UserDao {
   }
 
   /**
+   * Find an user by his id
+   *
+   * @param {string} id unique identifier of the user
+   *
+   * @return {Observable<User | void>} user or undefined if not found
+   */
+  findById(id: string): Observable<User | void> {
+    return from(this._userModel.findById(id))
+      .pipe(
+        map((doc: UserDocument) => !!doc ? doc.toJSON() : undefined),
+      );
+  }
+
+  /**
    * Update last access time for the given user id
    *
    * @param {string} id of the User

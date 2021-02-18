@@ -60,6 +60,7 @@ views:
       retry: Retry
       processTitle: Interact with your authenticator
       errorVerifyMessage: Please try again or choose another authentication method
+      successTitle: You have successfully logged in with your Fido authenticator
     login_authenticator:
       headerTitle: Fido 2 WebAuthn - Security Settings
       pageTitle: Welcome

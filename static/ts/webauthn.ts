@@ -17,6 +17,8 @@ const webAuthnDialogVerify: MDCDialog = new MDCDialog(document.querySelector('#w
 const verifyCancelButton: HTMLButtonElement = document.querySelector('#verify-cancel-action');
 const verifyRetryButton: HTMLButtonElement = document.querySelector('#verify-retry-action');
 const errorVerifyCredential: HTMLDivElement = document.querySelector('#error-verify-credential');
+const verifyProcessing: HTMLDivElement = document.querySelector('#verify-processing');
+const verifySuccess: HTMLDivElement = document.querySelector('#verify-success');
 
 /**
  * Variable to store verify subscription
@@ -88,6 +90,16 @@ const displayVerifyErrorMessage = () => {
 };
 
 /**
+ * Display verify success content
+ */
+const displayVerifySuccess = () => {
+  verifyProcessing.style.display = 'none';
+  verifySuccess.style.display = 'block';
+  verifyCancelButton.style.visibility = 'hidden';
+  verifyRetryButton.style.visibility = 'hidden';
+}
+
+/**
  * Function to handle click on login button
  */
 const webAuthnProcess = () => {
@@ -126,7 +138,7 @@ const webAuthnProcess = () => {
               mainDiv.removeAttribute('aria-hidden');
             },
             () => {
-              setTimeout(() => disableWebAuthnLoginButton(false), 500);
+              disableWebAuthnLoginButton(false);
             },
           );
         });
@@ -173,8 +185,11 @@ const verifyCredentialProcess = (waitToDisableButtons = true) => {
           // delete previous subscription to memory free
           verifySubscription.unsubscribe();
 
+          // display success
+          displayVerifySuccess();
+
           // redirect user to end page
-          window.location.href = '/end';
+          setTimeout(()=> window.location.href = '/end', 1500);
         },
         (err: any) => {
           console.error(err);

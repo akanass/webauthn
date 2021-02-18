@@ -1,0 +1,29 @@
+<div class="mdc-dialog__title">
+  <div class="mdc-typography--headline4">{{verify}}</div>
+</div>
+<div class="mdc-dialog__content">
+  <div id="verify-processing">
+    <div class="mdc-dialog__content-title mdc-typography--headline6">{{processTitle}}</div>
+    <div class="mgt20 content-center">
+      <img class="process-img" src="/public/img/fido-authenticator.svg" alt="fido-authenticator" />
+    </div>
+    <div id="error-verify-credential" class="mgt20 error-message mdc-typography--subtitle2">
+      <i class="material-icons" aria-hidden="true">error_outline</i>
+      <span class="message">{{errorVerifyMessage}}</span>
+    </div>
+  </div>
+</div>
+<div class="mdc-dialog__actions content-center justify-content-space">
+  <button id="verify-cancel-action" type="button"
+          class="mdc-button mdc-dialog__button mdc-button--raised" data-mdc-dialog-action="cancel">
+    <div class="mdc-button__ripple"></div>
+    <i class="material-icons mdc-button__icon" aria-hidden="true">clear</i>
+    <span class="mdc-button__label">{{cancel}}</span>
+  </button>
+  <button id="verify-retry-action" type="button"
+          class="mdc-button mdc-dialog__button mdc-button--raised">
+    <div class="mdc-button__ripple"></div>
+    <i id="register-do-action-icon" class="material-icons mdc-button__icon" aria-hidden="true">restart_alt</i>
+    <span id="register-do-action-label" class="mdc-button__label">{{retry}}</span>
+  </button>
+</div>

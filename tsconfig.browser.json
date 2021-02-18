@@ -23,6 +23,7 @@
   },
   "files": [
     "static/ts/login.ts",
+    "static/ts/webauthn.ts",
     "static/ts/login_authenticator.ts",
     "static/ts/webauthn_authenticator.ts",
     "static/ts/global.ts",

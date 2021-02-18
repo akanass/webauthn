@@ -41,11 +41,25 @@ views:
       pageTitle: Login with password
       loginButton: Login
       text1: Looking for a better way to login ? Click
-      text2: if you already have registered a Fido authenticator and you want to connect via on-device biometrics instead of passwords.
+      text2: if you already have registered a Fido authenticator and you want to connect via on-device biometrics or security keys instead of passwords.
       here: here
       username: Username
       password: Password
       errorWebAuthn: Your browser doesn't support WebAuthn protocol
+    webauthn:
+      headerTitle: Login Has Never Been Easier-Or Safer!
+      pageTitle: Login with an Authenticator
+      loginButton: Login with Fido
+      errorWebAuthn: Your browser doesn't support WebAuthn protocol
+      text: You just have to click on the button to connect via on-device biometrics or security keys and used a Fido authenticator that you have previously registered.
+      text1: Click
+      text2: if you didn't have registered a Fido authenticator and you want to connect with your username and password.
+      here: here
+      verify: Verify
+      cancel: Cancel
+      retry: Retry
+      processTitle: Interact with your authenticator
+      errorVerifyMessage: Please try again or choose another authentication method
     login_authenticator:
       headerTitle: Fido 2 WebAuthn - Security Settings
       pageTitle: Welcome

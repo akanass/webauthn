@@ -1,0 +1,16 @@
+<div id="error-login-webauthn" class="error-message mdc-typography--subtitle2">
+  <i class="material-icons" aria-hidden="true">error_outline</i>
+  <span id="error-webauthn-message" class="message">{{errorWebAuthn}}</span>
+</div>
+<div class="mdc-typography--body2">{{text}}</div>
+<div class="content-center">
+  <button id="webAuthnLoginButton" type="button" class="mgt50 mdc-button mdc-button--raised">
+    <div class="mdc-button__ripple"></div>
+    <img src="/public/img/fido-logo.svg" aria-hidden="true" class="mdc-button__icon" />
+    <span class="mdc-button__label">{{loginButton}}</span>
+  </button>
+</div>
+<div class="mgt50 mdc-typography--caption">
+  {{text1}} <a href="/login" class="link">{{here}}</a> {{text2}}
+</div>
+{{>webauthn-dialog isVerify=true}}

@@ -55,6 +55,8 @@ import { WebAuthnAttestationSession } from '../webauthn/interfaces/webauthn-atte
 import { PublicKeyCredentialCreationOptionsEntity } from '../webauthn/entities/public-key-credential-creation-options.entity';
 import { WebAuthnSessionGuard } from '../security/guards/webauthn-session.guard';
 import { VerifyAttestationDto } from '../webauthn/dto/verify-attestation.dto';
+import { WebAuthnAssertionSession } from '../webauthn/interfaces/webauthn-assertion-session.interface';
+import { PublicKeyCredentialRequestOptionsEntity } from '../webauthn/entities/public-key-credential-request-options.entity';
 
 @ApiTags('api')
 @Controller('api')
@@ -117,7 +119,7 @@ export class ApiController {
   startAttestation(@Body() dto: StartAttestationDto, @Session() session: secureSession.Session): Observable<PublicKeyCredentialCreationOptionsEntity> {
     return this._apiService.startAttestation(dto.authenticator_attachment, session)
       .pipe(
-        tap((_: PublicKeyCredentialCreationOptionsJSON) => this._securityService.setSessionData(session, 'webauthn_attestation', {
+        tap((_: PublicKeyCredentialCreationOptionsEntity) => this._securityService.setSessionData(session, 'webauthn_attestation', {
           challenge: _.challenge,
           user_handle: _.user.id,
           authenticator_attachment: _.authenticatorSelection.authenticatorAttachment,
@@ -154,6 +156,18 @@ export class ApiController {
     return this._apiService.verifyAttestation(attestation, session, request.headers[ 'user-agent' ])
       .pipe(
         tap(() => this._securityService.cleanSessionData(session, 'webauthn_attestation')),
+      );
+  }
+
+  @ApiOkResponse({
+    description: 'Returns the successful assertion options object',
+    type: PublicKeyCredentialRequestOptionsEntity,
+  })
+  @Get('/webauthn/verify/start')
+  startAssertion(@Session() session: secureSession.Session): Observable<PublicKeyCredentialRequestOptionsEntity> {
+    return this._apiService.startAssertion()
+      .pipe(
+        tap((_: PublicKeyCredentialRequestOptionsEntity) => this._securityService.setSessionData(session, 'webauthn_assertion', { challenge: _.challenge } as WebAuthnAssertionSession)),
       );
   }
 

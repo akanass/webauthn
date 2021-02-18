@@ -6,7 +6,7 @@ export class PublicKeyCredentialRpEntity {
   @ApiProperty({
     name: 'id',
     description: 'Unique identifier for the Relying Party',
-    example: 'akanass.local:3000',
+    example: 'akanass.local',
     required: false
   })
   @Expose()

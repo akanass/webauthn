@@ -1,7 +1,11 @@
 import { BadRequestException, Injectable, PreconditionFailedException } from '@nestjs/common';
 import { SecurityService } from '../security/security.service';
 import { CredentialService } from '../credential/credential.service';
-import { AuthenticatorAttachment, PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/typescript-types';
+import {
+  AuthenticatorAttachment,
+  PublicKeyCredentialCreationOptionsJSON,
+  PublicKeyCredentialRequestOptionsJSON,
+} from '@simplewebauthn/typescript-types';
 import * as secureSession from 'fastify-secure-session';
 import { UserEntity } from '../user/entities/user.entity';
 import { catchError, map, mergeMap } from 'rxjs/operators';
@@ -9,13 +13,18 @@ import { forkJoin, from, Observable, of, throwError } from 'rxjs';
 import * as Config from 'config';
 import { WebAuthnConfig } from '../interfaces/security-config.interface';
 import { CredentialEntity } from '../credential/entities/credential.entity';
-import { generateAttestationOptions, verifyAttestationResponse } from '@simplewebauthn/server';
+import {
+  generateAssertionOptions,
+  generateAttestationOptions,
+  verifyAttestationResponse,
+} from '@simplewebauthn/server';
 import { PublicKeyCredentialCreationOptionsEntity } from './entities/public-key-credential-creation-options.entity';
 import { WebAuthnAttestationSession } from './interfaces/webauthn-attestation-session.interface';
 import { UserAgentData } from '../api/interfaces/useragent-data.interface';
 import { VerifiedAttestation } from '@simplewebauthn/server/dist/attestation/verifyAttestationResponse';
 import { Credential } from '../credential/schemas/credential.schema';
 import { VerifyAttestationDto } from './dto/verify-attestation.dto';
+import { PublicKeyCredentialRequestOptionsEntity } from './entities/public-key-credential-request-options.entity';
 
 @Injectable()
 export class WebAuthnService {
@@ -139,6 +148,24 @@ export class WebAuthnService {
             throwError(new PreconditionFailedException('WebAuthn attestation can\'t be verified')),
         ),
         mergeMap((_: Credential) => this._credentialService.create(_)),
+      );
+  }
+
+  /**
+   * Generate attestation options
+   *
+   * @return {Observable<PublicKeyCredentialRequestOptionsEntity>} assertion options object
+   */
+  startAssertion(): Observable<PublicKeyCredentialRequestOptionsEntity> {
+    return of(Config.get<WebAuthnConfig>('security.webauthn'))
+      .pipe(
+        map((_: WebAuthnConfig) => ({
+          timeout: _.timeout,
+          userVerification: _.authenticatorSelection.userVerification,
+          rpID: _.rpID,
+        })),
+        map((_: any) => generateAssertionOptions(_)),
+        map((_: PublicKeyCredentialRequestOptionsJSON) => new PublicKeyCredentialRequestOptionsEntity(_)),
       );
   }
 }

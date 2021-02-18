@@ -20,6 +20,7 @@ import { AuthenticatorAttachment } from '@simplewebauthn/typescript-types';
 import { PublicKeyCredentialCreationOptionsEntity } from '../webauthn/entities/public-key-credential-creation-options.entity';
 import { ATTESTATION_FORMAT } from '@simplewebauthn/server/dist/helpers/decodeAttestationObject';
 import { VerifyAttestationDto } from '../webauthn/dto/verify-attestation.dto';
+import { PublicKeyCredentialRequestOptionsEntity } from '../webauthn/entities/public-key-credential-request-options.entity';
 
 @Injectable()
 export class ApiService {
@@ -223,5 +224,14 @@ export class ApiService {
    */
   verifyAttestation(attestation: VerifyAttestationDto, session: secureSession.Session, ua: string): Observable<CredentialEntity> {
     return this._webauthnService.finishAttestation(attestation, session, this.userAgentData(ua));
+  }
+
+  /**
+   * Returns assertion options object
+   *
+   * @return {Observable<PublicKeyCredentialRequestOptionsEntity>} assertion options object
+   */
+  startAssertion(): Observable<PublicKeyCredentialRequestOptionsEntity> {
+    return this._webauthnService.startAssertion();
   }
 }

@@ -1,1 +1,0 @@
-class t{constructor(t){Object.assign(this,t)}get credentialId(){return this.id}get credentialType(){return this.type}get credentialName(){return this.name}get credentialMetadata(){return this.metadata}get lastAccessTime(){return new Date(this.last_access_time).toString()}get createdAt(){return new Date(this.created_at).toString()}}export{t as C};

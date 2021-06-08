@@ -1,1 +1,0 @@
-const e=document.querySelector("#restart-authentication");window.addEventListener("load",(()=>{e.addEventListener("click",(()=>{e.disabled=!0,window.location.href="/"}))}));

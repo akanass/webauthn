@@ -1,6 +1,13 @@
 # compiled output
 /dist
 /node_modules
+/public/css/*
+/public/js/esm/*
+/public/js/system/*
+!/public/css/.gitkeep
+!/public/js/esm/.gitkeep
+!/public/js/system/.gitkeep
+src/metadata.json
 
 # ssl
 /ssl/*.p12

@@ -1,33 +1,22 @@
 {
-  "compileOnSave": false,
+  "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "baseUrl": "./",
-    "rootDir": "./static/ts",
+    "module": "esnext",
     "outDir": "./public/js",
-    "sourceMap": false,
-    "declaration": false,
-    "downlevelIteration": true,
-    "experimentalDecorators": true,
-    "moduleResolution": "node",
     "importHelpers": true,
-    "target": "es2015",
-    "module": "es2020",
+    "downlevelIteration": true,
+    "incremental": false,
     "lib": [
-      "es2018",
+      "esnext",
       "dom"
-    ],
-    "typeRoots": [
-      "./node_modules/@types",
-      "./node_modules/@simplewebauthn/typescript-types"
     ]
   },
-  "files": [
-    "static/ts/login.ts",
-    "static/ts/webauthn.ts",
-    "static/ts/login_authenticator.ts",
-    "static/ts/webauthn_authenticator.ts",
-    "static/ts/global.ts",
-    "static/ts/end.ts",
-    "static/ts/error.ts"
+  "exclude": [
+    "node_modules",
+    "test",
+    "dist",
+    "**/*spec.ts",
+    "rollup.*.ts",
+    "src"
   ]
 }

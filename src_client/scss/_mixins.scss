@@ -2,7 +2,7 @@
 @use "@material/typography" with (
   $font-family: unquote("Montserrat, sans-serif")
 );
-@use "@material/button";
+@use "@material/button/styles" as button-core-styles;
 @use "@material/card";
 @use "@material/floating-label/mdc-floating-label";
 @use "@material/line-ripple/mdc-line-ripple";
@@ -18,7 +18,6 @@
 
 
 @include typography.core-styles; // apply typography style
-@include button.core-styles; // apply buttons style
 @include card.core-styles; // apply card style
 @include textfield.core-styles; // apply textfield style
 @include checkbox.core-styles; // apply checkbox style

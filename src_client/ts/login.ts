@@ -7,9 +7,14 @@ import { AjaxError } from 'rxjs/ajax';
  */
 const form: HTMLFormElement = document.querySelector('#login');
 const errorLogin: HTMLDivElement = document.querySelector('#error-login');
-const errorLoginMessage: HTMLSpanElement = document.querySelector('#error-login-message');
-const errorWebAuthnMessage: HTMLSpanElement = document.querySelector('#error-webauthn-message');
-const webauthnRedirectLink: HTMLLinkElement = document.querySelector('#webauthn-redirect');
+const errorLoginMessage: HTMLSpanElement = document.querySelector(
+  '#error-login-message',
+);
+const errorWebAuthnMessage: HTMLSpanElement = document.querySelector(
+  '#error-webauthn-message',
+);
+const webauthnRedirectLink: HTMLLinkElement =
+  document.querySelector('#webauthn-redirect');
 const loginButton: HTMLButtonElement = document.querySelector('#loginButton');
 
 /**
@@ -67,7 +72,7 @@ const displayWebAuthnErrorMessage = () => {
  */
 const authenticationProcess = () => {
   // add event listener on submit process
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', (e) => {
     // stop normal process
     e.preventDefault();
 
@@ -78,8 +83,8 @@ const authenticationProcess = () => {
     loginButton.disabled = true;
 
     // get form values
-    const username = form.elements[ 'username' ].value.toLowerCase();
-    const password = form.elements[ 'password' ].value;
+    const username = form.elements['username'].value.toLowerCase();
+    const password = form.elements['password'].value;
 
     // delete previous subscription to memory free
     if (!!loginSubscription) {
@@ -89,31 +94,29 @@ const authenticationProcess = () => {
     // import auth script
     import('./_api').then(({ api }) => {
       // login user
-      loginSubscription = api.login(username, password)
-        .subscribe(
-          (user: User) => {
-            // delete previous subscription to memory free
-            loginSubscription.unsubscribe();
+      loginSubscription = api.login(username, password).subscribe({
+        next: (user: User) => {
+          // check if user has to be redirected to login/authenticator
+          if (!user.skipAuthenticatorRegistration) {
+            window.location.href = '/login/authenticator';
+          } else {
+            window.location.href = '/end'; // TODO THIS IS THE END OF THE PROCESS FOR NOW - SHOULD BE AN OIDC STEP
+          }
+        },
+        error: (err: AjaxError) => {
+          // error message is an array so we take only the first one
+          // and we set the message in the page
+          const errorMessage = [].concat(err.response.message).shift();
 
-            // check if user has to be redirected to login/authenticator
-            if (!user.skipAuthenticatorRegistration) {
-              window.location.href = '/login/authenticator';
-            } else {
-              window.location.href = '/end'; // TODO THIS IS THE END OF THE PROCESS FOR NOW - SHOULD BE AN OIDC STEP
-            }
-          },
-          (err: AjaxError) => {
-            // error message is an array so we take only the first one
-            // and we set the message in the page
-            const errorMessage = [].concat(err.response.message).shift();
+          // display message
+          displayLoginErrorMessage(errorMessage);
 
-            // display message
-            displayLoginErrorMessage(errorMessage);
-
-            // enable button with timeout to avoid flickering
-            setTimeout(() => loginButton.disabled = false, 500);
-          },
-        );
+          // enable button with timeout to avoid flickering
+          setTimeout(() => (loginButton.disabled = false), 500);
+        },
+        // delete previous subscription to memory free
+        complete: () => loginSubscription.unsubscribe(),
+      });
     });
   });
 };
@@ -122,7 +125,7 @@ const authenticationProcess = () => {
  * Function to check if WebAuthn is supported then display error message or redirect user
  */
 const webauthnRedirection = () => {
-  webauthnRedirectLink.addEventListener('click', e => {
+  webauthnRedirectLink.addEventListener('click', (e) => {
     // stop normal process
     e.preventDefault();
 

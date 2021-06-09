@@ -21,8 +21,7 @@ export class Api {
    * @private
    */
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  private constructor() {
-  }
+  private constructor() {}
 
   /**
    * Method returns new singleton instance
@@ -52,9 +51,7 @@ export class Api {
         username,
         password,
       },
-    }).pipe(
-      map((resp: AjaxResponse) => new User(resp.response)),
-    );
+    }).pipe(map((resp: AjaxResponse<User>) => new User(resp.response)));
   }
 
   /**
@@ -64,9 +61,7 @@ export class Api {
     return ajax({
       url: '/api/logged-in',
       method: 'GET',
-    }).pipe(
-      map((resp: AjaxResponse) => new User(resp.response)),
-    );
+    }).pipe(map((resp: AjaxResponse<User>) => new User(resp.response)));
   }
 
   /**
@@ -76,9 +71,7 @@ export class Api {
     return ajax({
       url: `/api/delete-session`,
       method: 'DELETE',
-    }).pipe(
-      map((resp: AjaxResponse) => resp.response),
-    );
+    }).pipe(map((resp: AjaxResponse<void>) => resp.response));
   }
 
   /**
@@ -97,9 +90,7 @@ export class Api {
         'Content-Type': 'application/json',
       },
       body: partial,
-    }).pipe(
-      map((resp: AjaxResponse) => new User(resp.response)),
-    );
+    }).pipe(map((resp: AjaxResponse<User>) => new User(resp.response)));
   }
 
   /**
@@ -107,7 +98,7 @@ export class Api {
    *
    * @param {any} partial session object to patch it
    */
-  patchSession(partial: { key: string, value: any }): Observable<void> {
+  patchSession(partial: { key: string; value: any }): Observable<void> {
     return ajax({
       url: `/api/set-session-data`,
       method: 'PATCH',
@@ -115,9 +106,7 @@ export class Api {
         'Content-Type': 'application/json',
       },
       body: partial,
-    }).pipe(
-      map((resp: AjaxResponse) => resp.response),
-    );
+    }).pipe(map((resp: AjaxResponse<void>) => resp.response));
   }
 
   /**
@@ -133,9 +122,7 @@ export class Api {
         'Content-Type': 'application/json',
       },
       body: partial,
-    }).pipe(
-      map((resp: AjaxResponse) => resp.response),
-    );
+    }).pipe(map((resp: AjaxResponse<void>) => resp.response));
   }
 
   /**
@@ -149,10 +136,12 @@ export class Api {
     return ajax({
       url: `/api/users/${userId}/credentials`,
       method: 'GET',
-    })
-      .pipe(
-        map((resp: AjaxResponse) => new CredentialsList(resp.response)),
-      );
+    }).pipe(
+      map(
+        (resp: AjaxResponse<CredentialsList>) =>
+          new CredentialsList(resp.response),
+      ),
+    );
   }
 
   /**
@@ -164,7 +153,11 @@ export class Api {
    *
    * @return {Observable<Credential>} the new instance of the credential with the patched value
    */
-  patchCredential(userId: string, credentialId: string, partial: { name: string }): Observable<Credential> {
+  patchCredential(
+    userId: string,
+    credentialId: string,
+    partial: { name: string },
+  ): Observable<Credential> {
     return ajax({
       url: `/api/users/${userId}/credentials/${credentialId}`,
       method: 'PATCH',
@@ -173,7 +166,7 @@ export class Api {
       },
       body: partial,
     }).pipe(
-      map((resp: AjaxResponse) => new Credential(resp.response)),
+      map((resp: AjaxResponse<Credential>) => new Credential(resp.response)),
     );
   }
 
@@ -189,9 +182,7 @@ export class Api {
     return ajax({
       url: `/api/users/${userId}/credentials/${credentialId}`,
       method: 'DELETE',
-    }).pipe(
-      map((resp: AjaxResponse) => resp.response),
-    );
+    }).pipe(map((resp: AjaxResponse<void>) => resp.response));
   }
 
   /**
@@ -201,7 +192,9 @@ export class Api {
    *
    * @return {Observable<PublicKeyCredentialCreationOptionsJSON>} attestation options object
    */
-  startAttestation(authenticatorAttachment: { authenticator_attachment: AuthenticatorAttachment }): Observable<PublicKeyCredentialCreationOptionsJSON> {
+  startAttestation(authenticatorAttachment: {
+    authenticator_attachment: AuthenticatorAttachment;
+  }): Observable<PublicKeyCredentialCreationOptionsJSON> {
     return ajax({
       url: `/api/webauthn/register/start`,
       method: 'POST',
@@ -210,7 +203,10 @@ export class Api {
       },
       body: authenticatorAttachment,
     }).pipe(
-      map((resp: AjaxResponse) => resp.response),
+      map(
+        (resp: AjaxResponse<PublicKeyCredentialCreationOptionsJSON>) =>
+          resp.response,
+      ),
     );
   }
 
@@ -221,7 +217,9 @@ export class Api {
    *
    * @return {Observable<Credential>} the new credential created with this attestation
    */
-  verifyAttestation(attestation: AttestationCredentialJSON): Observable<Credential> {
+  verifyAttestation(
+    attestation: AttestationCredentialJSON,
+  ): Observable<Credential> {
     return ajax({
       url: `/api/webauthn/register/finish`,
       method: 'POST',
@@ -230,7 +228,7 @@ export class Api {
       },
       body: attestation,
     }).pipe(
-      map((resp: AjaxResponse) => new Credential(resp.response)),
+      map((resp: AjaxResponse<Credential>) => new Credential(resp.response)),
     );
   }
 
@@ -244,7 +242,10 @@ export class Api {
       url: `/api/webauthn/verify/start`,
       method: 'GET',
     }).pipe(
-      map((resp: AjaxResponse) => resp.response),
+      map(
+        (resp: AjaxResponse<PublicKeyCredentialRequestOptionsJSON>) =>
+          resp.response,
+      ),
     );
   }
 
@@ -263,14 +264,9 @@ export class Api {
         'Content-Type': 'application/json',
       },
       body: assertion,
-    }).pipe(
-      map((resp: AjaxResponse) => new User(resp.response)),
-    );
+    }).pipe(map((resp: AjaxResponse<User>) => new User(resp.response)));
   }
 }
 
-// create singleton instance
-const api: Api = Api.instance();
-
-// export it
-export { api };
+// export singleton instance
+export const api: Api = Api.instance();

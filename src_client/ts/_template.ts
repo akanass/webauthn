@@ -51,13 +51,21 @@ export class Template {
       return this._credentialsListEmptyTpl;
     }
 
-    return credentials.map((credential: Credential) =>
-      this._credentialTpl
-        .replace('{{credential}}', JSON.stringify(credential))
-        .replace('{{credentialName}}', credential.credentialName)
-        .replace('{{lastAccessTime}}', credential.lastAccessTime)
-        .replace('{{imageType}}', credential.credentialMetadata.authenticator_attachment === 'cross-platform' ? 'key' : 'computer'),
-    ).join('');
+    return credentials
+      .map((credential: Credential) =>
+        this._credentialTpl
+          .replace('{{credential}}', JSON.stringify(credential))
+          .replace('{{credentialName}}', credential.credentialName)
+          .replace('{{lastAccessTime}}', credential.lastAccessTime)
+          .replace(
+            '{{imageType}}',
+            credential.credentialMetadata.authenticator_attachment ===
+              'cross-platform'
+              ? 'key'
+              : 'computer',
+          ),
+      )
+      .join('');
   }
 
   /**
@@ -69,7 +77,13 @@ export class Template {
    * @param {function} onClosing callback to execute on 'MDCDialog:closing' event
    * @param {function} onClosed callback to execute on 'MDCDialog:closed' event
    */
-  openDialog(dialog: MDCDialog, onOpening?: () => void, onOpened?: () => void, onClosing?: (e: CustomEvent) => void, onClosed?: (e: CustomEvent) => void): void {
+  openDialog(
+    dialog: MDCDialog,
+    onOpening?: () => void,
+    onOpened?: () => void,
+    onClosing?: (e: CustomEvent) => void,
+    onClosed?: (e: CustomEvent) => void,
+  ): void {
     // set listener on MDCDialog:opening
     if (!!onOpening) {
       dialog.listen('MDCDialog:opening', onOpening, { once: true });
@@ -95,8 +109,5 @@ export class Template {
   }
 }
 
-// create singleton instance
-const template: Template = Template.instance();
-
-// export it
-export { template };
+// export singleton instance
+export const template: Template = Template.instance();

@@ -1,4 +1,8 @@
-import { startAssertion, startAttestation, supportsWebauthn } from '@simplewebauthn/browser';
+import {
+  startAssertion,
+  startAttestation,
+  supportsWebauthn,
+} from '@simplewebauthn/browser';
 import {
   AssertionCredentialJSON,
   AttestationCredentialJSON,
@@ -46,7 +50,9 @@ export class WebAuthn {
    *
    * @return {Observable<AttestationCredentialJSON>} attestation response object to be verified by the server
    */
-  startAttestation(creationOptionsJSON: PublicKeyCredentialCreationOptionsJSON): Observable<AttestationCredentialJSON> {
+  startAttestation(
+    creationOptionsJSON: PublicKeyCredentialCreationOptionsJSON,
+  ): Observable<AttestationCredentialJSON> {
     return from(startAttestation(creationOptionsJSON));
   }
 
@@ -57,13 +63,12 @@ export class WebAuthn {
    *
    * @return {Observable<AssertionCredentialJSON>} assertion response object to be verified by the server
    */
-  startAssertion(requestOptionsJSON: PublicKeyCredentialRequestOptionsJSON): Observable<AssertionCredentialJSON> {
+  startAssertion(
+    requestOptionsJSON: PublicKeyCredentialRequestOptionsJSON,
+  ): Observable<AssertionCredentialJSON> {
     return from(startAssertion(requestOptionsJSON));
   }
 }
 
-// create singleton instance
-const webAuthn: WebAuthn = WebAuthn.instance();
-
-// export it
-export { webAuthn };
+// export singleton instance
+export const webAuthn: WebAuthn = WebAuthn.instance();

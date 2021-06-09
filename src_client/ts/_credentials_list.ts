@@ -23,9 +23,9 @@ export class CredentialsList {
 
     // update list for given credentials
     this.credentials.forEach((credential: any) =>
-      credential.metadata.authenticator_attachment === 'cross-platform' ?
-        this.addSecurityKey(new Credential(credential)) :
-        this.addBiometrics(new Credential(credential)),
+      credential.metadata.authenticator_attachment === 'cross-platform'
+        ? this.addSecurityKey(new Credential(credential))
+        : this.addBiometrics(new Credential(credential)),
     );
   }
 

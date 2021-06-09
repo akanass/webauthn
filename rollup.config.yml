@@ -1,16 +1,17 @@
 - input:
-    - static/ts/global.ts
-    - static/ts/login.ts
-    - static/ts/webauthn.ts
-    - static/ts/login_authenticator.ts
-    - static/ts/webauthn_authenticator.ts
-    - static/ts/end.ts
-    - static/ts/error.ts
+    - src_client/ts/global.ts
+    - src_client/ts/login.ts
+    - src_client/ts/webauthn.ts
+    - src_client/ts/login_authenticator.ts
+    - src_client/ts/webauthn_authenticator.ts
+    - src_client/ts/end.ts
+    - src_client/ts/error.ts
   output:
     - dir: public/js
       format: esm
       entryFileNames: 'esm/[name]-[hash].min.mjs'
       chunkFileNames: 'esm/[name]-[hash].min.mjs'
+      preferConst: true
     - dir: public/js
       format: system
       entryFileNames: 'system/[name]-[hash].min.js'
@@ -22,40 +23,34 @@
     - name: typescript
       api:
         tsconfig: tsconfig.browser.json
-    - name: commonjs
     - name: nodeResolve
       api:
         mainFields:
-          - jsnext:main
+          - main:es2018
+          - es2015
           - module
           - main
-    - name: json
     - name: terser
+    - name: cleanComments
     - name: metadata
-- input: static/js/import.js
+- input: src_client/js/import.js
   output:
     dir: public/js
     format: iife
     entryFileNames: 'system/[name]-[hash].min.js'
   plugins:
-    - name: commonjs
     - name: nodeResolve
-      api:
-        mainFields:
-          - jsnext:main
-          - module
-          - main
-    - name: json
     - name: terser
+    - name: cleanComments
     - name: metadata
-- input: static/scss/style.scss
+- input: src_client/scss/style.scss
   output:
     dir: public/css
     assetFileNames: '[name]-[hash][extname]'
   plugins:
     - name: del
       api:
-        targets: public/css/*
+        targets: public/css/*.css
     - name: styles
       api:
         mode: extract

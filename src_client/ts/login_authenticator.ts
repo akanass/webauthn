@@ -6,13 +6,22 @@ import { AjaxError } from 'rxjs/ajax';
 /**
  * Get page's elements
  */
-const errorLoginAuthenticator: HTMLDivElement = document.querySelector('#error-login-authenticator');
-const errorLoginAuthenticatorMessage: HTMLSpanElement = document.querySelector('#error-login-authenticator-message');
-const errorLoginAuthenticatorWebAuthnMessage: HTMLSpanElement = document.querySelector('#error-webauthn-message');
-const buttonEnrollmentIcon: HTMLElement = document.querySelector('#button-icon');
-const buttonEnrollmentLabel: HTMLLabelElement = document.querySelector('#button-label');
-const buttonEnrollment: HTMLButtonElement = document.querySelector('#start-enrollment');
-const checkboxStopEnrollment: HTMLInputElement = document.querySelector('#stop-enrollment');
+const errorLoginAuthenticator: HTMLDivElement = document.querySelector(
+  '#error-login-authenticator',
+);
+const errorLoginAuthenticatorMessage: HTMLSpanElement = document.querySelector(
+  '#error-login-authenticator-message',
+);
+const errorLoginAuthenticatorWebAuthnMessage: HTMLSpanElement =
+  document.querySelector('#error-webauthn-message');
+const buttonEnrollmentIcon: HTMLElement =
+  document.querySelector('#button-icon');
+const buttonEnrollmentLabel: HTMLLabelElement =
+  document.querySelector('#button-label');
+const buttonEnrollment: HTMLButtonElement =
+  document.querySelector('#start-enrollment');
+const checkboxStopEnrollment: HTMLInputElement =
+  document.querySelector('#stop-enrollment');
 
 /**
  * Variables to store subscription
@@ -91,7 +100,7 @@ const disableButtonAndCheckbox = () => {
   // disable button & checkbox
   buttonEnrollment.disabled = true;
   checkboxStopEnrollment.disabled = true;
-}
+};
 
 /**
  * Function to enable button and checkbox
@@ -100,7 +109,7 @@ const enableButtonAndCheckbox = () => {
   // enable button & checkbox
   buttonEnrollment.disabled = false;
   checkboxStopEnrollment.disabled = false;
-}
+};
 
 /**
  * Function to force stop enrollment
@@ -109,7 +118,7 @@ const forceStopEnrollment = () => {
   resetButtonToStopEnrollment();
   buttonEnrollment.disabled = false;
   checkboxStopEnrollment.checked = true;
-}
+};
 
 /**
  * Function to change UI when click on the checkbox
@@ -152,19 +161,22 @@ const startOrSkipEnrollmentProcess = () => {
     if (!!checkboxStopEnrollment.checked) {
       import('./_api').then(({ api }) => {
         // get logged in user
-        userSubscription = api.loggedIn()
+        userSubscription = api
+          .loggedIn()
           .pipe(
-            mergeMap((user: User) => api.patchUser(user.userId, { skip_authenticator_registration: true })),
+            mergeMap((user: User) =>
+              api.patchUser(user.userId, {
+                skip_authenticator_registration: true,
+              }),
+            ),
           )
-          .subscribe(
-            () => {
-              // delete previous subscription to memory free
-              userSubscription.unsubscribe();
-
-              window.location.href = '/end'; // TODO THIS IS THE END OF THE PROCESS FOR NOW - SHOULD BE AN OIDC STEP
-            },
-            (err: AjaxError) => manageApiError(err, userSubscription),
-          );
+          .subscribe({
+            // TODO THIS IS THE END OF THE PROCESS FOR NOW - SHOULD BE AN OIDC STEP
+            next: () => (window.location.href = '/end'),
+            error: (err: AjaxError) => manageApiError(err, userSubscription),
+            // delete previous subscription to memory free
+            complete: () => userSubscription.unsubscribe(),
+          });
       });
     } else {
       // import webauthn script
@@ -177,17 +189,19 @@ const startOrSkipEnrollmentProcess = () => {
           setTimeout(() => forceStopEnrollment(), 500);
         } else {
           import('./_api').then(({ api }) => {
-            sessionSubscription = api.patchSession({ key: 'previous_step', value: 'login_authenticator' })
-              .subscribe(
-                () => {
-                  // delete previous subscription to memory free
-                  sessionSubscription.unsubscribe();
-
-                  // redirect user to webauthn/authenticator page
-                  window.location.href = '/webauthn/authenticator';
-                },
-                (err: AjaxError) => manageApiError(err, sessionSubscription),
-              );
+            sessionSubscription = api
+              .patchSession({
+                key: 'previous_step',
+                value: 'login_authenticator',
+              })
+              .subscribe({
+                // redirect user to webauthn/authenticator page
+                next: () => (window.location.href = '/webauthn/authenticator'),
+                error: (err: AjaxError) =>
+                  manageApiError(err, sessionSubscription),
+                // delete previous subscription to memory free
+                complete: () => sessionSubscription.unsubscribe(),
+              });
           });
         }
       });

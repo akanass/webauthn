@@ -5,10 +5,15 @@ import { Subscription } from 'rxjs';
  * Get page's elements
  */
 const buttonLogout: HTMLButtonElement = document.querySelector('#logout');
-const buttonAuthenticatorManagement: HTMLButtonElement = document.querySelector('#authenticator-management');
+const buttonAuthenticatorManagement: HTMLButtonElement = document.querySelector(
+  '#authenticator-management',
+);
 const errorEnd: HTMLDivElement = document.querySelector('#error-end');
-const errorEndMessage: HTMLSpanElement = document.querySelector('#error-end-message');
-const errorWebAuthnMessage: HTMLSpanElement = document.querySelector('#error-webauthn-message');
+const errorEndMessage: HTMLSpanElement =
+  document.querySelector('#error-end-message');
+const errorWebAuthnMessage: HTMLSpanElement = document.querySelector(
+  '#error-webauthn-message',
+);
 
 /**
  * Variables to store subscription
@@ -68,7 +73,7 @@ const disableButtons = () => {
   // disable button & checkbox
   buttonLogout.disabled = true;
   buttonAuthenticatorManagement.disabled = true;
-}
+};
 
 /**
  * Function to enable buttons
@@ -77,14 +82,14 @@ const enableButtons = () => {
   // enable button & checkbox
   buttonLogout.disabled = false;
   buttonAuthenticatorManagement.disabled = false;
-}
+};
 
 /**
  * Function to enable logout button
  */
 const enableOnlyLogoutButton = () => {
   buttonLogout.disabled = false;
-}
+};
 
 /**
  * Function to manage logout process
@@ -104,21 +109,16 @@ const logoutProcess = () => {
 
     // import api script
     import('./_api').then(({ api }) => {
-      logoutSubscription = api.logout()
-        .subscribe(
-          () => {
-            // delete previous subscription to memory free
-            logoutSubscription.unsubscribe();
-
-            // redirect user to home page
-            window.location.href = '/';
-          },
-          (err: AjaxError) => manageApiError(err, logoutSubscription),
-        );
+      logoutSubscription = api.logout().subscribe({
+        // redirect user to home page
+        next: () => (window.location.href = '/'),
+        error: (err: AjaxError) => manageApiError(err, logoutSubscription),
+        // delete previous subscription to memory free
+        complete: () => logoutSubscription.unsubscribe(),
+      });
     });
   });
-}
-
+};
 
 /**
  * Function to manage authenticator process
@@ -146,22 +146,21 @@ const authenticatorProcess = () => {
         setTimeout(() => enableOnlyLogoutButton(), 500);
       } else {
         import('./_api').then(({ api }) => {
-          sessionSubscription = api.patchSession({ key: 'previous_step', value: 'end' })
-            .subscribe(
-              () => {
-                // delete previous subscription to memory free
-                sessionSubscription.unsubscribe();
-
-                // redirect user to webauthn/authenticator page
-                window.location.href = '/webauthn/authenticator';
-              },
-              (err: AjaxError) => manageApiError(err, sessionSubscription),
-            );
+          sessionSubscription = api
+            .patchSession({ key: 'previous_step', value: 'end' })
+            .subscribe({
+              // redirect user to webauthn/authenticator page
+              next: () => (window.location.href = '/webauthn/authenticator'),
+              error: (err: AjaxError) =>
+                manageApiError(err, sessionSubscription),
+              // delete previous subscription to memory free
+              complete: () => sessionSubscription.unsubscribe(),
+            });
         });
       }
     });
   });
-}
+};
 
 /**
  * Function to manage API error

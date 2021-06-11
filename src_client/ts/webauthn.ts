@@ -1,23 +1,39 @@
 import { MDCDialog } from '@material/dialog';
 import { Subscription } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
-import { AssertionCredentialJSON, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/typescript-types';
+import {
+  AssertionCredentialJSON,
+  PublicKeyCredentialRequestOptionsJSON,
+} from '@simplewebauthn/typescript-types';
 
 /**
  * Get page's elements
  */
-const errorLoginWebAuthn: HTMLDivElement = document.querySelector('#error-login-webauthn');
-const webAuthnLoginButton: HTMLButtonElement = document.querySelector('#webAuthnLoginButton');
+const errorLoginWebAuthn: HTMLDivElement = document.querySelector(
+  '#error-login-webauthn',
+);
+const webAuthnLoginButton: HTMLButtonElement = document.querySelector(
+  '#webAuthnLoginButton',
+);
 const mainDiv: HTMLDivElement = document.querySelector('#main-content');
 
 /**
  * Verify dialog elements
  */
-const webAuthnDialogVerify: MDCDialog = new MDCDialog(document.querySelector('#webauthn-dialog-verify'));
-const verifyCancelButton: HTMLButtonElement = document.querySelector('#verify-cancel-action');
-const verifyRetryButton: HTMLButtonElement = document.querySelector('#verify-retry-action');
-const errorVerifyCredential: HTMLDivElement = document.querySelector('#error-verify-credential');
-const verifyProcessing: HTMLDivElement = document.querySelector('#verify-processing');
+const webAuthnDialogVerify: MDCDialog = new MDCDialog(
+  document.querySelector('#webauthn-dialog-verify'),
+);
+const verifyCancelButton: HTMLButtonElement = document.querySelector(
+  '#verify-cancel-action',
+);
+const verifyRetryButton: HTMLButtonElement = document.querySelector(
+  '#verify-retry-action',
+);
+const errorVerifyCredential: HTMLDivElement = document.querySelector(
+  '#error-verify-credential',
+);
+const verifyProcessing: HTMLDivElement =
+  document.querySelector('#verify-processing');
 const verifySuccess: HTMLDivElement = document.querySelector('#verify-success');
 
 /**
@@ -97,7 +113,7 @@ const displayVerifySuccess = () => {
   verifySuccess.style.display = 'block';
   verifyCancelButton.style.visibility = 'hidden';
   verifyRetryButton.style.visibility = 'hidden';
-}
+};
 
 /**
  * Function to handle click on login button
@@ -151,7 +167,9 @@ const webAuthnProcess = () => {
  * Function to handle click on retry process
  */
 const retryProcess = () => {
-  verifyRetryButton.addEventListener('click', () => verifyCredentialProcess(false));
+  verifyRetryButton.addEventListener('click', () =>
+    verifyCredentialProcess(false),
+  );
 };
 
 /**
@@ -174,30 +192,34 @@ const verifyCredentialProcess = (waitToDisableButtons = true) => {
   }
 
   // import webauthn and api to start verification process
-  import('./_webauthn').then(({ webAuthn }) => import('./_api').then(({ api }) => {
-    verifySubscription = api.startAssertion()
-      .pipe(
-        mergeMap((_: PublicKeyCredentialRequestOptionsJSON) => webAuthn.startAssertion(_)),
-        mergeMap((_: AssertionCredentialJSON) => api.verifyAssertion(_)),
-      )
-      .subscribe(
-        () => {
+  import('./_webauthn').then(({ webAuthn }) =>
+    import('./_api').then(({ api }) => {
+      verifySubscription = api
+        .startAssertion()
+        .pipe(
+          mergeMap((_: PublicKeyCredentialRequestOptionsJSON) =>
+            webAuthn.startAssertion(_),
+          ),
+          mergeMap((_: AssertionCredentialJSON) => api.verifyAssertion(_)),
+        )
+        .subscribe({
+          next: () => {
+            // display success
+            displayVerifySuccess();
+
+            // redirect user to end page
+            setTimeout(() => (window.location.href = '/end'), 1500);
+          },
+          error: (err: any) => {
+            console.error(err);
+            displayVerifyErrorMessage();
+            setTimeout(() => disableVerifyDialogButtons(false), 500);
+          },
           // delete previous subscription to memory free
-          verifySubscription.unsubscribe();
-
-          // display success
-          displayVerifySuccess();
-
-          // redirect user to end page
-          setTimeout(()=> window.location.href = '/end', 1500);
-        },
-        (err: any) => {
-          console.error(err);
-          displayVerifyErrorMessage();
-          setTimeout(() => disableVerifyDialogButtons(false), 500);
-        },
-      );
-  }));
+          complete: () => verifySubscription.unsubscribe(),
+        });
+    }),
+  );
 };
 
 /**

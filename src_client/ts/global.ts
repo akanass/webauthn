@@ -4,14 +4,21 @@ import { MDCCheckbox } from '@material/checkbox';
 import { MDCFormField } from '@material/form-field/component';
 
 // add ripple effect
-const rippleSelectors = '.mdc-button, .mdc-icon-button, .mdc-card__primary-action';
-[].map.call(document.querySelectorAll(rippleSelectors), el => new MDCRipple(el));
+const rippleSelectors =
+  '.mdc-button, .mdc-icon-button, .mdc-card__primary-action';
+[].map.call(
+  document.querySelectorAll(rippleSelectors),
+  (el) => new MDCRipple(el),
+);
 
 // add text field
-[].map.call(document.querySelectorAll('.mdc-text-field'), el => new MDCTextField(el));
+[].map.call(
+  document.querySelectorAll('.mdc-text-field'),
+  (el) => new MDCTextField(el),
+);
 
 // add checkbox
-[].map.call(document.querySelectorAll('.mdc-checkbox'), el => {
+[].map.call(document.querySelectorAll('.mdc-checkbox'), (el) => {
   const checkbox = new MDCCheckbox(el);
   const parentNode = el.parentNode;
   if (parentNode.className.indexOf('mdc-form-field') > -1) {

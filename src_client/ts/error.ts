@@ -1,7 +1,9 @@
 /**
  * Get page's elements
  */
-const restartAuthenticationButton: HTMLButtonElement = document.querySelector('#restart-authentication');
+const restartAuthenticationButton: HTMLButtonElement = document.querySelector(
+  '#restart-authentication',
+);
 
 /**
  * Add event listener on window.load to put all process in place

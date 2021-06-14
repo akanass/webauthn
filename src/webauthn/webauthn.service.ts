@@ -63,18 +63,24 @@ export class WebAuthnService {
    *
    * @return {Observable<PublicKeyCredentialCreationOptionsEntity>}
    */
-  startAttestation(
+  startAttestation = (
     authenticatorAttachment: AuthenticatorAttachment,
     session: secureSession.Session,
-  ): Observable<PublicKeyCredentialCreationOptionsEntity> {
-    return this._securityService.getLoggedInUser(session).pipe(
+  ): Observable<PublicKeyCredentialCreationOptionsEntity> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._securityService.getLoggedInUser(session).pipe(
       mergeMap((user: UserEntity) =>
         forkJoin([
           of(user),
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           this._credentialService.findCredentialsForUserWithAuthenticatorAttachment(
             user.id,
             authenticatorAttachment,
           ),
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           this._securityService.generateUserHandle(),
           of(Config.get<WebAuthnConfig>('security.webauthn')),
         ]),
@@ -121,7 +127,6 @@ export class WebAuthnService {
           new PublicKeyCredentialCreationOptionsEntity(_),
       ),
     );
-  }
 
   /**
    * Verify attestation and create credential in database
@@ -132,13 +137,17 @@ export class WebAuthnService {
    *
    * @return {Observable<CredentialEntity>} new credential for the given attestation
    */
-  finishAttestation(
+  finishAttestation = (
     attestation: VerifyAttestationDto,
     session: secureSession.Session,
     userAgentData: UserAgentData,
-  ): Observable<CredentialEntity> {
-    return forkJoin([
+  ): Observable<CredentialEntity> =>
+    forkJoin([
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       this._securityService.getLoggedInUser(session),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       of(this._securityService.getSessionData(session, 'webauthn_attestation')),
       of(Config.get<WebAuthnConfig>('security.webauthn')),
     ]).pipe(
@@ -239,17 +248,18 @@ export class WebAuthnService {
                   ),
               ),
       ),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       mergeMap((_: Credential) => this._credentialService.create(_)),
     );
-  }
 
   /**
    * Generate attestation options
    *
    * @return {Observable<PublicKeyCredentialRequestOptionsEntity>} assertion options object
    */
-  startAssertion(): Observable<PublicKeyCredentialRequestOptionsEntity> {
-    return of(Config.get<WebAuthnConfig>('security.webauthn')).pipe(
+  startAssertion = (): Observable<PublicKeyCredentialRequestOptionsEntity> =>
+    of(Config.get<WebAuthnConfig>('security.webauthn')).pipe(
       map(
         (_: WebAuthnConfig): GenerateAssertionOptionsOpts => ({
           timeout: _.timeout,
@@ -263,7 +273,6 @@ export class WebAuthnService {
           new PublicKeyCredentialRequestOptionsEntity(_),
       ),
     );
-  }
 
   /**
    * Verify assertion and log in the user
@@ -273,10 +282,10 @@ export class WebAuthnService {
    *
    * @return {Observable<UserEntity>} the user logged in with this credential
    */
-  finishAssertion(
+  finishAssertion = (
     assertion: VerifyAssertionDto,
     session: secureSession.Session,
-  ): Observable<UserEntity> {
+  ): Observable<UserEntity> => {
     console.log(assertion.response.userHandle);
     return this._credentialService
       .findCredentialByUserHandle(Buffer.from(assertion.response.userHandle))
@@ -368,5 +377,5 @@ export class WebAuthnService {
           this._userService.webAuthnLogin(credential.user_id),
         ),
       );
-  }
+  };
 }

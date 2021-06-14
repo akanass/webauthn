@@ -6,7 +6,7 @@ import {
   Plugin,
 } from 'rollup';
 import { from, lastValueFrom, of } from 'rxjs';
-import { filter, map, tap } from 'rxjs/operators';
+import { defaultIfEmpty, filter, map, mergeMap, tap } from 'rxjs/operators';
 import * as fs from 'fs-extra';
 import * as deepmerge from 'deepmerge';
 import { join } from 'path';
@@ -55,13 +55,19 @@ const metadata: Plugin = () => {
 const cleanComments: Plugin = () => {
   return {
     name: 'cleanComments',
-    renderChunk: async (code: string) => {
+    renderChunk: async (code: string, chunk: any) => {
       return await lastValueFrom(
-        of(code).pipe(
-          map((_: string) =>
-            _.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, ''),
+        of(chunk.fileName).pipe(
+          filter((name: string) => name.indexOf('_webauthn') === -1),
+          mergeMap(() =>
+            of(code).pipe(
+              map((_: string) =>
+                _.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, ''),
+              ),
+              map((_: string) => _.replace(/\n/gm, '')),
+            ),
           ),
-          map((_: string) => _.replace(/\n/gm, '')),
+          defaultIfEmpty(code),
         ),
       );
     },

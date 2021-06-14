@@ -17,7 +17,8 @@ export class AuthenticationAssertionResponseDto {
     name: 'clientDataJSON',
     description: 'Client data in base64',
     required: true,
-    example: 'eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiQUR0UGozemJtSWcyYUJTVjZ3TUtGZURuaUI3NVFOWGtDTGthYV9McGJHdyIsIm9yaWdpbiI6Imh0dHBzOi8vYWthbmFzcy5sb2NhbDozMDAwIiwiY3Jvc3NPcmlnaW4iOmZhbHNlfQ',
+    example:
+      'eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiQUR0UGozemJtSWcyYUJTVjZ3TUtGZURuaUI3NVFOWGtDTGthYV9McGJHdyIsIm9yaWdpbiI6Imh0dHBzOi8vYWthbmFzcy5sb2NhbDozMDAwIiwiY3Jvc3NPcmlnaW4iOmZhbHNlfQ',
   })
   @IsString()
   @IsNotEmpty()
@@ -27,7 +28,8 @@ export class AuthenticationAssertionResponseDto {
     name: 'signature',
     description: 'Assertion signature in base64',
     required: true,
-    example: 'MEQCIAn3SacZhA4h9BUEI-g-aoOc_6EaKNAnVCT2GBpjUkQcAiAUIqfECfbsvlkISmBCfu3C22u3_13jm9viEyCs7PA3rw',
+    example:
+      'MEQCIAn3SacZhA4h9BUEI-g-aoOc_6EaKNAnVCT2GBpjUkQcAiAUIqfECfbsvlkISmBCfu3C22u3_13jm9viEyCs7PA3rw',
   })
   @IsString()
   @IsNotEmpty()
@@ -35,10 +37,11 @@ export class AuthenticationAssertionResponseDto {
 
   @ApiProperty({
     name: 'userHandle',
-    description: 'User handle in base64',
-    example: 'UVk1bmFZOWo5c3hLcVpSNW1KUTBENEZhUEZhVkJjQWFtZHc2QWk3cUJKbmhIWXJuck9KcjNZTVRJY3hjYzJ0Nw',
+    description: 'User handle in utf-8 string',
+    example:
+      'UVk1bmFZOWo5c3hLcVpSNW1KUTBENEZhUEZhVkJjQWFtZHc2QWk3cUJKbmhIWXJuck9KcjNZTVRJY3hjYzJ0Nw',
   })
   @IsString()
   @IsOptional()
-  userHandle?: Base64URLString;
+  userHandle?: string;
 }

@@ -7,7 +7,7 @@ export class PublicKeyCredentialRpEntity {
     name: 'id',
     description: 'Unique identifier for the Relying Party',
     example: 'akanass.local',
-    required: false
+    required: false,
   })
   @Expose()
   @Type(() => String)

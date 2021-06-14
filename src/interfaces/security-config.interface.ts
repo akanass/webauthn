@@ -37,5 +37,5 @@ export interface WebAuthnConfig {
   authenticatorSelection: AuthenticatorSelectionCriteria;
   defaultSecurityKeyName: string;
   defaultBiometricName: string;
-  defaultTransports: AuthenticatorTransport[]
+  defaultTransports: AuthenticatorTransport[];
 }

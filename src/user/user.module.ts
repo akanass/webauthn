@@ -6,9 +6,10 @@ import { UserDao } from './dao/user.dao';
 
 @Global()
 @Module({
-  imports: [ MongooseModule.forFeature([ { name: User.name, schema: UserSchema } ]) ],
-  providers: [ UserService, UserDao ],
-  exports: [ UserService ],
+  imports: [
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+  ],
+  providers: [UserService, UserDao],
+  exports: [UserService],
 })
-export class UserModule {
-}
+export class UserModule {}

@@ -1,4 +1,10 @@
-import { IsBoolean, IsLowercase, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsLowercase,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class PatchUserDto {
@@ -27,7 +33,8 @@ export class PatchUserDto {
 
   @ApiProperty({
     name: 'skip_authenticator_registration',
-    description: 'Flag to know if user wants to display authenticator registration page after login by username/password',
+    description:
+      'Flag to know if user wants to display authenticator registration page after login by username/password',
     example: false,
   })
   @IsOptional()

@@ -1,5 +1,8 @@
 import { Exclude, Expose, Type } from 'class-transformer';
-import { AttestationConveyancePreference, Base64URLString } from '@simplewebauthn/typescript-types';
+import {
+  AttestationConveyancePreference,
+  Base64URLString,
+} from '@simplewebauthn/typescript-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { PublicKeyCredentialRpEntity } from './public-key-credential-rp.entity';
 import { PublicKeyCredentialUserEntity } from './public-key-credential-user.entity';
@@ -67,7 +70,7 @@ export class PublicKeyCredentialCreationOptionsEntity {
     name: 'attestation',
     description: 'Attestation Conveyance Preference',
     example: 'direct',
-    enum: [ 'direct', 'enterprise', 'indirect', 'none' ],
+    enum: ['direct', 'enterprise', 'indirect', 'none'],
     required: false,
   })
   @Expose()

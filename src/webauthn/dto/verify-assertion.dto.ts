@@ -1,5 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInstance, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import {
+  IsInstance,
+  IsNotEmpty,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { Base64URLString } from '@simplewebauthn/typescript-types';
 import { AuthenticationExtensionsClientOutputsDto } from './authentication-extensions-client-outputs.dto';
 import { Type } from 'class-transformer';
@@ -10,7 +15,8 @@ export class VerifyAssertionDto {
     name: 'id',
     description: 'Credential unique identifier',
     required: true,
-    example: 'AUX0tOacjaXYm0xLoBkIyjvizs_DGm1CJAnHOgnMb7osVdZs1V_wgT1dnrwGtQyj7JbbK1Bc2t_-A4WwKOPPKWWYL7c9uRwujhnzCypUCS6n5xKSZwZlcumGwk6VBb1i5C0smbQz8cq5hWdEAgDkaAc',
+    example:
+      'AUX0tOacjaXYm0xLoBkIyjvizs_DGm1CJAnHOgnMb7osVdZs1V_wgT1dnrwGtQyj7JbbK1Bc2t_-A4WwKOPPKWWYL7c9uRwujhnzCypUCS6n5xKSZwZlcumGwk6VBb1i5C0smbQz8cq5hWdEAgDkaAc',
   })
   @IsString()
   @IsNotEmpty()
@@ -20,7 +26,8 @@ export class VerifyAssertionDto {
     name: 'rawId',
     description: 'Credential unique identifier in raw format',
     required: true,
-    example: 'AUX0tOacjaXYm0xLoBkIyjvizs_DGm1CJAnHOgnMb7osVdZs1V_wgT1dnrwGtQyj7JbbK1Bc2t_-A4WwKOPPKWWYL7c9uRwujhnzCypUCS6n5xKSZwZlcumGwk6VBb1i5C0smbQz8cq5hWdEAgDkaAc',
+    example:
+      'AUX0tOacjaXYm0xLoBkIyjvizs_DGm1CJAnHOgnMb7osVdZs1V_wgT1dnrwGtQyj7JbbK1Bc2t_-A4WwKOPPKWWYL7c9uRwujhnzCypUCS6n5xKSZwZlcumGwk6VBb1i5C0smbQz8cq5hWdEAgDkaAc',
   })
   @IsString()
   @IsNotEmpty()

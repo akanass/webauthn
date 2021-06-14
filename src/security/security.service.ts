@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { merge, Observable, of, throwError } from 'rxjs';
 import * as Config from 'config';
 import { PasswordConfig } from '../interfaces/security-config.interface';
@@ -18,8 +23,10 @@ export class SecurityService {
    * @param {HashService} _hashService dependency injection of HashService instance
    * @param {RandomStringService} _randomStringService dependency injection of RandomStringService instance
    */
-  constructor(private readonly _hashService: HashService, private readonly _randomStringService: RandomStringService) {
-  }
+  constructor(
+    private readonly _hashService: HashService,
+    private readonly _randomStringService: RandomStringService,
+  ) {}
 
   /**
    * Function to hash password
@@ -29,8 +36,15 @@ export class SecurityService {
    * @return {Observable<Buffer>} the hashed password in buffer format
    */
   hashPassword(password: string): Observable<Buffer> {
-    const passwordConfig: PasswordConfig = Config.get<PasswordConfig>('security.password');
-    return this._hashService.generate(password, passwordConfig.salt, passwordConfig.iterations, passwordConfig.keylen, passwordConfig.digest);
+    const passwordConfig: PasswordConfig =
+      Config.get<PasswordConfig>('security.password');
+    return this._hashService.generate(
+      password,
+      passwordConfig.salt,
+      passwordConfig.iterations,
+      passwordConfig.keylen,
+      passwordConfig.digest,
+    );
   }
 
   /**
@@ -40,10 +54,12 @@ export class SecurityService {
    * @param hash
    */
   checkPassword(password: string, hash: Buffer): Observable<boolean> {
-    return this.hashPassword(password)
-      .pipe(
-        map((hashPassword: Buffer) => hashPassword.toString('hex') === hash.toString('hex')),
-      );
+    return this.hashPassword(password).pipe(
+      map(
+        (hashPassword: Buffer) =>
+          hashPassword.toString('hex') === hash.toString('hex'),
+      ),
+    );
   }
 
   /**
@@ -54,21 +70,24 @@ export class SecurityService {
    * @return {Observable<boolean>} the flag to know if the user is logged in and store in the secure session
    */
   checkIfUserIsLoggedIn(session: secureSession.Session): Observable<boolean> {
-    return of(this.getLoggedInUser(session))
-      .pipe(
-        mergeMap((obs: Observable<UserEntity>) =>
-          merge(
-            obs.pipe(
-              filter((user: UserEntity) => !!user),
-              map(() => true),
-            ),
-            obs.pipe(
-              filter((user: UserEntity) => !user),
-              mergeMap(() => throwError(new UnauthorizedException('User is not logged in'))),
+    return of(this.getLoggedInUser(session)).pipe(
+      mergeMap((obs: Observable<UserEntity>) =>
+        merge(
+          obs.pipe(
+            filter((user: UserEntity) => !!user),
+            map(() => true),
+          ),
+          obs.pipe(
+            filter((user: UserEntity) => !user),
+            mergeMap(() =>
+              throwError(
+                () => new UnauthorizedException('User is not logged in'),
+              ),
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 
   /**
@@ -79,22 +98,31 @@ export class SecurityService {
    *
    * @return {Observable<boolean>} the flag to know if the user who is logged in is the same than the resource updated
    */
-  checkIfUserIsOwner(session: secureSession.Session, userId: string): Observable<boolean> {
-    return of(this.getLoggedInUser(session))
-      .pipe(
-        mergeMap((obs: Observable<UserEntity>) =>
-          merge(
-            obs.pipe(
-              filter((user: UserEntity) => !!user && user.id === userId),
-              map(() => true),
-            ),
-            obs.pipe(
-              filter((user: UserEntity) => !user || user.id !== userId),
-              mergeMap(() => throwError(new ForbiddenException('User is not the owner of the resource'))),
+  checkIfUserIsOwner(
+    session: secureSession.Session,
+    userId: string,
+  ): Observable<boolean> {
+    return of(this.getLoggedInUser(session)).pipe(
+      mergeMap((obs: Observable<UserEntity>) =>
+        merge(
+          obs.pipe(
+            filter((user: UserEntity) => !!user && user.id === userId),
+            map(() => true),
+          ),
+          obs.pipe(
+            filter((user: UserEntity) => !user || user.id !== userId),
+            mergeMap(() =>
+              throwError(
+                () =>
+                  new ForbiddenException(
+                    'User is not the owner of the resource',
+                  ),
+              ),
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 
   /**
@@ -105,12 +133,11 @@ export class SecurityService {
    * @return {Observable<UserEntity>} the entity representing the user in the secure session
    */
   getLoggedInUser(session: secureSession.Session): Observable<UserEntity> {
-    return of(this.getLoggedInUserSync(session))
-      .pipe(
-        filter((user: UserEntity) => typeof user !== 'undefined'),
-        map((user: UserEntity) => new UserEntity(user)),
-        defaultIfEmpty(),
-      );
+    return of(this.getLoggedInUserSync(session)).pipe(
+      filter((user: UserEntity) => typeof user !== 'undefined'),
+      map((user: UserEntity) => new UserEntity(user)),
+      defaultIfEmpty(undefined),
+    );
   }
 
   /**
@@ -135,7 +162,11 @@ export class SecurityService {
    * @param {string} key of the new value to store in the secure session
    * @param {any} value to store in the secure session
    */
-  setSessionData(session: secureSession.Session, key: string, value: any): void {
+  setSessionData(
+    session: secureSession.Session,
+    key: string,
+    value: any,
+  ): void {
     session.set(key, value);
   }
 
@@ -181,22 +212,36 @@ export class SecurityService {
    *
    * @return {Observable<boolean>} the flag to know if the data in the secure session is good
    */
-  checkSessionData(session: secureSession.Session, data: SessionData): Observable<boolean> {
-    return of(of(data))
-      .pipe(
-        mergeMap((obs: Observable<SessionData>) =>
-          merge(
-            obs.pipe(
-              filter(_ => !!_),
-              map((_: SessionData) => [].concat(_.value).indexOf(this.getSessionData(session, _.key)) > -1),
+  checkSessionData(
+    session: secureSession.Session,
+    data: SessionData,
+  ): Observable<boolean> {
+    return of(of(data)).pipe(
+      mergeMap((obs: Observable<SessionData>) =>
+        merge(
+          obs.pipe(
+            filter((_) => !!_),
+            map(
+              (_: SessionData) =>
+                []
+                  .concat(_.value)
+                  .indexOf(this.getSessionData(session, _.key)) > -1,
             ),
-            obs.pipe(
-              filter(_ => !_),
-              mergeMap(() => throwError(new InternalServerErrorException('Missing metadata on the route handler'))),
+          ),
+          obs.pipe(
+            filter((_) => !_),
+            mergeMap(() =>
+              throwError(
+                () =>
+                  new InternalServerErrorException(
+                    'Missing metadata on the route handler',
+                  ),
+              ),
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 
   /**
@@ -207,38 +252,70 @@ export class SecurityService {
    *
    * @return {Observable<boolean>} the flag to know if the data in the secure session is good
    */
-  checkWebAuthnSessionData(session: secureSession.Session, type: 'webauthn_attestation' | 'webauthn_assertion'): Observable<boolean> {
-    return of(of(type))
-      .pipe(
-        mergeMap((obs: Observable<'webauthn_attestation' | 'webauthn_assertion'>) =>
+  checkWebAuthnSessionData(
+    session: secureSession.Session,
+    type: 'webauthn_attestation' | 'webauthn_assertion',
+  ): Observable<boolean> {
+    return of(of(type)).pipe(
+      mergeMap(
+        (obs: Observable<'webauthn_attestation' | 'webauthn_assertion'>) =>
           merge(
             obs.pipe(
-              filter(_ => !!_ && _ === 'webauthn_attestation'),
-              map((_: 'webauthn_attestation') => this.getSessionData(session, _)),
-              map((_: WebAuthnAttestationSession) => !!_ && !!_.challenge && !!_.user_handle && !!_.authenticator_attachment),
+              filter((_) => !!_ && _ === 'webauthn_attestation'),
+              map((_: 'webauthn_attestation') =>
+                this.getSessionData(session, _),
+              ),
+              map(
+                (_: WebAuthnAttestationSession) =>
+                  !!_ &&
+                  !!_.challenge &&
+                  !!_.user_handle &&
+                  !!_.authenticator_attachment,
+              ),
               mergeMap((_: boolean) =>
-                !!_ ?
-                  of(_) :
-                  throwError(new ForbiddenException('Missing WebAuthn data to verify attestation')),
+                !!_
+                  ? of(_)
+                  : throwError(
+                      () =>
+                        new ForbiddenException(
+                          'Missing WebAuthn data to verify attestation',
+                        ),
+                    ),
               ),
             ),
             obs.pipe(
-              filter(_ => !!_ && _ === 'webauthn_assertion'),
+              filter((_) => !!_ && _ === 'webauthn_assertion'),
               map((_: 'webauthn_assertion') => this.getSessionData(session, _)),
               map((_: WebAuthnAssertionSession) => !!_ && !!_.challenge),
               mergeMap((_: boolean) =>
-                !!_ ?
-                  of(_) :
-                  throwError(new ForbiddenException('Missing WebAuthn data to verify assertion')),
+                !!_
+                  ? of(_)
+                  : throwError(
+                      () =>
+                        new ForbiddenException(
+                          'Missing WebAuthn data to verify assertion',
+                        ),
+                    ),
               ),
             ),
             obs.pipe(
-              filter(_ => !_ || (_ !== 'webauthn_attestation' && _ !== 'webauthn_assertion')),
-              mergeMap(() => throwError(new InternalServerErrorException('Missing metadata on the route handler'))),
+              filter(
+                (_) =>
+                  !_ ||
+                  (_ !== 'webauthn_attestation' && _ !== 'webauthn_assertion'),
+              ),
+              mergeMap(() =>
+                throwError(
+                  () =>
+                    new InternalServerErrorException(
+                      'Missing metadata on the route handler',
+                    ),
+                ),
+              ),
             ),
           ),
-        ),
-      );
+      ),
+    );
   }
 
   /**

@@ -14,8 +14,9 @@ export class UserDao {
    *
    * @param {Model<User>} _userModel instance of the model representing an User
    */
-  constructor(@InjectModel(User.name) private readonly _userModel: Model<UserDocument>) {
-  }
+  constructor(
+    @InjectModel(User.name) private readonly _userModel: Model<UserDocument>,
+  ) {}
 
   /**
    * Find an User by his username
@@ -25,10 +26,9 @@ export class UserDao {
    * @return {Observable<User | void>} user or undefined if not found
    */
   findByUsername(username: string): Observable<User | void> {
-    return from(this._userModel.findOne({ username }))
-      .pipe(
-        map((doc: UserDocument) => !!doc ? doc.toJSON() : undefined),
-      );
+    return from(this._userModel.findOne({ username })).pipe(
+      map((doc: UserDocument) => (!!doc ? doc.toJSON() : undefined)),
+    );
   }
 
   /**
@@ -39,10 +39,9 @@ export class UserDao {
    * @return {Observable<User | void>} user or undefined if not found
    */
   findById(id: string): Observable<User | void> {
-    return from(this._userModel.findById(id))
-      .pipe(
-        map((doc: UserDocument) => !!doc ? doc.toJSON() : undefined),
-      );
+    return from(this._userModel.findById(id)).pipe(
+      map((doc: UserDocument) => (!!doc ? doc.toJSON() : undefined)),
+    );
   }
 
   /**
@@ -64,14 +63,16 @@ export class UserDao {
    *
    * @return {Observable<User | void>} patched user or undefined if not found
    */
-  patch(id: string, patch: Partial<PatchUserDto & { last_access_time: number }>): Observable<User | void> {
-    return from(this._userModel.findByIdAndUpdate(id, patch, {
-      new: true,
-      runValidators: true,
-    }))
-      .pipe(
-        map((doc: UserDocument) => !!doc ? doc.toJSON() : undefined),
-      );
+  patch(
+    id: string,
+    patch: Partial<PatchUserDto & { last_access_time: number }>,
+  ): Observable<User | void> {
+    return from(
+      this._userModel.findByIdAndUpdate(id, patch, {
+        new: true,
+        runValidators: true,
+      }),
+    ).pipe(map((doc: UserDocument) => (!!doc ? doc.toJSON() : undefined)));
   }
 
   /**
@@ -81,10 +82,11 @@ export class UserDao {
    *
    * @return {Observable<User>} new user created
    */
-  save(user: Omit<CreateUserDto, 'password'> & { password_hash: Buffer }): Observable<User> {
-    return from(new this._userModel(user).save())
-      .pipe(
-        map((doc: UserDocument) => doc.toJSON()),
-      );
+  save(
+    user: Omit<CreateUserDto, 'password'> & { password_hash: Buffer },
+  ): Observable<User> {
+    return from(new this._userModel(user).save()).pipe(
+      map((doc: UserDocument) => doc.toJSON()),
+    );
   }
 }

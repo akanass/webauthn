@@ -14,8 +14,10 @@ export class CredentialDao {
    *
    * @param {Model<CredentialDocument>} _credentialModel instance of the model representing a Credential
    */
-  constructor(@InjectModel(Credential.name) private readonly _credentialModel: Model<CredentialDocument>) {
-  }
+  constructor(
+    @InjectModel(Credential.name)
+    private readonly _credentialModel: Model<CredentialDocument>,
+  ) {}
 
   /**
    * Create a new credential
@@ -25,10 +27,9 @@ export class CredentialDao {
    * @return {Observable<Credential>} new credential created
    */
   save(credential: Credential): Observable<Credential> {
-    return from(new this._credentialModel(credential).save())
-      .pipe(
-        map((doc: CredentialDocument) => doc.toJSON()),
-      );
+    return from(new this._credentialModel(credential).save()).pipe(
+      map((doc: CredentialDocument) => doc.toJSON()),
+    );
   }
 
   /**
@@ -40,14 +41,23 @@ export class CredentialDao {
    *
    * @return {Observable<Credential | void>} patched credential or undefined if not found
    */
-  updateCredentialName(id: string, userId: string, patch: PatchCredentialDto): Observable<Credential | void> {
-    return from(this._credentialModel.findOneAndUpdate({ _id: id, user_id: userId }, patch, {
-      new: true,
-      runValidators: true,
-    }))
-      .pipe(
-        map((doc: CredentialDocument) => !!doc ? doc.toJSON() : undefined),
-      );
+  updateCredentialName(
+    id: string,
+    userId: string,
+    patch: PatchCredentialDto,
+  ): Observable<Credential | void> {
+    return from(
+      this._credentialModel.findOneAndUpdate(
+        { _id: id, user_id: userId },
+        patch,
+        {
+          new: true,
+          runValidators: true,
+        },
+      ),
+    ).pipe(
+      map((doc: CredentialDocument) => (!!doc ? doc.toJSON() : undefined)),
+    );
   }
 
   /**
@@ -58,17 +68,25 @@ export class CredentialDao {
    *
    * @return {Observable<Credential | void>} patched credential or undefined if not found
    */
-  updateLoginData(credentialId: Buffer, signatureCount: number): Observable<Credential | void> {
-    return from(this._credentialModel.findOneAndUpdate({ credential_id: credentialId }, {
-      last_access_time: new Date().getTime(),
-      signature_count: signatureCount,
-    }, {
-      new: true,
-      runValidators: true,
-    }))
-      .pipe(
-        map((doc: CredentialDocument) => !!doc ? doc.toJSON() : undefined),
-      );
+  updateLoginData(
+    credentialId: Buffer,
+    signatureCount: number,
+  ): Observable<Credential | void> {
+    return from(
+      this._credentialModel.findOneAndUpdate(
+        { credential_id: credentialId },
+        {
+          last_access_time: new Date().getTime(),
+          signature_count: signatureCount,
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
+      ),
+    ).pipe(
+      map((doc: CredentialDocument) => (!!doc ? doc.toJSON() : undefined)),
+    );
   }
 
   /**
@@ -79,10 +97,11 @@ export class CredentialDao {
    * @return {Observable<Credential[] | void>} list of credentials or undefined if not found
    */
   findAllByUserId(userId: string): Observable<Credential[] | void> {
-    return from(this._credentialModel.find({ user_id: userId }))
-      .pipe(
-        map((docs: CredentialDocument[]) => (!!docs && docs.length > 0) ? docs.map(_ => _.toJSON()) : undefined),
-      );
+    return from(this._credentialModel.find({ user_id: userId })).pipe(
+      map((docs: CredentialDocument[]) =>
+        !!docs && docs.length > 0 ? docs.map((_) => _.toJSON()) : undefined,
+      ),
+    );
   }
 
   /**
@@ -93,11 +112,20 @@ export class CredentialDao {
    *
    * @return {Observable<Credential[] | void>} list of credentials or undefined if not found
    */
-  findAllByUserIdAndAuthenticatorAttachment(userId: string, authenticatorAttachment: AuthenticatorAttachment): Observable<Credential[] | void> {
-    return from(this._credentialModel.find({ user_id: userId, 'metadata.authenticator_attachment': authenticatorAttachment }))
-      .pipe(
-        map((docs: CredentialDocument[]) => (!!docs && docs.length > 0) ? docs.map(_ => _.toJSON()) : undefined),
-      );
+  findAllByUserIdAndAuthenticatorAttachment(
+    userId: string,
+    authenticatorAttachment: AuthenticatorAttachment,
+  ): Observable<Credential[] | void> {
+    return from(
+      this._credentialModel.find({
+        user_id: userId,
+        'metadata.authenticator_attachment': authenticatorAttachment,
+      }),
+    ).pipe(
+      map((docs: CredentialDocument[]) =>
+        !!docs && docs.length > 0 ? docs.map((_) => _.toJSON()) : undefined,
+      ),
+    );
   }
 
   /**
@@ -108,10 +136,11 @@ export class CredentialDao {
    * @return {Observable<Credential | void>} credential or undefined if not found
    */
   findByCredentialId(credentialId: Buffer): Observable<Credential | void> {
-    return from(this._credentialModel.findOne({ credential_id: credentialId }))
-      .pipe(
-        map((doc: CredentialDocument) => !!doc ? doc.toJSON() : undefined),
-      );
+    return from(
+      this._credentialModel.findOne({ credential_id: credentialId }),
+    ).pipe(
+      map((doc: CredentialDocument) => (!!doc ? doc.toJSON() : undefined)),
+    );
   }
 
   /**
@@ -122,10 +151,11 @@ export class CredentialDao {
    * @return {Observable<Credential | void>} credential or undefined if not found
    */
   findByUserHandle(userHandle: Buffer): Observable<Credential | void> {
-    return from(this._credentialModel.findOne({ user_handle: userHandle }))
-      .pipe(
-        map((doc: CredentialDocument) => !!doc ? doc.toJSON() : undefined),
-      );
+    return from(
+      this._credentialModel.findOne({ user_handle: userHandle }),
+    ).pipe(
+      map((doc: CredentialDocument) => (!!doc ? doc.toJSON() : undefined)),
+    );
   }
 
   /**
@@ -136,10 +166,9 @@ export class CredentialDao {
    * @return {Observable<Credential | void>} credential or undefined if not found
    */
   findByAaguid(aaguid: string): Observable<Credential | void> {
-    return from(this._credentialModel.findOne({ aaguid }))
-      .pipe(
-        map((doc: CredentialDocument) => !!doc ? doc.toJSON() : undefined),
-      );
+    return from(this._credentialModel.findOne({ aaguid })).pipe(
+      map((doc: CredentialDocument) => (!!doc ? doc.toJSON() : undefined)),
+    );
   }
 
   /**
@@ -150,10 +179,9 @@ export class CredentialDao {
    * @return {Observable<Credential | void>} credential or undefined if not found
    */
   findById(id: string): Observable<Credential | void> {
-    return from(this._credentialModel.findById(id))
-      .pipe(
-        map((doc: CredentialDocument) => !!doc ? doc.toJSON() : undefined),
-      );
+    return from(this._credentialModel.findById(id)).pipe(
+      map((doc: CredentialDocument) => (!!doc ? doc.toJSON() : undefined)),
+    );
   }
 
   /**
@@ -164,10 +192,14 @@ export class CredentialDao {
    *
    * @return {Observable<Credential | void>} credential deleted object or undefined if not found
    */
-  findByIdAndUserIdThenRemove(id: string, userId: string): Observable<Credential | void> {
-    return from(this._credentialModel.findOneAndRemove({ _id: id, user_id: userId }))
-      .pipe(
-        map((doc: CredentialDocument) => !!doc ? doc.toJSON() : undefined),
-      );
+  findByIdAndUserIdThenRemove(
+    id: string,
+    userId: string,
+  ): Observable<Credential | void> {
+    return from(
+      this._credentialModel.findOneAndRemove({ _id: id, user_id: userId }),
+    ).pipe(
+      map((doc: CredentialDocument) => (!!doc ? doc.toJSON() : undefined)),
+    );
   }
 }

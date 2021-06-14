@@ -5,7 +5,12 @@ import { IsInstance, ValidateNested } from 'class-validator';
 
 @Exclude()
 export class CredentialsListEntity {
-  @ApiProperty({ name: 'credentials', description: 'List of all credentials', type: CredentialEntity, isArray: true })
+  @ApiProperty({
+    name: 'credentials',
+    description: 'List of all credentials',
+    type: CredentialEntity,
+    isArray: true,
+  })
   @IsInstance(CredentialEntity)
   @ValidateNested()
   @Expose()
@@ -14,7 +19,8 @@ export class CredentialsListEntity {
 
   @ApiProperty({
     name: 'can_add_new_biometric',
-    description: 'Flag to know if user can add new biometric authenticator depending of his useragent',
+    description:
+      'Flag to know if user can add new biometric authenticator depending of his useragent',
     example: true,
   })
   @Expose()

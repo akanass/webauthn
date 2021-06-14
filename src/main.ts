@@ -1,6 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ServerConfig } from './interfaces/server-config.interface';
 import { ViewsConfig } from './interfaces/views-config.interface';
@@ -19,12 +22,14 @@ import { ApiModule } from './api/api.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { SessionConfig } from './interfaces/security-config.interface';
 
-async function bootstrap(config: ServerConfig,
-                         views: ViewsConfig,
-                         assets: AssetsConfig,
-                         pipes: PipesConfig,
-                         swagger: SwaggerConfig,
-                         session: SessionConfig) {
+async function bootstrap(
+  config: ServerConfig,
+  views: ViewsConfig,
+  assets: AssetsConfig,
+  pipes: PipesConfig,
+  swagger: SwaggerConfig,
+  session: SessionConfig,
+) {
   // create NestJS application
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
@@ -32,28 +37,27 @@ async function bootstrap(config: ServerConfig,
       Object.assign(
         {},
         config.options
-          .filter(_ => !(!config.runInHTTPS && _.name === 'https'))
-          .reduce((options, curr) =>
-            Object.assign(
-              options,
-              {
-                [ curr.name ]: (
-                  curr.name === 'https' ?
-                    Object.keys(curr.value)
-                      .reduce((opt, optKey) =>
-                        Object.assign(
-                          opt,
-                          {
-                            [ optKey ]:
-                              !!curr.value[ optKey ].path ?
-                                fs.readFileSync(join(__dirname, curr.value[ optKey ].path)) :
-                                curr.value[ optKey ],
-                          },
-                        ), {}) :
-                    curr.value
-                ),
-              },
-            ), {}),
+          .filter((_) => !(!config.runInHTTPS && _.name === 'https'))
+          .reduce(
+            (options, curr) =>
+              Object.assign(options, {
+                [curr.name]:
+                  curr.name === 'https'
+                    ? Object.keys(curr.value).reduce(
+                        (opt, optKey) =>
+                          Object.assign(opt, {
+                            [optKey]: !!curr.value[optKey].path
+                              ? fs.readFileSync(
+                                  join(__dirname, curr.value[optKey].path),
+                                )
+                              : curr.value[optKey],
+                          }),
+                        {},
+                      )
+                    : curr.value,
+              }),
+            {},
+          ),
       ),
     ),
   );
@@ -66,7 +70,11 @@ async function bootstrap(config: ServerConfig,
       contentSecurityPolicy: {
         directives: {
           defaultSrc: [`'self'`],
-          styleSrc: [`'self'`, `https: 'unsafe-inline'`, 'data: fonts.googleapis.com'],
+          styleSrc: [
+            `'self'`,
+            `https: 'unsafe-inline'`,
+            'data: fonts.googleapis.com',
+          ],
           fontSrc: [`'self'`, 'https: fonts.googleapis.com'],
           imgSrc: [`'self'`, 'data: validator.swagger.io'],
           scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
@@ -81,15 +89,15 @@ async function bootstrap(config: ServerConfig,
   await app.register(secureSession, session);
 
   // register all plugins
-  app
+  await app
     // use global pipe validation
-    .useGlobalPipes(
-      new ValidationPipe(Object.assign({}, pipes.validation)),
-    )
+    .useGlobalPipes(new ValidationPipe(Object.assign({}, pipes.validation)))
     // set static assets
-    .useStaticAssets(Object.assign({}, assets.options, {
-      root: join(__dirname, assets.rootPath),
-    }))
+    .useStaticAssets(
+      Object.assign({}, assets.options, {
+        root: join(__dirname, assets.rootPath),
+      }),
+    )
     // set view engine
     .setViewEngine({
       engine: {
@@ -98,7 +106,9 @@ async function bootstrap(config: ServerConfig,
       templates: join(__dirname, views.templatesPath),
       layout: views.layout,
       includeViewExtension: views.includeViewExtension,
-      options: Object.assign({}, views.engineOptions, { useHtmlMinifier: HtmlMinifier }),
+      options: Object.assign({}, views.engineOptions, {
+        useHtmlMinifier: HtmlMinifier,
+      }),
       defaultContext: Object.assign({}, views.defaultContext, {
         import: metadata.system.import,
         style: metadata.style,
@@ -117,7 +127,7 @@ async function bootstrap(config: ServerConfig,
 
   // create swagger document
   const apiDocument = SwaggerModule.createDocument(app, options, {
-    include: [ ApiModule ],
+    include: [ApiModule],
   });
 
   // setup swagger module
@@ -125,7 +135,12 @@ async function bootstrap(config: ServerConfig,
 
   // launch server
   await app.listen(config.port, config.host);
-  Logger.log(`Application served at ${!!config.runInHTTPS ? config.protocol.secure : config.protocol.normal}://${config.host}:${config.port}`, 'bootstrap');
+  Logger.log(
+    `Application served at ${
+      !!config.runInHTTPS ? config.protocol.secure : config.protocol.normal
+    }://${config.host}:${config.port}`,
+    'bootstrap',
+  );
 }
 
 bootstrap(

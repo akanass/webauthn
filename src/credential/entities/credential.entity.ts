@@ -2,12 +2,16 @@ import { Exclude, Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { CredentialMetadataEntity } from './credential-metadata.entity';
 import { AuthenticatorTransport } from '@simplewebauthn/typescript-types';
-import { ATTESTATION_FORMAT } from '@simplewebauthn/server/dist/helpers/decodeAttestationObject';
+import { ATTESTATION_FORMAT } from '../enums/attestation-format.enum';
 import { IsInstance, ValidateNested } from 'class-validator';
 
 @Exclude()
 export class CredentialEntity {
-  @ApiProperty({ name: 'id', description: 'Unique identifier in the database', example: '5763cd4dc378a38ecd387737' })
+  @ApiProperty({
+    name: 'id',
+    description: 'Unique identifier in the database',
+    example: '5763cd4dc378a38ecd387737',
+  })
   @Expose()
   @Type(() => String)
   id: string;
@@ -96,7 +100,8 @@ export class CredentialEntity {
 
   @ApiProperty({
     name: 'last_access_time',
-    description: 'Last access time, in timestamp format, when user used this authenticator',
+    description:
+      'Last access time, in timestamp format, when user used this authenticator',
     example: 101343600000,
   })
   @Expose()

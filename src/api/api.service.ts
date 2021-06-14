@@ -30,8 +30,11 @@ export class ApiService {
    * @param {CredentialService} _credentialService dependency injection of CredentialService instance
    * @param {WebAuthnService} _webauthnService dependency injection of WebAuthnService instance
    */
-  constructor(private readonly _userService: UserService, private readonly _credentialService: CredentialService, private readonly _webauthnService: WebAuthnService) {
-  }
+  constructor(
+    private readonly _userService: UserService,
+    private readonly _credentialService: CredentialService,
+    private readonly _webauthnService: WebAuthnService,
+  ) {}
 
   /**
    * Function to log in the user
@@ -76,7 +79,11 @@ export class ApiService {
    *
    * @return {Observable<CredentialEntity>} the entity representing the patched credential
    */
-  patchCredential(id: string, userId: string, credential: PatchCredentialDto): Observable<CredentialEntity> {
+  patchCredential(
+    id: string,
+    userId: string,
+    credential: PatchCredentialDto,
+  ): Observable<CredentialEntity> {
     return this._credentialService.patch(id, userId, credential);
   }
 
@@ -162,31 +169,44 @@ export class ApiService {
    *
    * @return {Observable<CredentialsListEntity | void>} list of credentials or undefined if not found
    */
-  findCredentialsListForUser(userId: string, ua: string): Observable<CredentialsListEntity | void> {
-    return this._credentialService.findCredentialsForUser(userId)
-      .pipe(
-        filter((credentials: CredentialEntity[]) => !!credentials),
-        map((credentials: CredentialEntity[]) => {
-          // get user agent data
-          const userAgentData: UserAgentData = this.userAgentData(ua);
+  findCredentialsListForUser(
+    userId: string,
+    ua: string,
+  ): Observable<CredentialsListEntity | void> {
+    return this._credentialService.findCredentialsForUser(userId).pipe(
+      filter((credentials: CredentialEntity[]) => !!credentials),
+      map((credentials: CredentialEntity[]) => {
+        // get user agent data
+        const userAgentData: UserAgentData = this.userAgentData(ua);
 
-          // flag to know if we can add more biometric credential
-          let canAddNewBiometric = true;
+        // flag to know if we can add more biometric credential
+        let canAddNewBiometric = true;
 
-          // check if we can add more biometric credential
-          credentials
-            .filter((credential: CredentialEntity) => credential.metadata.authenticator_attachment === 'platform')
-            .forEach((credential: CredentialEntity) => {
-              if (!!userAgentData.os && !!userAgentData.device && credential.metadata.os === userAgentData.os && credential.metadata.device === userAgentData.device) {
-                canAddNewBiometric = false;
-              }
-            });
+        // check if we can add more biometric credential
+        credentials
+          .filter(
+            (credential: CredentialEntity) =>
+              credential.metadata.authenticator_attachment === 'platform',
+          )
+          .forEach((credential: CredentialEntity) => {
+            if (
+              !!userAgentData.os &&
+              !!userAgentData.device &&
+              credential.metadata.os === userAgentData.os &&
+              credential.metadata.device === userAgentData.device
+            ) {
+              canAddNewBiometric = false;
+            }
+          });
 
-          // return new credentials list with the flag
-          return new CredentialsListEntity({ credentials, can_add_new_biometric: canAddNewBiometric });
-        }),
-        defaultIfEmpty(undefined),
-      );
+        // return new credentials list with the flag
+        return new CredentialsListEntity({
+          credentials,
+          can_add_new_biometric: canAddNewBiometric,
+        });
+      }),
+      defaultIfEmpty(undefined),
+    );
   }
 
   /**
@@ -209,8 +229,14 @@ export class ApiService {
    *
    * @return {Observable<PublicKeyCredentialCreationOptionsEntity>} attestation options object
    */
-  startAttestation(authenticatorAttachment: AuthenticatorAttachment, session: secureSession.Session): Observable<PublicKeyCredentialCreationOptionsEntity> {
-    return this._webauthnService.startAttestation(authenticatorAttachment, session);
+  startAttestation(
+    authenticatorAttachment: AuthenticatorAttachment,
+    session: secureSession.Session,
+  ): Observable<PublicKeyCredentialCreationOptionsEntity> {
+    return this._webauthnService.startAttestation(
+      authenticatorAttachment,
+      session,
+    );
   }
 
   /**
@@ -222,8 +248,16 @@ export class ApiService {
    *
    * @return {Observable<CredentialEntity>} the new credential for the given attestation
    */
-  verifyAttestation(attestation: VerifyAttestationDto, session: secureSession.Session, ua: string): Observable<CredentialEntity> {
-    return this._webauthnService.finishAttestation(attestation, session, this.userAgentData(ua));
+  verifyAttestation(
+    attestation: VerifyAttestationDto,
+    session: secureSession.Session,
+    ua: string,
+  ): Observable<CredentialEntity> {
+    return this._webauthnService.finishAttestation(
+      attestation,
+      session,
+      this.userAgentData(ua),
+    );
   }
 
   /**
@@ -243,7 +277,10 @@ export class ApiService {
    *
    * @return {Observable<UserEntity>} the logged in user after assertion verification
    */
-  finishAssertion(assertion: VerifyAssertionDto, session: secureSession.Session): Observable<UserEntity> {
+  finishAssertion(
+    assertion: VerifyAssertionDto,
+    session: secureSession.Session,
+  ): Observable<UserEntity> {
     return this._webauthnService.finishAssertion(assertion, session);
   }
 }

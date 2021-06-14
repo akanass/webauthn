@@ -7,9 +7,14 @@ import { OwnerGuard } from './guards/owner.guard';
 
 @Global()
 @Module({
-  imports: [ CryptoModule ],
-  providers: [ SecurityService, AuthGuard, SessionValueGuard, OwnerGuard, Logger ],
-  exports: [ SecurityService, AuthGuard, SessionValueGuard, OwnerGuard ],
+  imports: [CryptoModule],
+  providers: [
+    SecurityService,
+    AuthGuard,
+    SessionValueGuard,
+    OwnerGuard,
+    Logger,
+  ],
+  exports: [SecurityService, AuthGuard, SessionValueGuard, OwnerGuard],
 })
-export class SecurityModule {
-}
+export class SecurityModule {}

@@ -2,8 +2,11 @@ import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Document } from 'mongoose';
 import { CredentialMetadata } from '../interfaces/credential-metadata.interface';
-import { AuthenticatorTransport, PublicKeyCredentialType } from '@simplewebauthn/typescript-types';
-import { ATTESTATION_FORMAT } from '@simplewebauthn/server/dist/helpers/decodeAttestationObject';
+import {
+  AuthenticatorTransport,
+  PublicKeyCredentialType,
+} from '@simplewebauthn/typescript-types';
+import { ATTESTATION_FORMAT } from '../enums/attestation-format.enum';
 
 export type CredentialDocument = Credential & Document;
 
@@ -90,7 +93,15 @@ export class Credential {
   @Prop({
     type: String,
     required: true,
-    enum: [ 'packed', 'tpm', 'android-key', 'android-safetynet', 'fido-u2f', 'none', 'apple' ],
+    enum: [
+      'packed',
+      'tpm',
+      'android-key',
+      'android-safetynet',
+      'fido-u2f',
+      'none',
+      'apple',
+    ],
   })
   attestation_format: ATTESTATION_FORMAT;
 
@@ -100,25 +111,27 @@ export class Credential {
   })
   attestation: Buffer;
 
-  @Prop(raw({
-    authenticator_attachment: {
-      type: String,
-      required: true,
-      enum: [ 'cross-platform', 'platform' ],
-    },
-    os: {
-      type: String,
-      trim: true,
-    },
-    device: {
-      type: String,
-      trim: true,
-    },
-  }))
+  @Prop(
+    raw({
+      authenticator_attachment: {
+        type: String,
+        required: true,
+        enum: ['cross-platform', 'platform'],
+      },
+      os: {
+        type: String,
+        trim: true,
+      },
+      device: {
+        type: String,
+        trim: true,
+      },
+    }),
+  )
   metadata: CredentialMetadata;
 
   @Prop({
-    type: [ String ],
+    type: [String],
     required: true,
   })
   transports: AuthenticatorTransport[];

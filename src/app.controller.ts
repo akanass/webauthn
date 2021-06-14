@@ -28,17 +28,28 @@ export class AppController {
    * @param {AppService} _appService dependency injection of AppService instance
    * @param {SecurityService} _securityService dependency injection of SecurityService instance
    */
-  constructor(private readonly _appService: AppService, private readonly _securityService: SecurityService) {
-  }
+  constructor(
+    private readonly _appService: AppService,
+    private readonly _securityService: SecurityService,
+  ) {}
 
   /**
    * Handler to answer to GET / route and redirect to login page
    */
   @Get()
-  async homePage(@Req() req: FastifyRequest, @Res() res: FastifyReply, @Session() session: secureSession.Session) {
-    await this.checkIfUserIsAlreadyAuthenticatedThenRedirectOrDisplayPage(res, session, () => res
-      .status(302)
-      .redirect(`login${this._appService.buildQueryString(req.query)}`));
+  async homePage(
+    @Req() req: FastifyRequest,
+    @Res() res: FastifyReply,
+    @Session() session: secureSession.Session,
+  ) {
+    await this.checkIfUserIsAlreadyAuthenticatedThenRedirectOrDisplayPage(
+      res,
+      session,
+      () =>
+        res
+          .status(302)
+          .redirect(`login${this._appService.buildQueryString(req.query)}`),
+    );
   }
 
   /**
@@ -46,7 +57,11 @@ export class AppController {
    */
   @Get('login')
   async loginPage(@Res() res, @Session() session: secureSession.Session) {
-    await this.checkIfUserIsAlreadyAuthenticatedThenRedirectOrDisplayPage(res, session, () => res.view('login', this._appService.getMetadata('login')));
+    await this.checkIfUserIsAlreadyAuthenticatedThenRedirectOrDisplayPage(
+      res,
+      session,
+      () => res.view('login', this._appService.getMetadata('login')),
+    );
   }
 
   /**
@@ -54,15 +69,26 @@ export class AppController {
    */
   @Get('webauthn')
   async webAuthnPage(@Res() res, @Session() session: secureSession.Session) {
-    await this.checkIfUserIsAlreadyAuthenticatedThenRedirectOrDisplayPage(res, session, () => res.view('webauthn', this._appService.getMetadata('webauthn')));
+    await this.checkIfUserIsAlreadyAuthenticatedThenRedirectOrDisplayPage(
+      res,
+      session,
+      () => res.view('webauthn', this._appService.getMetadata('webauthn')),
+    );
   }
 
   /**
    * Function to check if user is already authenticated and redirect him or display page
    */
-  async checkIfUserIsAlreadyAuthenticatedThenRedirectOrDisplayPage(res: any, session: secureSession.Session, cb: () => void) {
+  async checkIfUserIsAlreadyAuthenticatedThenRedirectOrDisplayPage(
+    res: any,
+    session: secureSession.Session,
+    cb: () => void,
+  ) {
     // get authentication type
-    const auth_type = this._securityService.getSessionData(session, 'auth_type');
+    const auth_type = this._securityService.getSessionData(
+      session,
+      'auth_type',
+    );
 
     // get user
     const user = this._securityService.getSessionData(session, 'user');
@@ -91,7 +117,10 @@ export class AppController {
   @SetMetadata('session_data', { key: 'previous_step', value: 'login' })
   @UseGuards(AuthGuard, SessionValueGuard)
   @Get('login/authenticator')
-  async loginAuthenticatorPage(@Res() res, @Session() session: secureSession.Session) {
+  async loginAuthenticatorPage(
+    @Res() res,
+    @Session() session: secureSession.Session,
+  ) {
     // get user in session
     const user: UserEntity = this._securityService.getLoggedInUserSync(session);
 
@@ -99,8 +128,12 @@ export class AppController {
     if (!!user.skip_authenticator_registration) {
       await res.status(302).redirect('end');
     } else {
-      await res
-        .view('login_authenticator', Object.assign({}, this._appService.getMetadata('login_authenticator'), { dynamicTitleValue: user.display_name }));
+      await res.view(
+        'login_authenticator',
+        Object.assign({}, this._appService.getMetadata('login_authenticator'), {
+          dynamicTitleValue: user.display_name,
+        }),
+      );
     }
   }
 
@@ -108,34 +141,47 @@ export class AppController {
    * Handler to answer to GET /webauthn/authenticator route and display the associated page
    *  if user is logged in else the error page
    */
-  @SetMetadata('session_data', { key: 'previous_step', value: [ 'login_authenticator', 'end' ] })
+  @SetMetadata('session_data', {
+    key: 'previous_step',
+    value: ['login_authenticator', 'end'],
+  })
   @UseGuards(AuthGuard, SessionValueGuard)
   @Get('webauthn/authenticator')
   async webauthnAuthenticatorPage(@Res() res) {
-    await res
-      .view('webauthn_authenticator', this._appService.getMetadata('webauthn_authenticator'));
+    await res.view(
+      'webauthn_authenticator',
+      this._appService.getMetadata('webauthn_authenticator'),
+    );
   }
 
   /**
    * Handler to answer to GET /end route and display the associated page
    *  if user is logged in else the error page
    */
-  @SetMetadata('session_data', { key: 'previous_step', value: [ 'login', 'webauthn' ] })
+  @SetMetadata('session_data', {
+    key: 'previous_step',
+    value: ['login', 'webauthn'],
+  })
   @UseGuards(AuthGuard, SessionValueGuard)
   @Get('end')
   async endPage(@Res() res, @Session() session: secureSession.Session) {
     // get authentication type
-    const auth_type = this._securityService.getSessionData(session, 'auth_type');
+    const auth_type = this._securityService.getSessionData(
+      session,
+      'auth_type',
+    );
 
     // get user
     const user = this._securityService.getSessionData(session, 'user');
 
     // display page
-    await res
-      .view('end', Object.assign({}, this._appService.getMetadata('end'), {
+    await res.view(
+      'end',
+      Object.assign({}, this._appService.getMetadata('end'), {
         dynamicTitleValue: user.display_name,
         webauthn_login: auth_type === 'webauthn',
-      }));
+      }),
+    );
   }
 
   /**

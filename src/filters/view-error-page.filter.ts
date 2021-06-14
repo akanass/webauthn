@@ -12,7 +12,12 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { AppService } from '../app.service';
 import { SecurityService } from '../security/security.service';
 
-@Catch(UnauthorizedException, NotFoundException, ForbiddenException, InternalServerErrorException)
+@Catch(
+  UnauthorizedException,
+  NotFoundException,
+  ForbiddenException,
+  InternalServerErrorException,
+)
 export class ViewErrorPageFilter implements ExceptionFilter {
   /**
    * Class constructor
@@ -21,8 +26,11 @@ export class ViewErrorPageFilter implements ExceptionFilter {
    * @param {Logger} _logger dependency injection of Logger instance
    * @param {SecurityService} _securityService dependency injection of SecurityService instance
    */
-  constructor(private readonly _appService: AppService, private readonly _logger: Logger, private readonly _securityService: SecurityService) {
-  }
+  constructor(
+    private readonly _appService: AppService,
+    private readonly _logger: Logger,
+    private readonly _securityService: SecurityService,
+  ) {}
 
   /**
    * Catch error and display error page
@@ -37,12 +45,18 @@ export class ViewErrorPageFilter implements ExceptionFilter {
     const status = exception.getStatus();
 
     // log error
-    this._logger.error(exception.getResponse().message, JSON.stringify(exception.getResponse()),'ViewErrorPageFilter');
+    this._logger.error(
+      exception.getResponse().message,
+      JSON.stringify(exception.getResponse()),
+      'ViewErrorPageFilter',
+    );
 
     // delete session
     this._securityService.deleteSession(request.session);
 
     // display error page
-    response.status(status).view('error', this._appService.getMetadata('error'));
+    response
+      .status(status)
+      .view('error', this._appService.getMetadata('error'));
   }
 }

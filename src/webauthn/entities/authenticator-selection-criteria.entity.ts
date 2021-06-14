@@ -12,8 +12,8 @@ export class AuthenticatorSelectionCriteriaEntity {
     name: 'authenticatorAttachment',
     description: 'Authenticator attachment',
     example: 'cross-platform',
-    enum: [ 'cross-platform', 'platform' ],
-    required: false
+    enum: ['cross-platform', 'platform'],
+    required: false,
   })
   @Expose()
   @Type(() => String)
@@ -33,7 +33,7 @@ export class AuthenticatorSelectionCriteriaEntity {
     name: 'residentKey',
     description: 'Resident key requirement',
     example: 'required',
-    enum: [ 'discouraged', 'preferred', 'required' ],
+    enum: ['discouraged', 'preferred', 'required'],
     required: false,
   })
   @Expose()
@@ -44,7 +44,7 @@ export class AuthenticatorSelectionCriteriaEntity {
     name: 'userVerification',
     description: 'User verification requirement',
     example: 'required',
-    enum: [ 'discouraged', 'preferred', 'required' ],
+    enum: ['discouraged', 'preferred', 'required'],
     required: false,
   })
   @Expose()

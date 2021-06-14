@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsInstance, IsOptional, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsInstance,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
 import { CredentialPropertiesOutputDto } from './credential-properties-output.dto';
 import { Type } from 'class-transformer';
 import { UvmEntries } from '@simplewebauthn/typescript-types';

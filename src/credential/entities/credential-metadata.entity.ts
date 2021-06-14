@@ -8,7 +8,7 @@ export class CredentialMetadataEntity {
     name: 'authenticator_attachment',
     description: 'Authenticator attachment',
     example: 'platform',
-    enum: [ 'cross-platform', 'platform' ],
+    enum: ['cross-platform', 'platform'],
   })
   @Expose()
   @Type(() => String)
@@ -18,7 +18,7 @@ export class CredentialMetadataEntity {
     name: 'os',
     description: 'Operating system for platform authenticator attachment',
     example: 'Mac OSX 11.2.1',
-    required: false
+    required: false,
   })
   @Expose()
   @Type(() => String)
@@ -28,7 +28,7 @@ export class CredentialMetadataEntity {
     name: 'device',
     description: 'Device for platform authenticator attachment',
     example: 'Macbook Pro',
-    required: false
+    required: false,
   })
   @Expose()
   @Type(() => String)

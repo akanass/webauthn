@@ -3,7 +3,11 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Exclude()
 export class UserEntity {
-  @ApiProperty({ name: 'id', description: 'Unique identifier in the database', example: '5763cd4dc378a38ecd387737' })
+  @ApiProperty({
+    name: 'id',
+    description: 'Unique identifier in the database',
+    example: '5763cd4dc378a38ecd387737',
+  })
   @Expose()
   @Type(() => String)
   id: string;
@@ -28,7 +32,8 @@ export class UserEntity {
 
   @ApiProperty({
     name: 'skip_authenticator_registration',
-    description: 'Flag to know if user wants to display authenticator registration page after login by username/password',
+    description:
+      'Flag to know if user wants to display authenticator registration page after login by username/password',
     example: false,
   })
   @Expose()
@@ -37,9 +42,10 @@ export class UserEntity {
 
   @ApiProperty({
     name: 'last_access_time',
-    description: 'Last access time, in timestamp format, when user was connected',
+    description:
+      'Last access time, in timestamp format, when user was connected',
     example: 101343600000,
-    required: false
+    required: false,
   })
   @Expose()
   @Type(() => Number)

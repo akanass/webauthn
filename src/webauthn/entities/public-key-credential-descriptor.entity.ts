@@ -1,5 +1,8 @@
 import { Exclude, Expose, Type } from 'class-transformer';
-import { Base64URLString, AuthenticatorTransport } from '@simplewebauthn/typescript-types';
+import {
+  AuthenticatorTransport,
+  Base64URLString,
+} from '@simplewebauthn/typescript-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { PublicKeyCredentialType } from '@simplewebauthn/typescript-types/dist/dom';
 
@@ -16,10 +19,11 @@ export class PublicKeyCredentialDescriptorEntity {
 
   @ApiProperty({
     name: 'transports',
-    description: 'This enumeration defines hints as to how clients might communicate with a particular authenticator',
-    example: [ 'ble', 'internal', 'nfc', 'usb' ],
+    description:
+      'This enumeration defines hints as to how clients might communicate with a particular authenticator',
+    example: ['ble', 'internal', 'nfc', 'usb'],
     isArray: true,
-    required: false
+    required: false,
   })
   @Expose()
   @Type(() => Array)

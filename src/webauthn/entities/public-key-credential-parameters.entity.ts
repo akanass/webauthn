@@ -1,5 +1,8 @@
 import { Exclude, Expose, Type } from 'class-transformer';
-import { COSEAlgorithmIdentifier, PublicKeyCredentialType } from '@simplewebauthn/typescript-types/dist/dom';
+import {
+  COSEAlgorithmIdentifier,
+  PublicKeyCredentialType,
+} from '@simplewebauthn/typescript-types/dist/dom';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Exclude()

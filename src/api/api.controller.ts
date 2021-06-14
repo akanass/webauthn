@@ -69,8 +69,10 @@ export class ApiController {
    * @param {ApiService} _apiService dependency injection of ApiService instance
    * @param {SecurityService} _securityService dependency injection of SecurityService instance
    */
-  constructor(private readonly _apiService: ApiService, private readonly _securityService: SecurityService) {
-  }
+  constructor(
+    private readonly _apiService: ApiService,
+    private readonly _securityService: SecurityService,
+  ) {}
 
   /**
    * Handler to answer to POST /api/login route
@@ -80,21 +82,38 @@ export class ApiController {
    *
    * @return Observable<UserEntity>
    */
-  @ApiOkResponse({ description: 'Returns the successful login data', type: UserEntity })
-  @ApiBadRequestResponse({ description: 'The payload provided to log in the user isn\'t good' })
-  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
-  @ApiUnauthorizedResponse({ description: 'Username and Password don\'t match' })
-  @ApiPreconditionFailedResponse({ description: 'An error occurred during login process' })
+  @ApiOkResponse({
+    description: 'Returns the successful login data',
+    type: UserEntity,
+  })
+  @ApiBadRequestResponse({
+    description: "The payload provided to log in the user isn't good",
+  })
+  @ApiUnprocessableEntityResponse({
+    description: "The request can't be performed in the database",
+  })
+  @ApiUnauthorizedResponse({ description: "Username and Password don't match" })
+  @ApiPreconditionFailedResponse({
+    description: 'An error occurred during login process',
+  })
   @ApiBody({ description: 'Payload to log in an user', type: LoginUserDto })
   @HttpCode(200)
   @Post('login')
-  login(@Body() loginUser: LoginUserDto, @Session() session: secureSession.Session): Observable<UserEntity> {
-    return this._apiService.login(loginUser)
-      .pipe(
-        tap((user: UserEntity) => this._securityService.setSessionData(session, 'user', user)),
-        tap(() => this._securityService.setSessionData(session, 'previous_step', 'login')),
-        tap(() => this._securityService.setSessionData(session, 'auth_type', 'login')),
-      );
+  login(
+    @Body() loginUser: LoginUserDto,
+    @Session() session: secureSession.Session,
+  ): Observable<UserEntity> {
+    return this._apiService.login(loginUser).pipe(
+      tap((user: UserEntity) =>
+        this._securityService.setSessionData(session, 'user', user),
+      ),
+      tap(() =>
+        this._securityService.setSessionData(session, 'previous_step', 'login'),
+      ),
+      tap(() =>
+        this._securityService.setSessionData(session, 'auth_type', 'login'),
+      ),
+    );
   }
 
   /**
@@ -109,22 +128,40 @@ export class ApiController {
     description: 'Returns the successful attestation options object',
     type: PublicKeyCredentialCreationOptionsEntity,
   })
-  @ApiBadRequestResponse({ description: 'The payload provided to get attestation options isn\'t good' })
+  @ApiBadRequestResponse({
+    description: "The payload provided to get attestation options isn't good",
+  })
   @ApiUnauthorizedResponse({ description: 'User is not logged in' })
-  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
-  @ApiBody({ description: 'Payload to start webauthn registration', type: StartAttestationDto })
+  @ApiUnprocessableEntityResponse({
+    description: "The request can't be performed in the database",
+  })
+  @ApiBody({
+    description: 'Payload to start webauthn registration',
+    type: StartAttestationDto,
+  })
   @ApiCookieAuth()
   @UseGuards(AuthGuard)
   @HttpCode(200)
   @Post('/webauthn/register/start')
-  startAttestation(@Body() dto: StartAttestationDto, @Session() session: secureSession.Session): Observable<PublicKeyCredentialCreationOptionsEntity> {
-    return this._apiService.startAttestation(dto.authenticator_attachment, session)
+  startAttestation(
+    @Body() dto: StartAttestationDto,
+    @Session() session: secureSession.Session,
+  ): Observable<PublicKeyCredentialCreationOptionsEntity> {
+    return this._apiService
+      .startAttestation(dto.authenticator_attachment, session)
       .pipe(
-        tap((_: PublicKeyCredentialCreationOptionsEntity) => this._securityService.setSessionData(session, 'webauthn_attestation', {
-          challenge: _.challenge,
-          user_handle: _.user.id,
-          authenticator_attachment: _.authenticatorSelection.authenticatorAttachment,
-        } as WebAuthnAttestationSession)),
+        tap((_: PublicKeyCredentialCreationOptionsEntity) =>
+          this._securityService.setSessionData(
+            session,
+            'webauthn_attestation',
+            {
+              challenge: _.challenge,
+              user_handle: _.user.id,
+              authenticator_attachment:
+                _.authenticatorSelection.authenticatorAttachment,
+            } as WebAuthnAttestationSession,
+          ),
+        ),
       );
   }
 
@@ -138,25 +175,47 @@ export class ApiController {
    * @return {Observable<CredentialEntity>} the credential created after attestation verification
    */
   @ApiOkResponse({
-    description: 'The attestation has been successfully verified and the credential has been successfully created',
+    description:
+      'The attestation has been successfully verified and the credential has been successfully created',
     type: CredentialEntity,
   })
-  @ApiBadRequestResponse({ description: 'The payload provided to verify attestation isn\'t good' })
-  @ApiConflictResponse({ description: 'The credential already exists in the database' })
-  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
+  @ApiBadRequestResponse({
+    description: "The payload provided to verify attestation isn't good",
+  })
+  @ApiConflictResponse({
+    description: 'The credential already exists in the database',
+  })
+  @ApiUnprocessableEntityResponse({
+    description: "The request can't be performed in the database",
+  })
   @ApiUnauthorizedResponse({ description: 'User is not logged in' })
   @ApiForbiddenResponse({ description: 'Missing WebAuthn session data' })
-  @ApiPreconditionFailedResponse({ description: 'An error occurred during attestation verification process' })
-  @ApiBody({ description: 'Payload to verify webauthn attestation', type: VerifyAttestationDto })
+  @ApiPreconditionFailedResponse({
+    description: 'An error occurred during attestation verification process',
+  })
+  @ApiBody({
+    description: 'Payload to verify webauthn attestation',
+    type: VerifyAttestationDto,
+  })
   @ApiCookieAuth()
   @SetMetadata('webauthn_session', 'webauthn_attestation')
   @UseGuards(AuthGuard, WebAuthnSessionGuard)
   @HttpCode(200)
   @Post('/webauthn/register/finish')
-  verifyAttestation(@Body() attestation: VerifyAttestationDto, @Session() session: secureSession.Session, @Req() request: FastifyRequest): Observable<CredentialEntity> {
-    return this._apiService.verifyAttestation(attestation, session, request.headers[ 'user-agent' ])
+  verifyAttestation(
+    @Body() attestation: VerifyAttestationDto,
+    @Session() session: secureSession.Session,
+    @Req() request: FastifyRequest,
+  ): Observable<CredentialEntity> {
+    return this._apiService
+      .verifyAttestation(attestation, session, request.headers['user-agent'])
       .pipe(
-        tap(() => this._securityService.cleanSessionData(session, 'webauthn_attestation')),
+        tap(() =>
+          this._securityService.cleanSessionData(
+            session,
+            'webauthn_attestation',
+          ),
+        ),
       );
   }
 
@@ -172,11 +231,16 @@ export class ApiController {
     type: PublicKeyCredentialRequestOptionsEntity,
   })
   @Get('/webauthn/verify/start')
-  startAssertion(@Session() session: secureSession.Session): Observable<PublicKeyCredentialRequestOptionsEntity> {
-    return this._apiService.startAssertion()
-      .pipe(
-        tap((_: PublicKeyCredentialRequestOptionsEntity) => this._securityService.setSessionData(session, 'webauthn_assertion', { challenge: _.challenge } as WebAuthnAssertionSession)),
-      );
+  startAssertion(
+    @Session() session: secureSession.Session,
+  ): Observable<PublicKeyCredentialRequestOptionsEntity> {
+    return this._apiService.startAssertion().pipe(
+      tap((_: PublicKeyCredentialRequestOptionsEntity) =>
+        this._securityService.setSessionData(session, 'webauthn_assertion', {
+          challenge: _.challenge,
+        } as WebAuthnAssertionSession),
+      ),
+    );
   }
 
   /**
@@ -188,27 +252,53 @@ export class ApiController {
    * @return {Observable<UserEntity>} the user authenticated after attestation verification
    */
   @ApiOkResponse({
-    description: 'The assertion has been successfully verified and the user has been successfully authenticated',
+    description:
+      'The assertion has been successfully verified and the user has been successfully authenticated',
     type: UserEntity,
   })
-  @ApiBadRequestResponse({ description: 'The payload provided to verify assertion isn\'t good' })
-  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
-  @ApiUnauthorizedResponse({ description: 'Could not find authenticator for the user' })
+  @ApiBadRequestResponse({
+    description: "The payload provided to verify assertion isn't good",
+  })
+  @ApiUnprocessableEntityResponse({
+    description: "The request can't be performed in the database",
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Could not find authenticator for the user',
+  })
   @ApiForbiddenResponse({ description: 'Missing WebAuthn session data' })
-  @ApiPreconditionFailedResponse({ description: 'An error occurred during assertion verification process' })
-  @ApiBody({ description: 'Payload to verify webauthn assertion', type: VerifyAssertionDto })
+  @ApiPreconditionFailedResponse({
+    description: 'An error occurred during assertion verification process',
+  })
+  @ApiBody({
+    description: 'Payload to verify webauthn assertion',
+    type: VerifyAssertionDto,
+  })
   @SetMetadata('webauthn_session', 'webauthn_assertion')
   @UseGuards(WebAuthnSessionGuard)
   @HttpCode(200)
   @Post('/webauthn/verify/finish')
-  verifyAssertion(@Body() assertion: VerifyAssertionDto, @Session() session: secureSession.Session): Observable<UserEntity> {
-    return this._apiService.finishAssertion(assertion, session)
-      .pipe(
-        tap((user: UserEntity) => this._securityService.setSessionData(session, 'user', user)),
-        tap(() => this._securityService.setSessionData(session, 'previous_step', 'webauthn')),
-        tap(() => this._securityService.setSessionData(session, 'auth_type', 'webauthn')),
-        tap(() => this._securityService.cleanSessionData(session, 'webauthn_assertion')),
-      );
+  verifyAssertion(
+    @Body() assertion: VerifyAssertionDto,
+    @Session() session: secureSession.Session,
+  ): Observable<UserEntity> {
+    return this._apiService.finishAssertion(assertion, session).pipe(
+      tap((user: UserEntity) =>
+        this._securityService.setSessionData(session, 'user', user),
+      ),
+      tap(() =>
+        this._securityService.setSessionData(
+          session,
+          'previous_step',
+          'webauthn',
+        ),
+      ),
+      tap(() =>
+        this._securityService.setSessionData(session, 'auth_type', 'webauthn'),
+      ),
+      tap(() =>
+        this._securityService.cleanSessionData(session, 'webauthn_assertion'),
+      ),
+    );
   }
 
   /**
@@ -218,10 +308,19 @@ export class ApiController {
    *
    * @return Observable<UserEntity>
    */
-  @ApiCreatedResponse({ description: 'The user has been successfully created', type: UserEntity })
-  @ApiConflictResponse({ description: 'The username already exists in the database' })
-  @ApiBadRequestResponse({ description: 'The payload provided to create the user isn\'t good' })
-  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
+  @ApiCreatedResponse({
+    description: 'The user has been successfully created',
+    type: UserEntity,
+  })
+  @ApiConflictResponse({
+    description: 'The username already exists in the database',
+  })
+  @ApiBadRequestResponse({
+    description: "The payload provided to create the user isn't good",
+  })
+  @ApiUnprocessableEntityResponse({
+    description: "The request can't be performed in the database",
+  })
   @ApiBody({ description: 'Payload to create a new user', type: CreateUserDto })
   @Post('users')
   createUser(@Body() user: CreateUserDto): Observable<UserEntity> {
@@ -235,7 +334,10 @@ export class ApiController {
    *
    * @return Observable<UserEntity>
    */
-  @ApiOkResponse({ description: 'Returns the user store in the secure session', type: UserEntity })
+  @ApiOkResponse({
+    description: 'Returns the user store in the secure session',
+    type: UserEntity,
+  })
   @ApiUnauthorizedResponse({ description: 'User is not logged in' })
   @ApiCookieAuth()
   @UseGuards(AuthGuard)
@@ -253,13 +355,27 @@ export class ApiController {
    *
    * @return Observable<UserEntity>
    */
-  @ApiOkResponse({ description: 'The user has been successfully patched', type: UserEntity })
-  @ApiConflictResponse({ description: 'The username already exists in the database' })
-  @ApiBadRequestResponse({ description: 'The payload or the parameter provided to patch the user isn\'t good' })
-  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
-  @ApiPreconditionFailedResponse({ description: 'An error occurred during patch process' })
+  @ApiOkResponse({
+    description: 'The user has been successfully patched',
+    type: UserEntity,
+  })
+  @ApiConflictResponse({
+    description: 'The username already exists in the database',
+  })
+  @ApiBadRequestResponse({
+    description:
+      "The payload or the parameter provided to patch the user isn't good",
+  })
+  @ApiUnprocessableEntityResponse({
+    description: "The request can't be performed in the database",
+  })
+  @ApiPreconditionFailedResponse({
+    description: 'An error occurred during patch process',
+  })
   @ApiUnauthorizedResponse({ description: 'User is not logged in' })
-  @ApiForbiddenResponse({ description: 'User is not the owner of the resource' })
+  @ApiForbiddenResponse({
+    description: 'User is not the owner of the resource',
+  })
   @ApiParam({
     name: 'id',
     description: 'Unique identifier of the user in the database',
@@ -270,10 +386,17 @@ export class ApiController {
   @ApiCookieAuth()
   @UseGuards(AuthGuard, OwnerGuard)
   @Patch('users/:id')
-  patchUser(@Param() params: UserIdParams, @Body() user: PatchUserDto, @Session() session: secureSession.Session): Observable<UserEntity> {
-    return this._apiService.patchUser(params.id, user)
+  patchUser(
+    @Param() params: UserIdParams,
+    @Body() user: PatchUserDto,
+    @Session() session: secureSession.Session,
+  ): Observable<UserEntity> {
+    return this._apiService
+      .patchUser(params.id, user)
       .pipe(
-        tap((user: UserEntity) => this._securityService.setSessionData(session, 'user', user)),
+        tap((user: UserEntity) =>
+          this._securityService.setSessionData(session, 'user', user),
+        ),
       );
   }
 
@@ -285,12 +408,24 @@ export class ApiController {
    *
    * @return Observable<CredentialsListEntity>
    */
-  @ApiOkResponse({ description: 'Returns an array of credentials', type: CredentialsListEntity })
-  @ApiBadRequestResponse({ description: 'The parameter or the parameter provided to patch the credential isn\'t good' })
-  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
-  @ApiNoContentResponse({ description: 'No credential exists in the database for this user' })
+  @ApiOkResponse({
+    description: 'Returns an array of credentials',
+    type: CredentialsListEntity,
+  })
+  @ApiBadRequestResponse({
+    description:
+      "The parameter or the parameter provided to patch the credential isn't good",
+  })
+  @ApiUnprocessableEntityResponse({
+    description: "The request can't be performed in the database",
+  })
+  @ApiNoContentResponse({
+    description: 'No credential exists in the database for this user',
+  })
   @ApiUnauthorizedResponse({ description: 'User is not logged in' })
-  @ApiForbiddenResponse({ description: 'User is not the owner of the resource' })
+  @ApiForbiddenResponse({
+    description: 'User is not the owner of the resource',
+  })
   @ApiParam({
     name: 'id',
     description: 'Unique identifier of the user in the database',
@@ -300,8 +435,14 @@ export class ApiController {
   @ApiCookieAuth()
   @UseGuards(AuthGuard, OwnerGuard)
   @Get('users/:id/credentials')
-  findCredentialsListForUser(@Param() params: UserIdParams, @Req() request: FastifyRequest): Observable<CredentialsListEntity | void> {
-    return this._apiService.findCredentialsListForUser(params.id, request.headers[ 'user-agent' ]);
+  findCredentialsListForUser(
+    @Param() params: UserIdParams,
+    @Req() request: FastifyRequest,
+  ): Observable<CredentialsListEntity | void> {
+    return this._apiService.findCredentialsListForUser(
+      params.id,
+      request.headers['user-agent'],
+    );
   }
 
   /**
@@ -312,12 +453,24 @@ export class ApiController {
    *
    * @return Observable<CredentialEntity>
    */
-  @ApiOkResponse({ description: 'The credential has been successfully patched', type: CredentialEntity })
-  @ApiBadRequestResponse({ description: 'The payload or the parameters provided to patch the credential isn\'t good' })
-  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
-  @ApiPreconditionFailedResponse({ description: 'An error occurred during patch process' })
+  @ApiOkResponse({
+    description: 'The credential has been successfully patched',
+    type: CredentialEntity,
+  })
+  @ApiBadRequestResponse({
+    description:
+      "The payload or the parameters provided to patch the credential isn't good",
+  })
+  @ApiUnprocessableEntityResponse({
+    description: "The request can't be performed in the database",
+  })
+  @ApiPreconditionFailedResponse({
+    description: 'An error occurred during patch process',
+  })
   @ApiUnauthorizedResponse({ description: 'User is not logged in' })
-  @ApiForbiddenResponse({ description: 'User is not the owner of the resource' })
+  @ApiForbiddenResponse({
+    description: 'User is not the owner of the resource',
+  })
   @ApiParam({
     name: 'id',
     description: 'Unique identifier of the user in the database',
@@ -330,12 +483,22 @@ export class ApiController {
     type: String,
     allowEmptyValue: false,
   })
-  @ApiBody({ description: 'Payload to patch a credential', type: PatchCredentialDto })
+  @ApiBody({
+    description: 'Payload to patch a credential',
+    type: PatchCredentialDto,
+  })
   @ApiCookieAuth()
   @UseGuards(AuthGuard, OwnerGuard)
   @Patch('users/:id/credentials/:credId')
-  patchCredential(@Param() params: CredentialIdParams, @Body() credential: PatchCredentialDto): Observable<CredentialEntity> {
-    return this._apiService.patchCredential(params.credId, params.id, credential);
+  patchCredential(
+    @Param() params: CredentialIdParams,
+    @Body() credential: PatchCredentialDto,
+  ): Observable<CredentialEntity> {
+    return this._apiService.patchCredential(
+      params.credId,
+      params.id,
+      credential,
+    );
   }
 
   /**
@@ -375,12 +538,23 @@ export class ApiController {
    *
    * @return {Observable<void>}
    */
-  @ApiNoContentResponse({ description: 'The credential has been successfully deleted' })
-  @ApiBadRequestResponse({ description: 'The payload or the parameters provided to remove the credential isn\'t good' })
-  @ApiUnprocessableEntityResponse({ description: 'The request can\'t be performed in the database' })
-  @ApiPreconditionFailedResponse({ description: 'An error occurred during remove process' })
+  @ApiNoContentResponse({
+    description: 'The credential has been successfully deleted',
+  })
+  @ApiBadRequestResponse({
+    description:
+      "The payload or the parameters provided to remove the credential isn't good",
+  })
+  @ApiUnprocessableEntityResponse({
+    description: "The request can't be performed in the database",
+  })
+  @ApiPreconditionFailedResponse({
+    description: 'An error occurred during remove process',
+  })
   @ApiUnauthorizedResponse({ description: 'User is not logged in' })
-  @ApiForbiddenResponse({ description: 'User is not the owner of the resource' })
+  @ApiForbiddenResponse({
+    description: 'User is not the owner of the resource',
+  })
   @ApiParam({
     name: 'id',
     description: 'Unique identifier of the user in the database',
@@ -408,15 +582,25 @@ export class ApiController {
    *
    * @return Observable<void>
    */
-  @ApiNoContentResponse({ description: 'The value in session has been successfully deleted' })
+  @ApiNoContentResponse({
+    description: 'The value in session has been successfully deleted',
+  })
   @ApiBadRequestResponse({ description: 'Parameter provided is not good' })
   @ApiUnauthorizedResponse({ description: 'User is not logged in' })
-  @ApiBody({ description: 'Payload to clear a session value', type: KeySessionDataDto })
+  @ApiBody({
+    description: 'Payload to clear a session value',
+    type: KeySessionDataDto,
+  })
   @ApiCookieAuth()
   @UseGuards(AuthGuard)
   @Patch('clean-session-data')
-  cleanSessionData(@Body() keySessionData: KeySessionDataDto, @Session() session: secureSession.Session): Observable<void> {
-    return of(this._securityService.cleanSessionData(session, keySessionData.key));
+  cleanSessionData(
+    @Body() keySessionData: KeySessionDataDto,
+    @Session() session: secureSession.Session,
+  ): Observable<void> {
+    return of(
+      this._securityService.cleanSessionData(session, keySessionData.key),
+    );
   }
 
   /**
@@ -427,15 +611,29 @@ export class ApiController {
    *
    * @return Observable<void>
    */
-  @ApiNoContentResponse({ description: 'The value in session has been successfully deleted' })
+  @ApiNoContentResponse({
+    description: 'The value in session has been successfully deleted',
+  })
   @ApiBadRequestResponse({ description: 'Parameter provided is not good' })
   @ApiUnauthorizedResponse({ description: 'User is not logged in' })
-  @ApiBody({ description: 'Payload to set a session value', type: SessionDataDto })
+  @ApiBody({
+    description: 'Payload to set a session value',
+    type: SessionDataDto,
+  })
   @ApiCookieAuth()
   @UseGuards(AuthGuard)
   @Patch('set-session-data')
-  setSessionData(@Body() sessionData: SessionDataDto, @Session() session: secureSession.Session): Observable<void> {
-    return of(this._securityService.setSessionData(session, sessionData.key, sessionData.value));
+  setSessionData(
+    @Body() sessionData: SessionDataDto,
+    @Session() session: secureSession.Session,
+  ): Observable<void> {
+    return of(
+      this._securityService.setSessionData(
+        session,
+        sessionData.key,
+        sessionData.value,
+      ),
+    );
   }
 
   /**
@@ -445,7 +643,9 @@ export class ApiController {
    *
    * @return Observable<void>
    */
-  @ApiNoContentResponse({ description: 'The logout process has been successfully finished' })
+  @ApiNoContentResponse({
+    description: 'The logout process has been successfully finished',
+  })
   @ApiUnauthorizedResponse({ description: 'User is not logged in' })
   @ApiCookieAuth()
   @UseGuards(AuthGuard)

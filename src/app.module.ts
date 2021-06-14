@@ -15,10 +15,13 @@ import * as Config from 'config';
     UserModule,
     WebAuthnModule,
     SecurityModule,
-    MongooseModule.forRoot(Config.get<string>('mongodb.uri'), Config.get<MongooseModuleOptions>('mongodb.options')),
-    CredentialModule ],
-  controllers: [ AppController ],
-  providers: [ AppService, Logger ],
+    MongooseModule.forRoot(
+      Config.get<string>('mongodb.uri'),
+      Config.get<MongooseModuleOptions>('mongodb.options'),
+    ),
+    CredentialModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService, Logger],
 })
-export class AppModule {
-}
+export class AppModule {}

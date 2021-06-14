@@ -1,5 +1,8 @@
 import { Exclude, Expose, Type } from 'class-transformer';
-import { Base64URLString, UserVerificationRequirement } from '@simplewebauthn/typescript-types';
+import {
+  Base64URLString,
+  UserVerificationRequirement,
+} from '@simplewebauthn/typescript-types';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Exclude()
@@ -27,7 +30,7 @@ export class PublicKeyCredentialRequestOptionsEntity {
     name: 'userVerification',
     description: 'User verification requirement',
     example: 'required',
-    enum: [ 'discouraged', 'preferred', 'required' ],
+    enum: ['discouraged', 'preferred', 'required'],
     required: false,
   })
   @Expose()

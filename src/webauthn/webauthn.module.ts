@@ -3,8 +3,7 @@ import { WebAuthnService } from './webauthn.service';
 
 @Global()
 @Module({
-  providers: [ WebAuthnService ],
-  exports: [ WebAuthnService ],
+  providers: [WebAuthnService],
+  exports: [WebAuthnService],
 })
-export class WebAuthnModule {
-}
+export class WebAuthnModule {}

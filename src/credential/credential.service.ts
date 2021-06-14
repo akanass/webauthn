@@ -9,7 +9,13 @@ import { CredentialDao } from './dao/credential.dao';
 import { Observable, of, throwError } from 'rxjs';
 import { CredentialEntity } from './entities/credential.entity';
 import { Credential } from './schemas/credential.schema';
-import { catchError, defaultIfEmpty, filter, map, mergeMap } from 'rxjs/operators';
+import {
+  catchError,
+  defaultIfEmpty,
+  filter,
+  map,
+  mergeMap,
+} from 'rxjs/operators';
 import { PatchCredentialDto } from './dto/patch-credential.dto';
 import { AuthenticatorAttachment } from '@simplewebauthn/typescript-types';
 
@@ -21,8 +27,10 @@ export class CredentialService {
    * @param {CredentialDao} _credentialDao dependency injection of CredentialDao instance
    * @param {SecurityService} _securityService dependency injection of SecurityService instance
    */
-  constructor(private readonly _credentialDao: CredentialDao, private readonly _securityService: SecurityService) {
-  }
+  constructor(
+    private readonly _credentialDao: CredentialDao,
+    private readonly _securityService: SecurityService,
+  ) {}
 
   /**
    * Returns all credentials for the given user
@@ -31,14 +39,21 @@ export class CredentialService {
    *
    * @return {Observable<Credential[] | void>} list of credentials or undefined if not found
    */
-  findCredentialsForUser(userId: string): Observable<CredentialEntity[] | void> {
-    return this._credentialDao.findAllByUserId(userId)
-      .pipe(
-        catchError(e => throwError(new UnprocessableEntityException(e.message))),
-        filter((credentials: Credential[]) => !!credentials),
-        map((credentials: Credential[]) => credentials.map((credential: Credential) => new CredentialEntity(credential))),
-        defaultIfEmpty(undefined),
-      );
+  findCredentialsForUser(
+    userId: string,
+  ): Observable<CredentialEntity[] | void> {
+    return this._credentialDao.findAllByUserId(userId).pipe(
+      catchError((e) =>
+        throwError(() => new UnprocessableEntityException(e.message)),
+      ),
+      filter((credentials: Credential[]) => !!credentials),
+      map((credentials: Credential[]) =>
+        credentials.map(
+          (credential: Credential) => new CredentialEntity(credential),
+        ),
+      ),
+      defaultIfEmpty(undefined),
+    );
   }
 
   /**
@@ -49,12 +64,25 @@ export class CredentialService {
    *
    * @return {Observable<Credential[] | void>} list of credentials or undefined if not found
    */
-  findCredentialsForUserWithAuthenticatorAttachment(userId: string, authenticatorAttachment: AuthenticatorAttachment): Observable<CredentialEntity[] | void> {
-    return this._credentialDao.findAllByUserIdAndAuthenticatorAttachment(userId, authenticatorAttachment)
+  findCredentialsForUserWithAuthenticatorAttachment(
+    userId: string,
+    authenticatorAttachment: AuthenticatorAttachment,
+  ): Observable<CredentialEntity[] | void> {
+    return this._credentialDao
+      .findAllByUserIdAndAuthenticatorAttachment(
+        userId,
+        authenticatorAttachment,
+      )
       .pipe(
-        catchError(e => throwError(new UnprocessableEntityException(e.message))),
+        catchError((e) =>
+          throwError(() => new UnprocessableEntityException(e.message)),
+        ),
         filter((credentials: Credential[]) => !!credentials),
-        map((credentials: Credential[]) => credentials.map((credential: Credential) => new CredentialEntity(credential))),
+        map((credentials: Credential[]) =>
+          credentials.map(
+            (credential: Credential) => new CredentialEntity(credential),
+          ),
+        ),
         defaultIfEmpty(undefined),
       );
   }
@@ -68,17 +96,27 @@ export class CredentialService {
    *
    * @return {Observable<Credential>} patched credential
    */
-  patch(id: string, userId: string, patch: PatchCredentialDto): Observable<CredentialEntity> {
-    return this._credentialDao.updateCredentialName(id, userId, patch)
-      .pipe(
-        catchError(e => throwError(new UnprocessableEntityException(e.message))),
-        mergeMap((credential: Credential) =>
-          !!credential ?
-            of(credential) :
-            throwError(new PreconditionFailedException(`Credential with id "${id}" for the Owner with id "${userId}" doesn't exist in the database`)),
-        ),
-        map((credential: Credential) => new CredentialEntity(credential)),
-      );
+  patch(
+    id: string,
+    userId: string,
+    patch: PatchCredentialDto,
+  ): Observable<CredentialEntity> {
+    return this._credentialDao.updateCredentialName(id, userId, patch).pipe(
+      catchError((e) =>
+        throwError(() => new UnprocessableEntityException(e.message)),
+      ),
+      mergeMap((credential: Credential) =>
+        !!credential
+          ? of(credential)
+          : throwError(
+              () =>
+                new PreconditionFailedException(
+                  `Credential with id "${id}" for the Owner with id "${userId}" doesn't exist in the database`,
+                ),
+            ),
+      ),
+      map((credential: Credential) => new CredentialEntity(credential)),
+    );
   }
 
   /**
@@ -90,15 +128,21 @@ export class CredentialService {
    * @return {Observable<void>}
    */
   remove(id: string, userId: string): Observable<void> {
-    return this._credentialDao.findByIdAndUserIdThenRemove(id, userId)
-      .pipe(
-        catchError(e => throwError(new UnprocessableEntityException(e.message))),
-        mergeMap((credential: Credential) =>
-          !!credential ?
-            of(undefined) :
-            throwError(new PreconditionFailedException(`Credential with id "${id}" for the Owner with id "${userId}" doesn't exist in the database`)),
-        ),
-      );
+    return this._credentialDao.findByIdAndUserIdThenRemove(id, userId).pipe(
+      catchError((e) =>
+        throwError(() => new UnprocessableEntityException(e.message)),
+      ),
+      mergeMap((credential: Credential) =>
+        !!credential
+          ? of(undefined)
+          : throwError(
+              () =>
+                new PreconditionFailedException(
+                  `Credential with id "${id}" for the Owner with id "${userId}" doesn't exist in the database`,
+                ),
+            ),
+      ),
+    );
   }
 
   /**
@@ -109,17 +153,19 @@ export class CredentialService {
    * {Observable<CredentialEntity>} the entity representing the new credential
    */
   create(credential: Credential): Observable<CredentialEntity> {
-    return this._credentialDao.save(credential)
-      .pipe(
-        catchError(e =>
-          e.code === 11000 ?
-            throwError(
-              new ConflictException(`Credential with these data already exists`),
-            ) :
-            throwError(new UnprocessableEntityException(e.message)),
-        ),
-        map((credential: Credential) => new CredentialEntity(credential)),
-      );
+    return this._credentialDao.save(credential).pipe(
+      catchError((e) =>
+        e.code === 11000
+          ? throwError(
+              () =>
+                new ConflictException(
+                  `Credential with these data already exists`,
+                ),
+            )
+          : throwError(() => new UnprocessableEntityException(e.message)),
+      ),
+      map((credential: Credential) => new CredentialEntity(credential)),
+    );
   }
 
   /**
@@ -129,14 +175,17 @@ export class CredentialService {
    *
    * @return {Observable<CredentialEntity | void>} credential or undefined if not found
    */
-  findCredentialByUserHandle(userHandle: Buffer): Observable<CredentialEntity | void> {
-    return this._credentialDao.findByUserHandle(userHandle)
-      .pipe(
-        catchError(e => throwError(new UnprocessableEntityException(e.message))),
-        filter((credential: Credential) => !!credential),
-        map((credential: Credential) => new CredentialEntity(credential)),
-        defaultIfEmpty(undefined),
-      );
+  findCredentialByUserHandle(
+    userHandle: Buffer,
+  ): Observable<CredentialEntity | void> {
+    return this._credentialDao.findByUserHandle(userHandle).pipe(
+      catchError((e) =>
+        throwError(() => new UnprocessableEntityException(e.message)),
+      ),
+      filter((credential: Credential) => !!credential),
+      map((credential: Credential) => new CredentialEntity(credential)),
+      defaultIfEmpty(undefined),
+    );
   }
 
   /**
@@ -146,14 +195,25 @@ export class CredentialService {
    *
    * @return {Observable<Credential>} patched credential
    */
-  updateLoginData(credentialId: Buffer, signatureCount: number): Observable<CredentialEntity | void> {
-    return this._credentialDao.updateLoginData(credentialId, signatureCount)
+  updateLoginData(
+    credentialId: Buffer,
+    signatureCount: number,
+  ): Observable<CredentialEntity | void> {
+    return this._credentialDao
+      .updateLoginData(credentialId, signatureCount)
       .pipe(
-        catchError(e => throwError(new UnprocessableEntityException(e.message))),
+        catchError((e) =>
+          throwError(() => new UnprocessableEntityException(e.message)),
+        ),
         mergeMap((credential: Credential) =>
-          !!credential ?
-            of(credential) :
-            throwError(new PreconditionFailedException('An error occurred during webauthn login process')),
+          !!credential
+            ? of(credential)
+            : throwError(
+                () =>
+                  new PreconditionFailedException(
+                    'An error occurred during webauthn login process',
+                  ),
+              ),
         ),
         map((credential: Credential) => new CredentialEntity(credential)),
       );

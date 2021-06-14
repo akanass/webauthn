@@ -6,9 +6,12 @@ import { Credential, CredentialSchema } from './schemas/credential.schema';
 
 @Global()
 @Module({
-  imports: [ MongooseModule.forFeature([ { name: Credential.name, schema: CredentialSchema } ]) ],
-  providers: [ CredentialService, CredentialDao ],
-  exports: [ CredentialService ],
+  imports: [
+    MongooseModule.forFeature([
+      { name: Credential.name, schema: CredentialSchema },
+    ]),
+  ],
+  providers: [CredentialService, CredentialDao],
+  exports: [CredentialService],
 })
-export class CredentialModule {
-}
+export class CredentialModule {}

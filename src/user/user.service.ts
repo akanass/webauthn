@@ -24,8 +24,10 @@ export class UserService {
    * @param {UserDao} _userDao dependency injection of UserDao instance
    * @param {SecurityService} _securityService dependency injection of SecurityService instance
    */
-  constructor(private readonly _userDao: UserDao, private readonly _securityService: SecurityService) {
-  }
+  constructor(
+    private readonly _userDao: UserDao,
+    private readonly _securityService: SecurityService,
+  ) {}
 
   /**
    * Function to login an user by username/password
@@ -35,46 +37,64 @@ export class UserService {
    * @return {Observable<UserEntity>} the entity representing the logged in user
    */
   login(loginUser: LoginUserDto): Observable<UserEntity> {
-    return this._userDao.findByUsername(loginUser.username)
-      .pipe(
-        catchError(e => throwError(new UnprocessableEntityException(e.message))),
-        mergeMap((user: User) =>
-          !!user ?
-            of(user) :
-            throwError(new UnauthorizedException('Username and Password don\'t match')),
+    return this._userDao.findByUsername(loginUser.username).pipe(
+      catchError((e) =>
+        throwError(() => new UnprocessableEntityException(e.message)),
+      ),
+      mergeMap((user: User) =>
+        !!user
+          ? of(user)
+          : throwError(
+              () =>
+                new UnauthorizedException("Username and Password don't match"),
+            ),
+      ),
+      map((user: User) => ({
+        user,
+        passwordIsValid: this._securityService.checkPassword(
+          loginUser.password,
+          Buffer.from(user.password_hash),
         ),
-        map((user: User) => ({
-          user,
-          passwordIsValid: this._securityService.checkPassword(loginUser.password, Buffer.from(user.password_hash)),
-        })),
-        mergeMap((_: { user: User, passwordIsValid: Observable<boolean> }) =>
-          merge(
-            _.passwordIsValid
-              .pipe(
-                filter((passwordIsValid: boolean) => !!passwordIsValid),
-                map(() => _.user),
-              ),
-            _.passwordIsValid
-              .pipe(
-                filter((passwordIsValid: boolean) => !passwordIsValid),
-                mergeMap(() => throwError(new UnauthorizedException('Username and Password don\'t match'))),
-              ),
+      })),
+      mergeMap((_: { user: User; passwordIsValid: Observable<boolean> }) =>
+        merge(
+          _.passwordIsValid.pipe(
+            filter((passwordIsValid: boolean) => !!passwordIsValid),
+            map(() => _.user),
           ),
-        ),
-        mergeMap((user: User & { id: string }) =>
-          this._userDao.updateLastAccessTime(user.id)
-            .pipe(
-              catchError(e => throwError(new UnprocessableEntityException(e.message))),
-              mergeMap((user: User) =>
-                !!user ?
-                  of(user) :
-                  throwError(new PreconditionFailedException('An error occurred during login process')),
+          _.passwordIsValid.pipe(
+            filter((passwordIsValid: boolean) => !passwordIsValid),
+            mergeMap(() =>
+              throwError(
+                () =>
+                  new UnauthorizedException(
+                    "Username and Password don't match",
+                  ),
               ),
             ),
+          ),
         ),
-        tap((user: User) => delete user.password_hash),
-        map((user: User) => new UserEntity(user)),
-      );
+      ),
+      mergeMap((user: User & { id: string }) =>
+        this._userDao.updateLastAccessTime(user.id).pipe(
+          catchError((e) =>
+            throwError(() => new UnprocessableEntityException(e.message)),
+          ),
+          mergeMap((user: User) =>
+            !!user
+              ? of(user)
+              : throwError(
+                  () =>
+                    new PreconditionFailedException(
+                      'An error occurred during login process',
+                    ),
+                ),
+          ),
+        ),
+      ),
+      tap((user: User) => delete user.password_hash),
+      map((user: User) => new UserEntity(user)),
+    );
   }
 
   /**
@@ -85,24 +105,29 @@ export class UserService {
    * @return {Observable<UserEntity>} the entity representing the new user
    */
   create(user: CreateUserDto): Observable<UserEntity> {
-    return this._securityService.hashPassword(user.password)
-      .pipe(
-        map((hashPassword: Buffer) => ({
-          username: user.username,
-          display_name: user.display_name,
-          password_hash: hashPassword,
-        })),
-        mergeMap((_: Omit<CreateUserDto, 'password'> & { password_hash: Buffer }) => this._userDao.save(_)),
-        catchError(e =>
-          e.code === 11000 ?
-            throwError(
-              new ConflictException(`Username '${user.username}' already exists`),
-            ) :
-            throwError(new UnprocessableEntityException(e.message)),
-        ),
-        tap((user: User) => delete user.password_hash),
-        map((user: User) => new UserEntity(user)),
-      );
+    return this._securityService.hashPassword(user.password).pipe(
+      map((hashPassword: Buffer) => ({
+        username: user.username,
+        display_name: user.display_name,
+        password_hash: hashPassword,
+      })),
+      mergeMap(
+        (_: Omit<CreateUserDto, 'password'> & { password_hash: Buffer }) =>
+          this._userDao.save(_),
+      ),
+      catchError((e) =>
+        e.code === 11000
+          ? throwError(
+              () =>
+                new ConflictException(
+                  `Username '${user.username}' already exists`,
+                ),
+            )
+          : throwError(() => new UnprocessableEntityException(e.message)),
+      ),
+      tap((user: User) => delete user.password_hash),
+      map((user: User) => new UserEntity(user)),
+    );
   }
 
   /**
@@ -114,35 +139,55 @@ export class UserService {
    * @return {Observable<UserEntity>} the entity representing the patched user
    */
   patch(id: string, user: PatchUserDto): Observable<UserEntity> {
-    return of(of(user))
-      .pipe(
-        mergeMap((obs: Observable<PatchUserDto>) =>
-          merge(
-            obs.pipe(
-              filter((_: PatchUserDto) => typeof _ !== 'undefined' && Object.keys(_).length > 0),
-              mergeMap((_: PatchUserDto) => this._userDao.patch(id, _)),
-              catchError(e =>
-                e.code === 11000 && !!user.username ?
-                  throwError(
-                    new ConflictException(`Username '${user.username}' already exists`),
-                  ) :
-                  throwError(new UnprocessableEntityException(e.message)),
-              ),
-              mergeMap((user: User) =>
-                !!user ?
-                  of(user) :
-                  throwError(new PreconditionFailedException(`User with id "${id}" doesn't exist in the database`)),
-              ),
-              tap((user: User) => delete user.password_hash),
-              map((user: User) => new UserEntity(user)),
+    return of(of(user)).pipe(
+      mergeMap((obs: Observable<PatchUserDto>) =>
+        merge(
+          obs.pipe(
+            filter(
+              (_: PatchUserDto) =>
+                typeof _ !== 'undefined' && Object.keys(_).length > 0,
             ),
-            obs.pipe(
-              filter((_: PatchUserDto) => typeof _ === 'undefined' || Object.keys(_).length === 0),
-              mergeMap(() => throwError(new BadRequestException('Payload should at least contains one of "username", "display_name" or "skip_authenticator_registration"'))),
+            mergeMap((_: PatchUserDto) => this._userDao.patch(id, _)),
+            catchError((e) =>
+              e.code === 11000 && !!user.username
+                ? throwError(
+                    () =>
+                      new ConflictException(
+                        `Username '${user.username}' already exists`,
+                      ),
+                  )
+                : throwError(() => new UnprocessableEntityException(e.message)),
+            ),
+            mergeMap((user: User) =>
+              !!user
+                ? of(user)
+                : throwError(
+                    () =>
+                      new PreconditionFailedException(
+                        `User with id "${id}" doesn't exist in the database`,
+                      ),
+                  ),
+            ),
+            tap((user: User) => delete user.password_hash),
+            map((user: User) => new UserEntity(user)),
+          ),
+          obs.pipe(
+            filter(
+              (_: PatchUserDto) =>
+                typeof _ === 'undefined' || Object.keys(_).length === 0,
+            ),
+            mergeMap(() =>
+              throwError(
+                () =>
+                  new BadRequestException(
+                    'Payload should at least contains one of "username", "display_name" or "skip_authenticator_registration"',
+                  ),
+              ),
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 
   /**
@@ -153,27 +198,39 @@ export class UserService {
    * @return {Observable<UserEntity>} the entity representing the logged in user
    */
   webAuthnLogin(id: string): Observable<UserEntity> {
-    return this._userDao.findById(id)
-      .pipe(
-        catchError(e => throwError(new UnprocessableEntityException(e.message))),
-        mergeMap((user: User) =>
-          !!user ?
-            of(user) :
-            throwError(new UnauthorizedException('User cannot use this authenticator to authenticate')),
-        ),
-        mergeMap((user: User & { id: string }) =>
-          this._userDao.updateLastAccessTime(user.id)
-            .pipe(
-              catchError(e => throwError(new UnprocessableEntityException(e.message))),
-              mergeMap((user: User) =>
-                !!user ?
-                  of(user) :
-                  throwError(new PreconditionFailedException('An error occurred during webauthn login process')),
-              ),
+    return this._userDao.findById(id).pipe(
+      catchError((e) =>
+        throwError(() => new UnprocessableEntityException(e.message)),
+      ),
+      mergeMap((user: User) =>
+        !!user
+          ? of(user)
+          : throwError(
+              () =>
+                new UnauthorizedException(
+                  'User cannot use this authenticator to authenticate',
+                ),
             ),
+      ),
+      mergeMap((user: User & { id: string }) =>
+        this._userDao.updateLastAccessTime(user.id).pipe(
+          catchError((e) =>
+            throwError(() => new UnprocessableEntityException(e.message)),
+          ),
+          mergeMap((user: User) =>
+            !!user
+              ? of(user)
+              : throwError(
+                  () =>
+                    new PreconditionFailedException(
+                      'An error occurred during webauthn login process',
+                    ),
+                ),
+          ),
         ),
-        tap((user: User) => delete user.password_hash),
-        map((user: User) => new UserEntity(user)),
-      );
+      ),
+      tap((user: User) => delete user.password_hash),
+      map((user: User) => new UserEntity(user)),
+    );
   }
 }

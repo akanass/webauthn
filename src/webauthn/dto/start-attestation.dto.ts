@@ -7,7 +7,7 @@ export class StartAttestationDto {
     name: 'authenticator_attachment',
     description: 'Credential authenticator attachment',
     required: true,
-    enum: [ 'cross-platform', 'platform' ],
+    enum: ['cross-platform', 'platform'],
   })
   @IsString()
   @IsNotEmpty()

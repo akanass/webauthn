@@ -26,11 +26,12 @@ export class CredentialDao {
    *
    * @return {Observable<Credential>} new credential created
    */
-  save(credential: Credential): Observable<Credential> {
-    return from(new this._credentialModel(credential).save()).pipe(
+  save = (credential: Credential): Observable<Credential> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    from(new this._credentialModel(credential).save()).pipe(
       map((doc: CredentialDocument) => doc.toJSON()),
     );
-  }
 
   /**
    * Patch the credential for the given credential id and user id with the given patch values
@@ -41,12 +42,14 @@ export class CredentialDao {
    *
    * @return {Observable<Credential | void>} patched credential or undefined if not found
    */
-  updateCredentialName(
+  updateCredentialName = (
     id: string,
     userId: string,
     patch: PatchCredentialDto,
-  ): Observable<Credential | void> {
-    return from(
+  ): Observable<Credential | void> =>
+    from(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       this._credentialModel.findOneAndUpdate(
         { _id: id, user_id: userId },
         patch,
@@ -58,7 +61,6 @@ export class CredentialDao {
     ).pipe(
       map((doc: CredentialDocument) => (!!doc ? doc.toJSON() : undefined)),
     );
-  }
 
   /**
    * Function to update data when user login with a credential
@@ -68,11 +70,13 @@ export class CredentialDao {
    *
    * @return {Observable<Credential | void>} patched credential or undefined if not found
    */
-  updateLoginData(
+  updateLoginData = (
     credentialId: Buffer,
     signatureCount: number,
-  ): Observable<Credential | void> {
-    return from(
+  ): Observable<Credential | void> =>
+    from(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       this._credentialModel.findOneAndUpdate(
         { credential_id: credentialId },
         {
@@ -87,7 +91,6 @@ export class CredentialDao {
     ).pipe(
       map((doc: CredentialDocument) => (!!doc ? doc.toJSON() : undefined)),
     );
-  }
 
   /**
    * Find all credentials for the given user id
@@ -96,13 +99,14 @@ export class CredentialDao {
    *
    * @return {Observable<Credential[] | void>} list of credentials or undefined if not found
    */
-  findAllByUserId(userId: string): Observable<Credential[] | void> {
-    return from(this._credentialModel.find({ user_id: userId })).pipe(
+  findAllByUserId = (userId: string): Observable<Credential[] | void> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    from(this._credentialModel.find({ user_id: userId })).pipe(
       map((docs: CredentialDocument[]) =>
         !!docs && docs.length > 0 ? docs.map((_) => _.toJSON()) : undefined,
       ),
     );
-  }
 
   /**
    * Find all credentials for the given user id and authenticator attachment
@@ -112,11 +116,13 @@ export class CredentialDao {
    *
    * @return {Observable<Credential[] | void>} list of credentials or undefined if not found
    */
-  findAllByUserIdAndAuthenticatorAttachment(
+  findAllByUserIdAndAuthenticatorAttachment = (
     userId: string,
     authenticatorAttachment: AuthenticatorAttachment,
-  ): Observable<Credential[] | void> {
-    return from(
+  ): Observable<Credential[] | void> =>
+    from(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       this._credentialModel.find({
         user_id: userId,
         'metadata.authenticator_attachment': authenticatorAttachment,
@@ -126,7 +132,6 @@ export class CredentialDao {
         !!docs && docs.length > 0 ? docs.map((_) => _.toJSON()) : undefined,
       ),
     );
-  }
 
   /**
    * Find a credential by its credential_id
@@ -135,13 +140,12 @@ export class CredentialDao {
    *
    * @return {Observable<Credential | void>} credential or undefined if not found
    */
-  findByCredentialId(credentialId: Buffer): Observable<Credential | void> {
-    return from(
-      this._credentialModel.findOne({ credential_id: credentialId }),
-    ).pipe(
+  findByCredentialId = (credentialId: Buffer): Observable<Credential | void> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    from(this._credentialModel.findOne({ credential_id: credentialId })).pipe(
       map((doc: CredentialDocument) => (!!doc ? doc.toJSON() : undefined)),
     );
-  }
 
   /**
    * Find a credential by its user_handle
@@ -150,13 +154,12 @@ export class CredentialDao {
    *
    * @return {Observable<Credential | void>} credential or undefined if not found
    */
-  findByUserHandle(userHandle: Buffer): Observable<Credential | void> {
-    return from(
-      this._credentialModel.findOne({ user_handle: userHandle }),
-    ).pipe(
+  findByUserHandle = (userHandle: Buffer): Observable<Credential | void> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    from(this._credentialModel.findOne({ user_handle: userHandle })).pipe(
       map((doc: CredentialDocument) => (!!doc ? doc.toJSON() : undefined)),
     );
-  }
 
   /**
    * Find a credential by its aaguid
@@ -165,11 +168,12 @@ export class CredentialDao {
    *
    * @return {Observable<Credential | void>} credential or undefined if not found
    */
-  findByAaguid(aaguid: string): Observable<Credential | void> {
-    return from(this._credentialModel.findOne({ aaguid })).pipe(
+  findByAaguid = (aaguid: string): Observable<Credential | void> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    from(this._credentialModel.findOne({ aaguid })).pipe(
       map((doc: CredentialDocument) => (!!doc ? doc.toJSON() : undefined)),
     );
-  }
 
   /**
    * Returns one credential of the list matching id in parameter
@@ -178,11 +182,12 @@ export class CredentialDao {
    *
    * @return {Observable<Credential | void>} credential or undefined if not found
    */
-  findById(id: string): Observable<Credential | void> {
-    return from(this._credentialModel.findById(id)).pipe(
+  findById = (id: string): Observable<Credential | void> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    from(this._credentialModel.findById(id)).pipe(
       map((doc: CredentialDocument) => (!!doc ? doc.toJSON() : undefined)),
     );
-  }
 
   /**
    * Delete a credential in database
@@ -192,14 +197,15 @@ export class CredentialDao {
    *
    * @return {Observable<Credential | void>} credential deleted object or undefined if not found
    */
-  findByIdAndUserIdThenRemove(
+  findByIdAndUserIdThenRemove = (
     id: string,
     userId: string,
-  ): Observable<Credential | void> {
-    return from(
+  ): Observable<Credential | void> =>
+    from(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       this._credentialModel.findOneAndRemove({ _id: id, user_id: userId }),
     ).pipe(
       map((doc: CredentialDocument) => (!!doc ? doc.toJSON() : undefined)),
     );
-  }
 }

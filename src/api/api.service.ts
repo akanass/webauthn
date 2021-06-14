@@ -12,7 +12,6 @@ import { CredentialsListEntity } from '../credential/entities/credentials-list.e
 import * as useragent from 'useragent';
 import { UserAgentData } from './interfaces/useragent-data.interface';
 import { PatchCredentialDto } from '../credential/dto/patch-credential.dto';
-import { StartAttestationDto } from '../webauthn/dto/start-attestation.dto';
 import { WebAuthnService } from '../webauthn/webauthn.service';
 import * as secureSession from 'fastify-secure-session';
 import { AuthenticatorAttachment } from '@simplewebauthn/typescript-types';
@@ -43,9 +42,10 @@ export class ApiService {
    *
    * @return {Observable<UserEntity>} the entity representing the logged in user
    */
-  login(loginUser: LoginUserDto): Observable<UserEntity> {
-    return this._userService.login(loginUser);
-  }
+  login = (loginUser: LoginUserDto): Observable<UserEntity> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._userService.login(loginUser);
 
   /**
    * Function to create a new user in the database
@@ -54,9 +54,10 @@ export class ApiService {
    *
    * @return {Observable<UserEntity>} the entity representing the new user
    */
-  createUser(user: CreateUserDto): Observable<UserEntity> {
-    return this._userService.create(user);
-  }
+  createUser = (user: CreateUserDto): Observable<UserEntity> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._userService.create(user);
 
   /**
    * Function to patch an user in the database
@@ -66,9 +67,10 @@ export class ApiService {
    *
    * @return {Observable<UserEntity>} the entity representing the patched user
    */
-  patchUser(id: string, user: PatchUserDto): Observable<UserEntity> {
-    return this._userService.patch(id, user);
-  }
+  patchUser = (id: string, user: PatchUserDto): Observable<UserEntity> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._userService.patch(id, user);
 
   /**
    * Function to patch a credential in the database
@@ -79,13 +81,14 @@ export class ApiService {
    *
    * @return {Observable<CredentialEntity>} the entity representing the patched credential
    */
-  patchCredential(
+  patchCredential = (
     id: string,
     userId: string,
     credential: PatchCredentialDto,
-  ): Observable<CredentialEntity> {
-    return this._credentialService.patch(id, userId, credential);
-  }
+  ): Observable<CredentialEntity> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._credentialService.patch(id, userId, credential);
 
   /**
    * Function to remove a credential in the database
@@ -95,9 +98,10 @@ export class ApiService {
    *
    * @return {Observable<void>}
    */
-  removeCredential(id: string, userId: string): Observable<void> {
-    return this._credentialService.remove(id, userId);
-  }
+  removeCredential = (id: string, userId: string): Observable<void> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._credentialService.remove(id, userId);
 
   /**
    * Function to create credential MOCK
@@ -169,11 +173,13 @@ export class ApiService {
    *
    * @return {Observable<CredentialsListEntity | void>} list of credentials or undefined if not found
    */
-  findCredentialsListForUser(
+  findCredentialsListForUser = (
     userId: string,
     ua: string,
-  ): Observable<CredentialsListEntity | void> {
-    return this._credentialService.findCredentialsForUser(userId).pipe(
+  ): Observable<CredentialsListEntity | void> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._credentialService.findCredentialsForUser(userId).pipe(
       filter((credentials: CredentialEntity[]) => !!credentials),
       map((credentials: CredentialEntity[]) => {
         // get user agent data
@@ -207,19 +213,16 @@ export class ApiService {
       }),
       defaultIfEmpty(undefined),
     );
-  }
 
   /**
    * Returns user agent data
    *
    * @param {string} ua value of the useragent making the request
    */
-  userAgentData(ua: string): UserAgentData {
-    return {
-      os: useragent.parse(ua)?.os?.toString(),
-      device: useragent.parse(ua)?.device?.toString(),
-    };
-  }
+  userAgentData = (ua: string): UserAgentData => ({
+    os: useragent.parse(ua)?.os?.toString(),
+    device: useragent.parse(ua)?.device?.toString(),
+  });
 
   /**
    * Returns attestation options object
@@ -229,15 +232,13 @@ export class ApiService {
    *
    * @return {Observable<PublicKeyCredentialCreationOptionsEntity>} attestation options object
    */
-  startAttestation(
+  startAttestation = (
     authenticatorAttachment: AuthenticatorAttachment,
     session: secureSession.Session,
-  ): Observable<PublicKeyCredentialCreationOptionsEntity> {
-    return this._webauthnService.startAttestation(
-      authenticatorAttachment,
-      session,
-    );
-  }
+  ): Observable<PublicKeyCredentialCreationOptionsEntity> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._webauthnService.startAttestation(authenticatorAttachment, session);
 
   /**
    * Returns the new credential after attestation was verified
@@ -248,26 +249,28 @@ export class ApiService {
    *
    * @return {Observable<CredentialEntity>} the new credential for the given attestation
    */
-  verifyAttestation(
+  verifyAttestation = (
     attestation: VerifyAttestationDto,
     session: secureSession.Session,
     ua: string,
-  ): Observable<CredentialEntity> {
-    return this._webauthnService.finishAttestation(
+  ): Observable<CredentialEntity> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._webauthnService.finishAttestation(
       attestation,
       session,
       this.userAgentData(ua),
     );
-  }
 
   /**
    * Returns assertion options object
    *
    * @return {Observable<PublicKeyCredentialRequestOptionsEntity>} assertion options object
    */
-  startAssertion(): Observable<PublicKeyCredentialRequestOptionsEntity> {
-    return this._webauthnService.startAssertion();
-  }
+  startAssertion = (): Observable<PublicKeyCredentialRequestOptionsEntity> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._webauthnService.startAssertion();
 
   /**
    * Returns the logged in user after assertion verification
@@ -277,10 +280,11 @@ export class ApiService {
    *
    * @return {Observable<UserEntity>} the logged in user after assertion verification
    */
-  finishAssertion(
+  finishAssertion = (
     assertion: VerifyAssertionDto,
     session: secureSession.Session,
-  ): Observable<UserEntity> {
-    return this._webauthnService.finishAssertion(assertion, session);
-  }
+  ): Observable<UserEntity> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._webauthnService.finishAssertion(assertion, session);
 }

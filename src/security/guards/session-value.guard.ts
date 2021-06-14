@@ -33,11 +33,15 @@ export class SessionValueGuard implements CanActivate {
    *
    * @return {Observable<boolean>} flag to know if we can access to the resource
    */
-  canActivate(context: ExecutionContext): Observable<boolean> {
-    return of(context.switchToHttp().getRequest().session).pipe(
+  canActivate = (context: ExecutionContext): Observable<boolean> =>
+    of(context.switchToHttp().getRequest().session).pipe(
       mergeMap((session: secureSession.Session) =>
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         this._securityService.checkSessionData(
           session,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           this._reflector.get<SessionData>(
             'session_data',
             context.getHandler(),
@@ -53,5 +57,4 @@ export class SessionValueGuard implements CanActivate {
         return throwError(() => err);
       }),
     );
-  }
 }

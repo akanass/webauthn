@@ -32,11 +32,15 @@ export class WebAuthnSessionGuard implements CanActivate {
    *
    * @return {Observable<boolean>} flag to know if we can access to the resource
    */
-  canActivate(context: ExecutionContext): Observable<boolean> {
-    return of(context.switchToHttp().getRequest().session).pipe(
+  canActivate = (context: ExecutionContext): Observable<boolean> =>
+    of(context.switchToHttp().getRequest().session).pipe(
       mergeMap((session: secureSession.Session) =>
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         this._securityService.checkWebAuthnSessionData(
           session,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           this._reflector.get<'webauthn_attestation' | 'webauthn_assertion'>(
             'webauthn_session',
             context.getHandler(),
@@ -52,5 +56,4 @@ export class WebAuthnSessionGuard implements CanActivate {
         return throwError(() => err);
       }),
     );
-  }
 }

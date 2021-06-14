@@ -22,8 +22,8 @@ export class AppService {
    *
    * @return {any} page's metadata - translations and scripts names
    */
-  getMetadata(page: string): any {
-    return Object.assign({}, this._i18n[page], {
+  getMetadata = (page: string): any =>
+    Object.assign({}, this._i18n[page], {
       scripts: {
         esm: metadata.esm[page],
         system: metadata.system[page],
@@ -33,7 +33,6 @@ export class AppService {
         system: metadata.system.global,
       },
     });
-  }
 
   /**
    * Returns the query string prefixed by ? or an empty string
@@ -42,8 +41,8 @@ export class AppService {
    *
    * @return {string} the query string prefixed by ? or an empty string
    */
-  buildQueryString(queryObject: any): string {
-    return !!Object.keys(queryObject).length
+  buildQueryString = (queryObject: any): string =>
+    !!Object.keys(queryObject).length
       ? [
           '?',
           Object.keys(queryObject)
@@ -54,5 +53,4 @@ export class AppService {
             .join('&'),
         ].join('')
       : '';
-  }
 }

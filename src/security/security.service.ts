@@ -35,7 +35,7 @@ export class SecurityService {
    *
    * @return {Observable<Buffer>} the hashed password in buffer format
    */
-  hashPassword(password: string): Observable<Buffer> {
+  hashPassword = (password: string): Observable<Buffer> => {
     const passwordConfig: PasswordConfig =
       Config.get<PasswordConfig>('security.password');
     return this._hashService.generate(
@@ -45,7 +45,7 @@ export class SecurityService {
       passwordConfig.keylen,
       passwordConfig.digest,
     );
-  }
+  };
 
   /**
    * Function to compare and validate password
@@ -53,14 +53,13 @@ export class SecurityService {
    * @param {string} password the value has validated
    * @param hash
    */
-  checkPassword(password: string, hash: Buffer): Observable<boolean> {
-    return this.hashPassword(password).pipe(
+  checkPassword = (password: string, hash: Buffer): Observable<boolean> =>
+    this.hashPassword(password).pipe(
       map(
         (hashPassword: Buffer) =>
           hashPassword.toString('hex') === hash.toString('hex'),
       ),
     );
-  }
 
   /**
    * Function to check if user is store in secure session and return it else throw an error
@@ -69,8 +68,10 @@ export class SecurityService {
    *
    * @return {Observable<boolean>} the flag to know if the user is logged in and store in the secure session
    */
-  checkIfUserIsLoggedIn(session: secureSession.Session): Observable<boolean> {
-    return of(this.getLoggedInUser(session)).pipe(
+  checkIfUserIsLoggedIn = (
+    session: secureSession.Session,
+  ): Observable<boolean> =>
+    of(this.getLoggedInUser(session)).pipe(
       mergeMap((obs: Observable<UserEntity>) =>
         merge(
           obs.pipe(
@@ -88,7 +89,6 @@ export class SecurityService {
         ),
       ),
     );
-  }
 
   /**
    * Function to check if user is store in secure session and return it else throw an error
@@ -98,11 +98,11 @@ export class SecurityService {
    *
    * @return {Observable<boolean>} the flag to know if the user who is logged in is the same than the resource updated
    */
-  checkIfUserIsOwner(
+  checkIfUserIsOwner = (
     session: secureSession.Session,
     userId: string,
-  ): Observable<boolean> {
-    return of(this.getLoggedInUser(session)).pipe(
+  ): Observable<boolean> =>
+    of(this.getLoggedInUser(session)).pipe(
       mergeMap((obs: Observable<UserEntity>) =>
         merge(
           obs.pipe(
@@ -123,7 +123,6 @@ export class SecurityService {
         ),
       ),
     );
-  }
 
   /**
    * Function to return the user stored in secure session
@@ -132,13 +131,12 @@ export class SecurityService {
    *
    * @return {Observable<UserEntity>} the entity representing the user in the secure session
    */
-  getLoggedInUser(session: secureSession.Session): Observable<UserEntity> {
-    return of(this.getLoggedInUserSync(session)).pipe(
+  getLoggedInUser = (session: secureSession.Session): Observable<UserEntity> =>
+    of(this.getLoggedInUserSync(session)).pipe(
       filter((user: UserEntity) => typeof user !== 'undefined'),
       map((user: UserEntity) => new UserEntity(user)),
       defaultIfEmpty(undefined),
     );
-  }
 
   /**
    * Function to return the user stored in secure session without any check
@@ -151,9 +149,8 @@ export class SecurityService {
    *
    * @return {UserEntity} the entity representing the user in the secure session
    */
-  getLoggedInUserSync(session: secureSession.Session): UserEntity {
-    return this.getSessionData(session, 'user');
-  }
+  getLoggedInUserSync = (session: secureSession.Session): UserEntity =>
+    this.getSessionData(session, 'user');
 
   /**
    * Function to set key/value in secure session
@@ -162,13 +159,11 @@ export class SecurityService {
    * @param {string} key of the new value to store in the secure session
    * @param {any} value to store in the secure session
    */
-  setSessionData(
+  setSessionData = (
     session: secureSession.Session,
     key: string,
     value: any,
-  ): void {
-    session.set(key, value);
-  }
+  ): void => session.set(key, value);
 
   /**
    * Function to return value in secure session for the given key
@@ -178,9 +173,8 @@ export class SecurityService {
    *
    * @return {any} value stored in the secure session associated to the given key
    */
-  getSessionData(session: secureSession.Session, key: string): any {
-    return session.get(key);
-  }
+  getSessionData = (session: secureSession.Session, key: string): any =>
+    session.get(key);
 
   /**
    * Function to delete key/value in secure session
@@ -188,21 +182,19 @@ export class SecurityService {
    * @param {secureSession.Session} session the current secure session instance
    * @param {string} key of the value stored in the secure session
    */
-  cleanSessionData(session: secureSession.Session, key: string): void {
+  cleanSessionData = (session: secureSession.Session, key: string): void => {
     const data = this.getSessionData(session, key);
     if (typeof data !== 'undefined') {
       this.setSessionData(session, key, undefined);
     }
-  }
+  };
 
   /**
    * Function to delete the secure session
    *
    * @param {secureSession.Session} session the current secure session instance
    */
-  deleteSession(session: secureSession.Session): void {
-    session.delete();
-  }
+  deleteSession = (session: secureSession.Session): void => session.delete();
 
   /**
    * Function to check if the value in session in the one expected
@@ -212,11 +204,11 @@ export class SecurityService {
    *
    * @return {Observable<boolean>} the flag to know if the data in the secure session is good
    */
-  checkSessionData(
+  checkSessionData = (
     session: secureSession.Session,
     data: SessionData,
-  ): Observable<boolean> {
-    return of(of(data)).pipe(
+  ): Observable<boolean> =>
+    of(of(data)).pipe(
       mergeMap((obs: Observable<SessionData>) =>
         merge(
           obs.pipe(
@@ -242,7 +234,6 @@ export class SecurityService {
         ),
       ),
     );
-  }
 
   /**
    * Function to check if the webauthn value in session in the one expected
@@ -252,11 +243,11 @@ export class SecurityService {
    *
    * @return {Observable<boolean>} the flag to know if the data in the secure session is good
    */
-  checkWebAuthnSessionData(
+  checkWebAuthnSessionData = (
     session: secureSession.Session,
     type: 'webauthn_attestation' | 'webauthn_assertion',
-  ): Observable<boolean> {
-    return of(of(type)).pipe(
+  ): Observable<boolean> =>
+    of(of(type)).pipe(
       mergeMap(
         (obs: Observable<'webauthn_attestation' | 'webauthn_assertion'>) =>
           merge(
@@ -316,14 +307,14 @@ export class SecurityService {
           ),
       ),
     );
-  }
 
   /**
    * Function to generate 64 bytes random string
    *
    * @return {Observable<string>} the random user handle string
    */
-  generateUserHandle(): Observable<string> {
-    return this._randomStringService.generate(64);
-  }
+  generateUserHandle = (): Observable<string> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._randomStringService.generate(64);
 }

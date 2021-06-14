@@ -277,6 +277,7 @@ export class WebAuthnService {
     assertion: VerifyAssertionDto,
     session: secureSession.Session,
   ): Observable<UserEntity> {
+    console.log(assertion.response.userHandle);
     return this._credentialService
       .findCredentialByUserHandle(Buffer.from(assertion.response.userHandle))
       .pipe(

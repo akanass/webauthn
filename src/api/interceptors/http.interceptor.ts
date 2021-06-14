@@ -23,7 +23,10 @@ export class HttpInterceptor implements NestInterceptor {
    * @param context
    * @param next
    */
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept = (
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Observable<any> => {
     const cls = context.getClass();
     const handler = context.getHandler();
     const response: FastifyReply = context
@@ -46,10 +49,10 @@ export class HttpInterceptor implements NestInterceptor {
           ),
         ),
       ),
-      tap(
-        (_) => this._logger.log('success', logCtx),
-        (_) => this._logger.error(_.message, JSON.stringify(_), logCtx),
-      ),
+      tap({
+        next: () => this._logger.log('success', logCtx),
+        error: (_) => this._logger.error(_.message, JSON.stringify(_), logCtx),
+      }),
     );
-  }
+  };
 }

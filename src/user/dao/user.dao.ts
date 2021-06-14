@@ -25,11 +25,12 @@ export class UserDao {
    *
    * @return {Observable<User | void>} user or undefined if not found
    */
-  findByUsername(username: string): Observable<User | void> {
-    return from(this._userModel.findOne({ username })).pipe(
+  findByUsername = (username: string): Observable<User | void> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    from(this._userModel.findOne({ username })).pipe(
       map((doc: UserDocument) => (!!doc ? doc.toJSON() : undefined)),
     );
-  }
 
   /**
    * Find an user by his id
@@ -38,11 +39,12 @@ export class UserDao {
    *
    * @return {Observable<User | void>} user or undefined if not found
    */
-  findById(id: string): Observable<User | void> {
-    return from(this._userModel.findById(id)).pipe(
+  findById = (id: string): Observable<User | void> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    from(this._userModel.findById(id)).pipe(
       map((doc: UserDocument) => (!!doc ? doc.toJSON() : undefined)),
     );
-  }
 
   /**
    * Update last access time for the given user id
@@ -51,9 +53,8 @@ export class UserDao {
    *
    * @return {Observable<User | void>} updated user or undefined if not found
    */
-  updateLastAccessTime(id: string): Observable<User | void> {
-    return this.patch(id, { last_access_time: new Date().getTime() });
-  }
+  updateLastAccessTime = (id: string): Observable<User | void> =>
+    this.patch(id, { last_access_time: new Date().getTime() });
 
   /**
    * Patch the user for the given user id with the given patch values
@@ -63,17 +64,18 @@ export class UserDao {
    *
    * @return {Observable<User | void>} patched user or undefined if not found
    */
-  patch(
+  patch = (
     id: string,
     patch: Partial<PatchUserDto & { last_access_time: number }>,
-  ): Observable<User | void> {
-    return from(
+  ): Observable<User | void> =>
+    from(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       this._userModel.findByIdAndUpdate(id, patch, {
         new: true,
         runValidators: true,
       }),
     ).pipe(map((doc: UserDocument) => (!!doc ? doc.toJSON() : undefined)));
-  }
 
   /**
    * Create a new user
@@ -82,11 +84,12 @@ export class UserDao {
    *
    * @return {Observable<User>} new user created
    */
-  save(
+  save = (
     user: Omit<CreateUserDto, 'password'> & { password_hash: Buffer },
-  ): Observable<User> {
-    return from(new this._userModel(user).save()).pipe(
+  ): Observable<User> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    from(new this._userModel(user).save()).pipe(
       map((doc: UserDocument) => doc.toJSON()),
     );
-  }
 }

@@ -39,10 +39,12 @@ export class CredentialService {
    *
    * @return {Observable<Credential[] | void>} list of credentials or undefined if not found
    */
-  findCredentialsForUser(
+  findCredentialsForUser = (
     userId: string,
-  ): Observable<CredentialEntity[] | void> {
-    return this._credentialDao.findAllByUserId(userId).pipe(
+  ): Observable<CredentialEntity[] | void> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._credentialDao.findAllByUserId(userId).pipe(
       catchError((e) =>
         throwError(() => new UnprocessableEntityException(e.message)),
       ),
@@ -54,7 +56,6 @@ export class CredentialService {
       ),
       defaultIfEmpty(undefined),
     );
-  }
 
   /**
    * Returns all credentials for the given user and authenticator attachment
@@ -64,11 +65,13 @@ export class CredentialService {
    *
    * @return {Observable<Credential[] | void>} list of credentials or undefined if not found
    */
-  findCredentialsForUserWithAuthenticatorAttachment(
+  findCredentialsForUserWithAuthenticatorAttachment = (
     userId: string,
     authenticatorAttachment: AuthenticatorAttachment,
-  ): Observable<CredentialEntity[] | void> {
-    return this._credentialDao
+  ): Observable<CredentialEntity[] | void> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._credentialDao
       .findAllByUserIdAndAuthenticatorAttachment(
         userId,
         authenticatorAttachment,
@@ -85,7 +88,6 @@ export class CredentialService {
         ),
         defaultIfEmpty(undefined),
       );
-  }
 
   /**
    * Patch the credential for the given credential id and user id with the given patch values
@@ -96,12 +98,14 @@ export class CredentialService {
    *
    * @return {Observable<Credential>} patched credential
    */
-  patch(
+  patch = (
     id: string,
     userId: string,
     patch: PatchCredentialDto,
-  ): Observable<CredentialEntity> {
-    return this._credentialDao.updateCredentialName(id, userId, patch).pipe(
+  ): Observable<CredentialEntity> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._credentialDao.updateCredentialName(id, userId, patch).pipe(
       catchError((e) =>
         throwError(() => new UnprocessableEntityException(e.message)),
       ),
@@ -117,7 +121,6 @@ export class CredentialService {
       ),
       map((credential: Credential) => new CredentialEntity(credential)),
     );
-  }
 
   /**
    * Remove the credential for the given credential id and user id
@@ -127,8 +130,10 @@ export class CredentialService {
    *
    * @return {Observable<void>}
    */
-  remove(id: string, userId: string): Observable<void> {
-    return this._credentialDao.findByIdAndUserIdThenRemove(id, userId).pipe(
+  remove = (id: string, userId: string): Observable<void> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._credentialDao.findByIdAndUserIdThenRemove(id, userId).pipe(
       catchError((e) =>
         throwError(() => new UnprocessableEntityException(e.message)),
       ),
@@ -143,7 +148,6 @@ export class CredentialService {
             ),
       ),
     );
-  }
 
   /**
    * Function to create credential in database
@@ -152,8 +156,10 @@ export class CredentialService {
    *
    * {Observable<CredentialEntity>} the entity representing the new credential
    */
-  create(credential: Credential): Observable<CredentialEntity> {
-    return this._credentialDao.save(credential).pipe(
+  create = (credential: Credential): Observable<CredentialEntity> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._credentialDao.save(credential).pipe(
       catchError((e) =>
         e.code === 11000
           ? throwError(
@@ -166,7 +172,6 @@ export class CredentialService {
       ),
       map((credential: Credential) => new CredentialEntity(credential)),
     );
-  }
 
   /**
    * Returns credential for the given user handle
@@ -175,10 +180,12 @@ export class CredentialService {
    *
    * @return {Observable<CredentialEntity | void>} credential or undefined if not found
    */
-  findCredentialByUserHandle(
+  findCredentialByUserHandle = (
     userHandle: Buffer,
-  ): Observable<CredentialEntity | void> {
-    return this._credentialDao.findByUserHandle(userHandle).pipe(
+  ): Observable<CredentialEntity | void> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._credentialDao.findByUserHandle(userHandle).pipe(
       catchError((e) =>
         throwError(() => new UnprocessableEntityException(e.message)),
       ),
@@ -186,7 +193,6 @@ export class CredentialService {
       map((credential: Credential) => new CredentialEntity(credential)),
       defaultIfEmpty(undefined),
     );
-  }
 
   /**
    *
@@ -195,27 +201,26 @@ export class CredentialService {
    *
    * @return {Observable<Credential>} patched credential
    */
-  updateLoginData(
+  updateLoginData = (
     credentialId: Buffer,
     signatureCount: number,
-  ): Observable<CredentialEntity | void> {
-    return this._credentialDao
-      .updateLoginData(credentialId, signatureCount)
-      .pipe(
-        catchError((e) =>
-          throwError(() => new UnprocessableEntityException(e.message)),
-        ),
-        mergeMap((credential: Credential) =>
-          !!credential
-            ? of(credential)
-            : throwError(
-                () =>
-                  new PreconditionFailedException(
-                    'An error occurred during webauthn login process',
-                  ),
-              ),
-        ),
-        map((credential: Credential) => new CredentialEntity(credential)),
-      );
-  }
+  ): Observable<CredentialEntity | void> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._credentialDao.updateLoginData(credentialId, signatureCount).pipe(
+      catchError((e) =>
+        throwError(() => new UnprocessableEntityException(e.message)),
+      ),
+      mergeMap((credential: Credential) =>
+        !!credential
+          ? of(credential)
+          : throwError(
+              () =>
+                new PreconditionFailedException(
+                  'An error occurred during webauthn login process',
+                ),
+            ),
+      ),
+      map((credential: Credential) => new CredentialEntity(credential)),
+    );
 }

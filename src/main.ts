@@ -22,14 +22,14 @@ import { ApiModule } from './api/api.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { SessionConfig } from './interfaces/security-config.interface';
 
-async function bootstrap(
+const bootstrap = async (
   config: ServerConfig,
   views: ViewsConfig,
   assets: AssetsConfig,
   pipes: PipesConfig,
   swagger: SwaggerConfig,
   session: SessionConfig,
-) {
+) => {
   // create NestJS application
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
@@ -141,7 +141,7 @@ async function bootstrap(
     }://${config.host}:${config.port}`,
     'bootstrap',
   );
-}
+};
 
 bootstrap(
   Config.get<ServerConfig>('server'),

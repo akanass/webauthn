@@ -36,8 +36,10 @@ export class UserService {
    *
    * @return {Observable<UserEntity>} the entity representing the logged in user
    */
-  login(loginUser: LoginUserDto): Observable<UserEntity> {
-    return this._userDao.findByUsername(loginUser.username).pipe(
+  login = (loginUser: LoginUserDto): Observable<UserEntity> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._userDao.findByUsername(loginUser.username).pipe(
       catchError((e) =>
         throwError(() => new UnprocessableEntityException(e.message)),
       ),
@@ -51,6 +53,8 @@ export class UserService {
       ),
       map((user: User) => ({
         user,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         passwordIsValid: this._securityService.checkPassword(
           loginUser.password,
           Buffer.from(user.password_hash),
@@ -76,6 +80,8 @@ export class UserService {
         ),
       ),
       mergeMap((user: User & { id: string }) =>
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         this._userDao.updateLastAccessTime(user.id).pipe(
           catchError((e) =>
             throwError(() => new UnprocessableEntityException(e.message)),
@@ -95,7 +101,6 @@ export class UserService {
       tap((user: User) => delete user.password_hash),
       map((user: User) => new UserEntity(user)),
     );
-  }
 
   /**
    * Function to create a new user in the database
@@ -104,8 +109,10 @@ export class UserService {
    *
    * @return {Observable<UserEntity>} the entity representing the new user
    */
-  create(user: CreateUserDto): Observable<UserEntity> {
-    return this._securityService.hashPassword(user.password).pipe(
+  create = (user: CreateUserDto): Observable<UserEntity> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._securityService.hashPassword(user.password).pipe(
       map((hashPassword: Buffer) => ({
         username: user.username,
         display_name: user.display_name,
@@ -113,6 +120,8 @@ export class UserService {
       })),
       mergeMap(
         (_: Omit<CreateUserDto, 'password'> & { password_hash: Buffer }) =>
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           this._userDao.save(_),
       ),
       catchError((e) =>
@@ -128,7 +137,6 @@ export class UserService {
       tap((user: User) => delete user.password_hash),
       map((user: User) => new UserEntity(user)),
     );
-  }
 
   /**
    * Function to patch an user in the database
@@ -138,8 +146,8 @@ export class UserService {
    *
    * @return {Observable<UserEntity>} the entity representing the patched user
    */
-  patch(id: string, user: PatchUserDto): Observable<UserEntity> {
-    return of(of(user)).pipe(
+  patch = (id: string, user: PatchUserDto): Observable<UserEntity> =>
+    of(of(user)).pipe(
       mergeMap((obs: Observable<PatchUserDto>) =>
         merge(
           obs.pipe(
@@ -147,6 +155,8 @@ export class UserService {
               (_: PatchUserDto) =>
                 typeof _ !== 'undefined' && Object.keys(_).length > 0,
             ),
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             mergeMap((_: PatchUserDto) => this._userDao.patch(id, _)),
             catchError((e) =>
               e.code === 11000 && !!user.username
@@ -188,7 +198,6 @@ export class UserService {
         ),
       ),
     );
-  }
 
   /**
    * Function to login an user by webauthn
@@ -197,8 +206,10 @@ export class UserService {
    *
    * @return {Observable<UserEntity>} the entity representing the logged in user
    */
-  webAuthnLogin(id: string): Observable<UserEntity> {
-    return this._userDao.findById(id).pipe(
+  webAuthnLogin = (id: string): Observable<UserEntity> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._userDao.findById(id).pipe(
       catchError((e) =>
         throwError(() => new UnprocessableEntityException(e.message)),
       ),
@@ -213,6 +224,8 @@ export class UserService {
             ),
       ),
       mergeMap((user: User & { id: string }) =>
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         this._userDao.updateLastAccessTime(user.id).pipe(
           catchError((e) =>
             throwError(() => new UnprocessableEntityException(e.message)),
@@ -232,5 +245,4 @@ export class UserService {
       tap((user: User) => delete user.password_hash),
       map((user: User) => new UserEntity(user)),
     );
-  }
 }

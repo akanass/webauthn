@@ -28,9 +28,11 @@ export class OwnerGuard implements CanActivate {
    *
    * @return {Observable<boolean>} flag to know if we can access to the resource
    */
-  canActivate(context: ExecutionContext): Observable<boolean> {
-    return of(context.switchToHttp().getRequest()).pipe(
+  canActivate = (context: ExecutionContext): Observable<boolean> =>
+    of(context.switchToHttp().getRequest()).pipe(
       mergeMap((request: any) =>
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         this._securityService.checkIfUserIsOwner(
           request.session,
           request.params?.id,
@@ -45,5 +47,4 @@ export class OwnerGuard implements CanActivate {
         return throwError(() => err);
       }),
     );
-  }
 }

@@ -26,13 +26,13 @@ export class Api {
   /**
    * Method returns new singleton instance
    */
-  static instance(): Api {
+  static instance = (): Api => {
     if (!(Api._instance instanceof Api)) {
       Api._instance = new Api();
     }
 
     return Api._instance;
-  }
+  };
 
   /**
    * Function to log in an user by username/password
@@ -40,8 +40,8 @@ export class Api {
    * @param {string} username of the user who wants to log in
    * @param {string} password of the user who wants to log in
    */
-  login(username: string, password: string): Observable<User> {
-    return ajax({
+  login = (username: string, password: string): Observable<User> =>
+    ajax({
       url: '/api/login',
       method: 'POST',
       headers: {
@@ -52,27 +52,24 @@ export class Api {
         password,
       },
     }).pipe(map((resp: AjaxResponse<User>) => new User(resp.response)));
-  }
 
   /**
    * Function to return logged-in user
    */
-  loggedIn(): Observable<User> {
-    return ajax({
+  loggedIn = (): Observable<User> =>
+    ajax({
       url: '/api/logged-in',
       method: 'GET',
     }).pipe(map((resp: AjaxResponse<User>) => new User(resp.response)));
-  }
 
   /**
    * Function to delete the session
    */
-  logout(): Observable<void> {
-    return ajax({
+  logout = (): Observable<void> =>
+    ajax({
       url: `/api/delete-session`,
       method: 'DELETE',
     }).pipe(map((resp: AjaxResponse<void>) => resp.response));
-  }
 
   /**
    * Function to patch user value
@@ -82,8 +79,8 @@ export class Api {
    *
    * @return {Observable<User>} the new instance of the user with the patched value
    */
-  patchUser(userId: string, partial: any): Observable<User> {
-    return ajax({
+  patchUser = (userId: string, partial: any): Observable<User> =>
+    ajax({
       url: `/api/users/${userId}`,
       method: 'PATCH',
       headers: {
@@ -91,15 +88,14 @@ export class Api {
       },
       body: partial,
     }).pipe(map((resp: AjaxResponse<User>) => new User(resp.response)));
-  }
 
   /**
    * Function to patch session value
    *
    * @param {any} partial session object to patch it
    */
-  patchSession(partial: { key: string; value: any }): Observable<void> {
-    return ajax({
+  patchSession = (partial: { key: string; value: any }): Observable<void> =>
+    ajax({
       url: `/api/set-session-data`,
       method: 'PATCH',
       headers: {
@@ -107,15 +103,14 @@ export class Api {
       },
       body: partial,
     }).pipe(map((resp: AjaxResponse<void>) => resp.response));
-  }
 
   /**
    * Function to clean session value
    *
    * @param {any} partial session key to clear it
    */
-  cleanSession(partial: { key: string }): Observable<void> {
-    return ajax({
+  cleanSession = (partial: { key: string }): Observable<void> =>
+    ajax({
       url: `/api/clean-session-data`,
       method: 'PATCH',
       headers: {
@@ -123,7 +118,6 @@ export class Api {
       },
       body: partial,
     }).pipe(map((resp: AjaxResponse<void>) => resp.response));
-  }
 
   /**
    * Function to get all credentials for current user
@@ -132,8 +126,8 @@ export class Api {
    *
    * @return {Observable<CredentialsList>} list of all credentials
    */
-  getCredentialsList(userId: string): Observable<CredentialsList> {
-    return ajax({
+  getCredentialsList = (userId: string): Observable<CredentialsList> =>
+    ajax({
       url: `/api/users/${userId}/credentials`,
       method: 'GET',
     }).pipe(
@@ -142,7 +136,6 @@ export class Api {
           new CredentialsList(resp.response),
       ),
     );
-  }
 
   /**
    * Function to patch user value
@@ -153,12 +146,12 @@ export class Api {
    *
    * @return {Observable<Credential>} the new instance of the credential with the patched value
    */
-  patchCredential(
+  patchCredential = (
     userId: string,
     credentialId: string,
     partial: { name: string },
-  ): Observable<Credential> {
-    return ajax({
+  ): Observable<Credential> =>
+    ajax({
       url: `/api/users/${userId}/credentials/${credentialId}`,
       method: 'PATCH',
       headers: {
@@ -168,7 +161,6 @@ export class Api {
     }).pipe(
       map((resp: AjaxResponse<Credential>) => new Credential(resp.response)),
     );
-  }
 
   /**
    * Function to delete the credential
@@ -178,12 +170,11 @@ export class Api {
    *
    * return {Observable<void>}
    */
-  deleteCredential(userId: string, credentialId: string): Observable<void> {
-    return ajax({
+  deleteCredential = (userId: string, credentialId: string): Observable<void> =>
+    ajax({
       url: `/api/users/${userId}/credentials/${credentialId}`,
       method: 'DELETE',
     }).pipe(map((resp: AjaxResponse<void>) => resp.response));
-  }
 
   /**
    * Function to start webauthn attestation
@@ -192,10 +183,10 @@ export class Api {
    *
    * @return {Observable<PublicKeyCredentialCreationOptionsJSON>} attestation options object
    */
-  startAttestation(authenticatorAttachment: {
+  startAttestation = (authenticatorAttachment: {
     authenticator_attachment: AuthenticatorAttachment;
-  }): Observable<PublicKeyCredentialCreationOptionsJSON> {
-    return ajax({
+  }): Observable<PublicKeyCredentialCreationOptionsJSON> =>
+    ajax({
       url: `/api/webauthn/register/start`,
       method: 'POST',
       headers: {
@@ -208,7 +199,6 @@ export class Api {
           resp.response,
       ),
     );
-  }
 
   /**
    * Function to verify webauthn attestation
@@ -217,10 +207,10 @@ export class Api {
    *
    * @return {Observable<Credential>} the new credential created with this attestation
    */
-  verifyAttestation(
+  verifyAttestation = (
     attestation: AttestationCredentialJSON,
-  ): Observable<Credential> {
-    return ajax({
+  ): Observable<Credential> =>
+    ajax({
       url: `/api/webauthn/register/finish`,
       method: 'POST',
       headers: {
@@ -230,15 +220,14 @@ export class Api {
     }).pipe(
       map((resp: AjaxResponse<Credential>) => new Credential(resp.response)),
     );
-  }
 
   /**
    * Function to start webauthn assertion
    *
    * @return {Observable<PublicKeyCredentialRequestOptionsJSON>} assertion options object
    */
-  startAssertion(): Observable<PublicKeyCredentialRequestOptionsJSON> {
-    return ajax({
+  startAssertion = (): Observable<PublicKeyCredentialRequestOptionsJSON> =>
+    ajax({
       url: `/api/webauthn/verify/start`,
       method: 'GET',
     }).pipe(
@@ -247,7 +236,6 @@ export class Api {
           resp.response,
       ),
     );
-  }
 
   /**
    * Function to verify webauthn attestation
@@ -256,8 +244,8 @@ export class Api {
    *
    * @return {Observable<Credential>} the user logged in with this assertion
    */
-  verifyAssertion(assertion: AssertionCredentialJSON): Observable<User> {
-    return ajax({
+  verifyAssertion = (assertion: AssertionCredentialJSON): Observable<User> =>
+    ajax({
       url: `/api/webauthn/verify/finish`,
       method: 'POST',
       headers: {
@@ -265,7 +253,6 @@ export class Api {
       },
       body: assertion,
     }).pipe(map((resp: AjaxResponse<User>) => new User(resp.response)));
-  }
 }
 
 // export singleton instance

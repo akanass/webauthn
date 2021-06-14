@@ -35,13 +35,13 @@ export class WebAuthn {
   /**
    * Method returns new singleton instance
    */
-  static instance(): WebAuthn {
+  static instance = (): WebAuthn => {
     if (!(WebAuthn._instance instanceof WebAuthn)) {
       WebAuthn._instance = new WebAuthn();
     }
 
     return WebAuthn._instance;
-  }
+  };
 
   /**
    * Function to pass options to the authenticator through webauthn protocol to register it
@@ -50,11 +50,10 @@ export class WebAuthn {
    *
    * @return {Observable<AttestationCredentialJSON>} attestation response object to be verified by the server
    */
-  startAttestation(
+  startAttestation = (
     creationOptionsJSON: PublicKeyCredentialCreationOptionsJSON,
-  ): Observable<AttestationCredentialJSON> {
-    return from(startAttestation(creationOptionsJSON));
-  }
+  ): Observable<AttestationCredentialJSON> =>
+    from(startAttestation(creationOptionsJSON));
 
   /**
    * Function to pass options to the authenticator through webauthn protocol to verify it
@@ -63,11 +62,10 @@ export class WebAuthn {
    *
    * @return {Observable<AssertionCredentialJSON>} assertion response object to be verified by the server
    */
-  startAssertion(
+  startAssertion = (
     requestOptionsJSON: PublicKeyCredentialRequestOptionsJSON,
-  ): Observable<AssertionCredentialJSON> {
-    return from(startAssertion(requestOptionsJSON));
-  }
+  ): Observable<AssertionCredentialJSON> =>
+    from(startAssertion(requestOptionsJSON));
 }
 
 // export singleton instance

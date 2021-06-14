@@ -61,16 +61,16 @@ export class CredentialsList {
    *
    * @param {Credential} credential to add in the security keys array
    */
-  addSecurityKey(credential: Credential): void {
+  addSecurityKey = (credential: Credential): void => {
     this._securityKeys = this._securityKeys.concat(credential);
-  }
+  };
 
   /**
    * Add new biometric in array
    *
    * @param {Credential} credential to add in the biometrics array
    */
-  addBiometrics(credential: Credential): void {
+  addBiometrics = (credential: Credential): void => {
     this._biometrics = this._biometrics.concat(credential);
-  }
+  };
 }

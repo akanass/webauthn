@@ -33,20 +33,20 @@ export class Template {
   /**
    * Method returns new singleton instance
    */
-  static instance(): Template {
+  static instance = (): Template => {
     if (!(Template._instance instanceof Template)) {
       Template._instance = new Template();
     }
 
     return Template._instance;
-  }
+  };
 
   /**
    * Returns HTML of the credentials list
    *
    * @param {Credential[]} credentials to be displayed in the page
    */
-  generateCredentialsList(credentials: Credential[]): string {
+  generateCredentialsList = (credentials: Credential[]): string => {
     if (!credentials || credentials.length === 0) {
       return this._credentialsListEmptyTpl;
     }
@@ -66,7 +66,7 @@ export class Template {
           ),
       )
       .join('');
-  }
+  };
 
   /**
    * Function to handle webauthn dialog process
@@ -77,13 +77,13 @@ export class Template {
    * @param {function} onClosing callback to execute on 'MDCDialog:closing' event
    * @param {function} onClosed callback to execute on 'MDCDialog:closed' event
    */
-  openDialog(
+  openDialog = (
     dialog: MDCDialog,
     onOpening?: () => void,
     onOpened?: () => void,
     onClosing?: (e: CustomEvent) => void,
     onClosed?: (e: CustomEvent) => void,
-  ): void {
+  ): void => {
     // set listener on MDCDialog:opening
     if (!!onOpening) {
       dialog.listen('MDCDialog:opening', onOpening, { once: true });
@@ -106,7 +106,7 @@ export class Template {
 
     // open the dialog
     dialog.open();
-  }
+  };
 }
 
 // export singleton instance

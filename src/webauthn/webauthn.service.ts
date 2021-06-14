@@ -285,9 +285,10 @@ export class WebAuthnService {
   finishAssertion = (
     assertion: VerifyAssertionDto,
     session: secureSession.Session,
-  ): Observable<UserEntity> => {
-    console.log(assertion.response.userHandle);
-    return this._credentialService
+  ): Observable<UserEntity> =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this._credentialService
       .findCredentialByUserHandle(Buffer.from(assertion.response.userHandle))
       .pipe(
         mergeMap((credential: CredentialEntity) =>
@@ -304,6 +305,8 @@ export class WebAuthnService {
           forkJoin([
             of(credential),
             of(
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               this._securityService.getSessionData(
                 session,
                 'webauthn_assertion',
@@ -368,14 +371,17 @@ export class WebAuthnService {
               ),
         ),
         mergeMap((_: VerifiedAssertion) =>
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           this._credentialService.updateLoginData(
             _.assertionInfo.credentialID,
             _.assertionInfo.newCounter,
           ),
         ),
         mergeMap((credential: CredentialEntity) =>
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           this._userService.webAuthnLogin(credential.user_id),
         ),
       );
-  };
 }

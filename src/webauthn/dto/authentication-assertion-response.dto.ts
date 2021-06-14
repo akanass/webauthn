@@ -38,8 +38,7 @@ export class AuthenticationAssertionResponseDto {
   @ApiProperty({
     name: 'userHandle',
     description: 'User handle in utf-8 string',
-    example:
-      'UVk1bmFZOWo5c3hLcVpSNW1KUTBENEZhUEZhVkJjQWFtZHc2QWk3cUJKbmhIWXJuck9KcjNZTVRJY3hjYzJ0Nw',
+    example: 'PdDIDkL7TR0GfV8OHAJYOrSxujcdNEuqMoXgo8VFk9BGSYGcTLC7PLq7msqvefvd',
   })
   @IsString()
   @IsOptional()

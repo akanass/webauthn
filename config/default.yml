@@ -34,7 +34,7 @@ views:
       webauthn-dialog-verify: _webauthn_dialog_content_verify.hbs
       webauthn-dialog-edit: _webauthn_dialog_content_edit.hbs
   defaultContext:
-    title: Fido2 WebAuthn + OpenID Connect
+    title: Fido2 WebAuthn
   i18n:
     login:
       headerTitle: Login Has Never Been Easier-Or Safer!
@@ -131,9 +131,9 @@ pipes:
     forbidNonWhitelisted: true
 
 swagger:
-  title: Fido2 WebAuthn + OpenID Connect
+  title: Fido2 WebAuthn
   description: API description
-  version: 0.1.0
+  version: 0.3.0
   tag: api
   path: documentation
 

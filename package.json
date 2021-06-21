@@ -1,7 +1,7 @@
 {
-  "name": "webauthn-openidconnect",
+  "name": "webauthn",
   "version": "0.3.0",
-  "description": "",
+  "description": "Fido2 Relying Party - WebAuthn protocol is integrated for usernameless/passwordless authentication",
   "author": "Nicolas Jessel <akanass@icloud.com>",
   "private": true,
   "license": "MIT",
@@ -38,7 +38,6 @@
     "html-minifier-terser": "^5.1.1",
     "js-yaml": "^4.1.0",
     "mongoose": "^5.12.14",
-    "oidc-provider": "^7.4.1",
     "point-of-view": "^4.15.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.1.0",

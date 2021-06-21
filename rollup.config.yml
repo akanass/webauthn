@@ -26,7 +26,6 @@
     - name: nodeResolve
       api:
         mainFields:
-          - main:es2018
           - es2015
           - module
           - main

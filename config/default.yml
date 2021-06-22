@@ -151,7 +151,7 @@ security:
     keylen: 24
     digest: sha512
   session:
-    cookieName: webauthn_openidconnect_server_session
+    cookieName: webauthn_server_session
     secret: KubSwPuVTZf1qGIrNymxTbOwye8QxFwMGv14rZmvNYK1kdkzkkGvFWdKDoeGsS9iP
     salt: uJapbvAN6lkYxFwM
     cookie:

@@ -100,7 +100,7 @@ const authenticationProcess = () => {
           if (!user.skipAuthenticatorRegistration) {
             window.location.href = '/login/authenticator';
           } else {
-            window.location.href = '/end'; // TODO THIS IS THE END OF THE PROCESS FOR NOW - SHOULD BE AN OIDC STEP
+            window.location.href = '/end';
           }
         },
         error: (err: AjaxError) => {

@@ -171,7 +171,6 @@ const startOrSkipEnrollmentProcess = () => {
             ),
           )
           .subscribe({
-            // TODO THIS IS THE END OF THE PROCESS FOR NOW - SHOULD BE AN OIDC STEP
             next: () => (window.location.href = '/end'),
             error: (err: AjaxError) => manageApiError(err, userSubscription),
             // delete previous subscription to memory free

@@ -116,7 +116,7 @@ export class WebAuthnService {
             ? _.credentials.map((credential: CredentialEntity) => ({
                 id: credential.credential_id,
                 transports: credential.transports,
-                type: 'public-key',
+                type: credential.type,
               }))
             : [],
         }),
